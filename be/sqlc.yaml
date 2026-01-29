@@ -1,0 +1,27 @@
+version: "2"
+
+sql:
+  - engine: "postgresql"
+
+    # goose migrations (used as schema source)
+    schema: "internal/db/migrations"
+
+    # handwritten queries
+    queries: "internal/db/queries"
+
+    gen:
+      go:
+        # package name for generated code
+        package: "sqlc"
+
+        # where sqlc will generate files
+        out: "internal/db/sqlc"
+
+        # use pgx (not database/sql)
+        sql_package: "pgx/v5"
+
+        # helpful defaults
+        emit_json_tags: true
+        emit_interface: true
+        emit_exact_table_names: false
+        emit_empty_slices: true

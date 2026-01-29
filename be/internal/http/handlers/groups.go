@@ -1,0 +1,216 @@
+package handlers
+
+import (
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+
+	"github.com/dhruvsaxena1998/splitplus/internal/http/middleware"
+	"github.com/dhruvsaxena1998/splitplus/internal/http/response"
+	"github.com/dhruvsaxena1998/splitplus/internal/service"
+)
+
+// Request structs
+
+type CreateGroupRequest struct {
+	Name         string `json:"name" validate:"required,min=1,max=100"`
+	Description  string `json:"description" validate:"max=500"`
+	CurrencyCode string `json:"currency_code" validate:"omitempty,len=3"`
+}
+
+
+
+// Response structs
+
+type CreateGroupResponse struct {
+	ID           pgtype.UUID `json:"id"`
+	Name         string      `json:"name"`
+	Description  string      `json:"description,omitempty"`
+	CurrencyCode string      `json:"currency_code"`
+	CreatedAt    string      `json:"created_at"`
+	Role         string      `json:"role"`
+}
+
+type GroupMemberResponse struct {
+	ID        pgtype.UUID `json:"id"`
+	GroupID   pgtype.UUID `json:"group_id"`
+	UserID    pgtype.UUID `json:"user_id"`
+	Role      string      `json:"role"`
+	Status    string      `json:"status"`
+	InvitedAt string      `json:"invited_at,omitempty"`
+	JoinedAt  string      `json:"joined_at,omitempty"`
+}
+
+type GroupMemberWithUserResponse struct {
+	ID        pgtype.UUID `json:"id"`
+	GroupID   pgtype.UUID `json:"group_id"`
+	UserID    pgtype.UUID `json:"user_id"`
+	Role      string      `json:"role"`
+	Status    string      `json:"status"`
+	InvitedAt string      `json:"invited_at,omitempty"`
+	JoinedAt  string      `json:"joined_at,omitempty"`
+	User      UserInfo    `json:"user"`
+}
+
+type UserInfo struct {
+	Email     string `json:"email"`
+	Name      string `json:"name,omitempty"`
+	AvatarURL string `json:"avatar_url,omitempty"`
+}
+
+type UserGroupResponse struct {
+	ID             pgtype.UUID `json:"id"`
+	Name           string      `json:"name"`
+	Description    string      `json:"description,omitempty"`
+	CurrencyCode   string      `json:"currency_code"`
+	CreatedAt      string      `json:"created_at"`
+	MembershipID   pgtype.UUID `json:"membership_id"`
+	MemberRole     string      `json:"member_role"`
+	MemberStatus   string      `json:"member_status"`
+	MemberJoinedAt string      `json:"member_joined_at,omitempty"`
+}
+
+// Handlers
+
+func CreateGroupHandler(groupService service.GroupService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		req, ok := middleware.GetBody[CreateGroupRequest](r)
+		if !ok {
+			response.SendError(w, http.StatusInternalServerError, "invalid request context")
+			return
+		}
+
+		userID, ok := middleware.GetUserID(r)
+		if !ok {
+			response.SendError(w, http.StatusUnauthorized, "unauthorized")
+			return
+		}
+
+		result, err := groupService.CreateGroup(r.Context(), service.CreateGroupInput{
+			Name:         req.Name,
+			Description:  req.Description,
+			CurrencyCode: req.CurrencyCode,
+			CreatedBy:    userID,
+		})
+		if err != nil {
+			statusCode := http.StatusBadRequest
+			switch err {
+			case service.ErrInvalidGroupName:
+				statusCode = http.StatusUnprocessableEntity
+			}
+			response.SendError(w, statusCode, err.Error())
+			return
+		}
+
+		resp := CreateGroupResponse{
+			ID:           result.Group.ID,
+			Name:         result.Group.Name,
+			Description:  result.Group.Description.String,
+			CurrencyCode: result.Group.CurrencyCode,
+			CreatedAt:    result.Group.CreatedAt.Time.String(),
+			Role:         result.Membership.Role,
+		}
+
+		response.SendSuccess(w, http.StatusCreated, resp)
+	}
+}
+
+
+
+func ListGroupMembersHandler(groupService service.GroupService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		groupID, err := parseUUID(chi.URLParam(r, "group_id"))
+		if err != nil {
+			response.SendError(w, http.StatusBadRequest, "invalid group_id")
+			return
+		}
+
+		userID, ok := middleware.GetUserID(r)
+		if !ok {
+			response.SendError(w, http.StatusUnauthorized, "unauthorized")
+			return
+		}
+
+		members, err := groupService.ListGroupMembers(r.Context(), groupID, userID)
+		if err != nil {
+			statusCode := http.StatusBadRequest
+			switch err {
+			case service.ErrGroupNotFound:
+				statusCode = http.StatusNotFound
+			case service.ErrNotGroupMember:
+				statusCode = http.StatusForbidden
+			}
+			response.SendError(w, statusCode, err.Error())
+			return
+		}
+
+		resp := make([]GroupMemberWithUserResponse, len(members))
+		for i, m := range members {
+			resp[i] = GroupMemberWithUserResponse{
+				ID:        m.ID,
+				GroupID:   m.GroupID,
+				UserID:    m.UserID,
+				Role:      m.Role,
+				Status:    m.Status,
+				InvitedAt: formatTimestamp(m.InvitedAt),
+				JoinedAt:  formatTimestamp(m.JoinedAt),
+				User: UserInfo{
+					Email:     m.UserEmail,
+					Name:      m.UserName.String,
+					AvatarURL: m.UserAvatarUrl.String,
+				},
+			}
+		}
+
+		response.SendSuccess(w, http.StatusOK, resp)
+	}
+}
+
+func ListUserGroupsHandler(groupService service.GroupService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userID, ok := middleware.GetUserID(r)
+		if !ok {
+			response.SendError(w, http.StatusUnauthorized, "unauthorized")
+			return
+		}
+
+		groups, err := groupService.ListUserGroups(r.Context(), userID)
+		if err != nil {
+			response.SendError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		resp := make([]UserGroupResponse, len(groups))
+		for i, g := range groups {
+			resp[i] = UserGroupResponse{
+				ID:             g.ID,
+				Name:           g.Name,
+				Description:    g.Description.String,
+				CurrencyCode:   g.CurrencyCode,
+				CreatedAt:      formatTimestamp(g.CreatedAt),
+				MembershipID:   g.MembershipID,
+				MemberRole:     g.MemberRole,
+				MemberStatus:   g.MemberStatus,
+				MemberJoinedAt: formatTimestamp(g.MemberJoinedAt),
+			}
+		}
+
+		response.SendSuccess(w, http.StatusOK, resp)
+	}
+}
+
+// Helper functions
+
+func parseUUID(s string) (pgtype.UUID, error) {
+	var uuid pgtype.UUID
+	err := uuid.Scan(s)
+	return uuid, err
+}
+
+func formatTimestamp(ts pgtype.Timestamptz) string {
+	if !ts.Valid {
+		return ""
+	}
+	return ts.Time.String()
+}

@@ -1,0 +1,54 @@
+info:
+  name: list-expenses
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{base_url}}/groups/{{group_id}}/expenses"
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # List Expenses
+
+  Retrieves all expenses for a specific group. The authenticated user must be a member of the group.
+
+  ## Authentication
+  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+
+  ## Path Parameters
+  - `group_id`: UUID of the group (use `{{group_id}}` variable)
+
+  ## Response
+  Returns an array of expenses:
+  - `id`: Expense UUID
+  - `group_id`: Group UUID
+  - `title`: Expense title
+  - `notes`: Expense notes (optional)
+  - `amount`: Expense amount (as string)
+  - `currency_code`: Currency code
+  - `date`: Expense date (YYYY-MM-DD format)
+  - `created_at`: Creation timestamp
+  - `created_by`: Creator's UUID
+  - `updated_at`: Last update timestamp
+  - `updated_by`: Last updater's UUID
+
+  ## Status Codes
+  - `200 OK`: Successfully retrieved expenses
+  - `401 Unauthorized`: Missing or invalid user ID
+  - `403 Forbidden`: User is not a group member
+  - `404 Not Found`: Group not found
+
+  ## Notes
+  - Expenses are ordered by date (descending), then by creation time (descending)
+  - Only returns expenses for groups where the user is a member
+  - Soft-deleted expenses are excluded

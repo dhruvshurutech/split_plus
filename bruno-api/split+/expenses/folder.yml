@@ -1,0 +1,39 @@
+info:
+  name: expenses
+  type: folder
+  seq: 3
+
+request:
+  auth: inherit
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+
+docs: |
+  # Expenses API
+
+  Endpoints for expense management, payments, and splits.
+
+  ## Authentication
+  All expense endpoints require the `X-User-ID` header with a valid user UUID.
+
+  ## Available Endpoints
+  - **List Expenses**: Get all expenses for a group
+  - **Create Expense**: Create a new expense with payments and splits
+  - **Get Expense**: Get expense details by ID
+  - **Update Expense**: Update expense details, payments, and splits
+  - **Delete Expense**: Soft delete an expense
+
+  ## Workflow
+  1. Create a group and save the `id` to `group_id` variable
+  2. Create an expense with payments and splits
+  3. Save the expense `id` to `expense_id` variable
+  4. List expenses to see all expenses in the group
+  5. Update or delete expenses as needed
+
+  ## Notes
+  - All expenses must have at least one payment (total must equal expense amount)
+  - All expenses must have at least one split (total must equal expense amount)
+  - Only group members can create/view expenses
+  - Payments represent who paid for the expense
+  - Splits represent who owes what portion of the expense

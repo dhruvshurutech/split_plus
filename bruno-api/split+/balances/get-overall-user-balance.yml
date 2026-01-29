@@ -1,0 +1,43 @@
+info:
+  name: get-overall-user-balance
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: "{{base_url}}/users/me/balances"
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # Get Overall User Balance
+
+  Get user's balances across all groups they belong to.
+
+  ## Authentication
+  Requires `X-User-ID` header with a valid user UUID.
+
+  ## Response
+  Returns an array of group balance objects, each containing:
+  - `group_id`: Group UUID
+  - `group_name`: Group name
+  - `currency_code`: Currency code for this group
+  - `total_paid`: Total amount paid by user in this group
+  - `total_owed`: Total amount owed by user in this group
+  - `balance`: Net balance (total_paid - total_owed)
+
+  ## Status Codes
+  - `200 OK`: Successfully retrieved balances
+  - `401 Unauthorized`: Missing or invalid user ID
+
+  ## Notes
+  - Only includes groups where user is an active member
+  - Each group shows balance in its respective currency

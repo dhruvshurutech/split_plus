@@ -1,0 +1,53 @@
+info:
+  name: update-settlement-status
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: "{{base_url}}/groups/{{group_id}}/settlements/{{settlement_id}}/status"
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+  body:
+    type: json
+    data: |-
+      {
+        "status": "completed"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # Update Settlement Status
+
+  Update only the status of a settlement (convenience endpoint).
+
+  ## Authentication
+  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+
+  ## Path Parameters
+  - `group_id`: UUID of the group (use `{{group_id}}` variable)
+  - `settlement_id`: UUID of the settlement (use `{{settlement_id}}` variable)
+
+  ## Request Body
+  - `status` (required): Settlement status ("pending", "completed", "cancelled")
+
+  ## Response
+  Returns the updated settlement object.
+
+  ## Status Codes
+  - `200 OK`: Settlement status successfully updated
+  - `401 Unauthorized`: Missing or invalid user ID
+  - `403 Forbidden`: User is not a group member
+  - `400 Bad Request`: Invalid status
+  - `404 Not Found`: Settlement not found
+
+  ## Notes
+  - When status is set to "completed", `paid_at` is automatically set to current timestamp
+  - This is a convenience endpoint for just updating status without updating other fields

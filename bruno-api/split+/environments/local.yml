@@ -1,0 +1,14 @@
+name: local
+variables:
+  - name: base_url
+    value: http://localhost:8080
+  - name: user_id
+    value: 9c9c52b3-f5c2-4cc1-88a2-e9c1799037d2
+  - name: group_id
+    value: af5b624f-3ba8-4922-81e5-5d120c08e7b2
+  - name: invite_user_id
+    value: 22b98abd-f8a4-4a3f-b31b-872971809ba4
+  - name: expense_id
+    value: 8804001f-b851-426a-bcaf-e53f6c3f233a
+  - name: settlement_id
+    value: ""

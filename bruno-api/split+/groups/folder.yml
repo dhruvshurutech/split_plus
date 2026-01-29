@@ -1,0 +1,39 @@
+info:
+  name: groups
+  type: folder
+  seq: 2
+
+request:
+  auth: inherit
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+      type: text
+
+docs: |
+  # Groups API
+  
+  Endpoints for group management, invitations, and membership.
+  
+  ## Authentication
+  All group endpoints require the `X-User-ID` header with a valid user UUID.
+  
+  ## Available Endpoints
+  - **List User Groups**: Get all groups for the authenticated user
+  - **Create Group**: Create a new group (user becomes owner)
+  - **Invite User**: Send invitation to join a group (owners only)
+  - **Join Group**: Accept a pending invitation
+  - **List Group Members**: Get all members of a specific group
+  
+  ## Workflow
+  1. Create a user and save the `id` to `user_id` variable
+  2. Create a group and save the `id` to `group_id` variable
+  3. Create another user and save the `id` to `invite_user_id` variable
+  4. Invite the second user to the group
+  5. As the second user, join the group
+  6. List group members to see all participants
+  
+  ## Notes
+  - Group owners can invite users
+  - Invited users must accept invitations to join
+  - Only group members can view member lists

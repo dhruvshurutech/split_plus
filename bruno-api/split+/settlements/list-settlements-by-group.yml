@@ -1,0 +1,59 @@
+info:
+  name: list-settlements-by-group
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{base_url}}/groups/{{group_id}}/settlements"
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # List Settlements by Group
+
+  Get all settlements in a group.
+
+  ## Authentication
+  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+
+  ## Path Parameters
+  - `group_id`: UUID of the group (use `{{group_id}}` variable)
+
+  ## Response
+  Returns an array of settlement objects, each containing:
+  - `id`: Settlement UUID
+  - `group_id`: Group UUID
+  - `payer_id`: Payer user UUID
+  - `payee_id`: Payee user UUID
+  - `amount`: Payment amount
+  - `currency_code`: Currency code
+  - `status`: Settlement status
+  - `payment_method`: Payment method
+  - `transaction_reference`: Transaction reference
+  - `paid_at`: Timestamp when marked as completed
+  - `notes`: Notes
+  - `created_at`: Creation timestamp
+  - `created_by`: User who created the settlement
+  - `updated_at`: Last update timestamp
+  - `updated_by`: User who last updated the settlement
+  - `payer`: Payer user info (email, name, avatar_url)
+  - `payee`: Payee user info (email, name, avatar_url)
+
+  ## Status Codes
+  - `200 OK`: Successfully retrieved settlements
+  - `401 Unauthorized`: Missing or invalid user ID
+  - `403 Forbidden`: User is not a group member
+  - `404 Not Found`: Group not found
+
+  ## Notes
+  - Settlements are ordered by creation date (newest first)
+  - Only active (non-deleted) settlements are returned

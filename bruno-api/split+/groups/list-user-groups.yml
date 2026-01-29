@@ -1,0 +1,46 @@
+info:
+  name: list-user-groups
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{base_url}}/groups"
+  auth: inherit
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+      type: text
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # List User Groups
+  
+  Retrieves all groups that the authenticated user is a member of.
+  
+  ## Authentication
+  Requires `X-User-ID` header with a valid user UUID.
+  
+  ## Response
+  Returns an array of groups with membership information:
+  - `id`: Group UUID
+  - `name`: Group name
+  - `description`: Group description (optional)
+  - `currency_code`: Currency code (e.g., "USD")
+  - `created_at`: Group creation timestamp
+  - `membership_id`: User's membership UUID
+  - `member_role`: User's role in the group ("owner" or "member")
+  - `member_status`: Membership status ("active" or "pending")
+  - `member_joined_at`: When user joined the group (optional)
+  
+  ## Status Codes
+  - `200 OK`: Successfully retrieved groups
+  - `401 Unauthorized`: Missing or invalid user ID
+  
+  ## Notes
+  Only returns groups where the user has an active or pending membership.

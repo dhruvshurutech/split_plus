@@ -1,0 +1,3738 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>api: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/dhruvsaxena1998/splitplus/cmd/api/main.go (0.0%)</option>
+				
+				<option value="file1">github.com/dhruvsaxena1998/splitplus/internal/app/app.go (0.0%)</option>
+				
+				<option value="file2">github.com/dhruvsaxena1998/splitplus/internal/db/pool.go (0.0%)</option>
+				
+				<option value="file3">github.com/dhruvsaxena1998/splitplus/internal/db/sqlc/db.go (0.0%)</option>
+				
+				<option value="file4">github.com/dhruvsaxena1998/splitplus/internal/db/sqlc/expenses.sql.go (0.0%)</option>
+				
+				<option value="file5">github.com/dhruvsaxena1998/splitplus/internal/db/sqlc/group-members.sql.go (0.0%)</option>
+				
+				<option value="file6">github.com/dhruvsaxena1998/splitplus/internal/db/sqlc/groups.sql.go (0.0%)</option>
+				
+				<option value="file7">github.com/dhruvsaxena1998/splitplus/internal/db/sqlc/users.sql.go (0.0%)</option>
+				
+				<option value="file8">github.com/dhruvsaxena1998/splitplus/internal/http/handlers/expenses.go (21.6%)</option>
+				
+				<option value="file9">github.com/dhruvsaxena1998/splitplus/internal/http/handlers/groups.go (86.7%)</option>
+				
+				<option value="file10">github.com/dhruvsaxena1998/splitplus/internal/http/handlers/users.go (86.7%)</option>
+				
+				<option value="file11">github.com/dhruvsaxena1998/splitplus/internal/http/middleware/auth.go (0.0%)</option>
+				
+				<option value="file12">github.com/dhruvsaxena1998/splitplus/internal/http/middleware/validator.go (0.0%)</option>
+				
+				<option value="file13">github.com/dhruvsaxena1998/splitplus/internal/http/response/response.go (0.0%)</option>
+				
+				<option value="file14">github.com/dhruvsaxena1998/splitplus/internal/http/router/debug.go (0.0%)</option>
+				
+				<option value="file15">github.com/dhruvsaxena1998/splitplus/internal/http/router/expense_router.go (0.0%)</option>
+				
+				<option value="file16">github.com/dhruvsaxena1998/splitplus/internal/http/router/group_router.go (0.0%)</option>
+				
+				<option value="file17">github.com/dhruvsaxena1998/splitplus/internal/http/router/router.go (0.0%)</option>
+				
+				<option value="file18">github.com/dhruvsaxena1998/splitplus/internal/http/router/user_router.go (0.0%)</option>
+				
+				<option value="file19">github.com/dhruvsaxena1998/splitplus/internal/repository/expense_repository.go (0.0%)</option>
+				
+				<option value="file20">github.com/dhruvsaxena1998/splitplus/internal/repository/group_repository.go (0.0%)</option>
+				
+				<option value="file21">github.com/dhruvsaxena1998/splitplus/internal/repository/user_repository.go (0.0%)</option>
+				
+				<option value="file22">github.com/dhruvsaxena1998/splitplus/internal/service/expense_service.go (39.4%)</option>
+				
+				<option value="file23">github.com/dhruvsaxena1998/splitplus/internal/service/group_service.go (89.2%)</option>
+				
+				<option value="file24">github.com/dhruvsaxena1998/splitplus/internal/service/user_service.go (100.0%)</option>
+				
+				<option value="file25">github.com/dhruvsaxena1998/splitplus/internal/testutil/mocks.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "context"
+        "log"
+        "net/http"
+        "os"
+        "time"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/app"
+        "github.com/dhruvsaxena1998/splitplus/internal/db"
+        "github.com/dhruvsaxena1998/splitplus/internal/db/sqlc"
+)
+
+func main() <span class="cov0" title="0">{
+        ctx := context.Background()
+
+        pool, err := db.NewPool(ctx, os.Getenv("DATABASE_URL"))
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+        }</span>
+        <span class="cov0" title="0">defer pool.Close()
+
+        queries := sqlc.New(pool)
+
+        app := app.New(pool, queries)
+        server := &amp;http.Server{
+                Addr:         ":8080",
+                Handler:      app.Router,
+                ReadTimeout:  5 * time.Second,
+                WriteTimeout: 10 * time.Second,
+        }
+
+        log.Println("server running on :8080")
+        log.Fatal(server.ListenAndServe())</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package app
+
+import (
+        "net/http"
+        "os"
+
+        "github.com/go-chi/chi/v5"
+        "github.com/jackc/pgx/v5/pgxpool"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/db/sqlc"
+        "github.com/dhruvsaxena1998/splitplus/internal/http/router"
+        "github.com/dhruvsaxena1998/splitplus/internal/repository"
+        "github.com/dhruvsaxena1998/splitplus/internal/service"
+)
+
+type App struct {
+        Router http.Handler
+
+        // repositories
+        userRepository   repository.UserRepository
+        groupRepository  repository.GroupRepository
+        expenseRepository repository.ExpenseRepository
+
+        // services
+        userService   service.UserService
+        groupService  service.GroupService
+        expenseService service.ExpenseService
+}
+
+func New(pool *pgxpool.Pool, queries *sqlc.Queries) *App <span class="cov0" title="0">{
+        app := &amp;App{}
+
+        // initialize repositories
+        app.userRepository = repository.NewUserRepository(queries)
+        app.groupRepository = repository.NewGroupRepository(pool, queries)
+        app.expenseRepository = repository.NewExpenseRepository(pool, queries)
+
+        // initialize services
+        app.userService = service.NewUserService(app.userRepository)
+        app.groupService = service.NewGroupService(app.groupRepository)
+        app.expenseService = service.NewExpenseService(app.expenseRepository)
+
+        // initialize router
+        app.Router = router.New(
+                router.WithUserRoutes(app.userService),
+                router.WithGroupRoutes(app.groupService),
+                router.WithExpenseRoutes(app.expenseService),
+        )
+
+        // debug - dev only
+        if os.Getenv("ENV") != "production" </span><span class="cov0" title="0">{
+                router.PrintRoutes(app.Router.(chi.Router))
+        }</span>
+
+        <span class="cov0" title="0">return app</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package db
+
+import (
+        "context"
+        "time"
+
+        "github.com/jackc/pgx/v5/pgxpool"
+)
+
+func NewPool(ctx context.Context, dsn string) (*pgxpool.Pool, error) <span class="cov0" title="0">{
+        cfg, err := pgxpool.ParseConfig(dsn)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">cfg.MinConns = 2
+        cfg.MaxConns = 10
+        cfg.MaxConnLifetime = time.Hour
+
+        return pgxpool.NewWithConfig(ctx, cfg)</span>
+}</pre>
+		
+		<pre class="file" id="file3" style="display: none">// Code generated by sqlc. DO NOT EDIT.
+// versions:
+//   sqlc v1.30.0
+
+package sqlc
+
+import (
+        "context"
+
+        "github.com/jackc/pgx/v5"
+        "github.com/jackc/pgx/v5/pgconn"
+)
+
+type DBTX interface {
+        Exec(context.Context, string, ...interface{}) (pgconn.CommandTag, error)
+        Query(context.Context, string, ...interface{}) (pgx.Rows, error)
+        QueryRow(context.Context, string, ...interface{}) pgx.Row
+}
+
+func New(db DBTX) *Queries <span class="cov0" title="0">{
+        return &amp;Queries{db: db}
+}</span>
+
+type Queries struct {
+        db DBTX
+}
+
+func (q *Queries) WithTx(tx pgx.Tx) *Queries <span class="cov0" title="0">{
+        return &amp;Queries{
+                db: tx,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">// Code generated by sqlc. DO NOT EDIT.
+// versions:
+//   sqlc v1.30.0
+// source: expenses.sql
+
+package sqlc
+
+import (
+        "context"
+
+        "github.com/jackc/pgx/v5/pgtype"
+)
+
+const createExpense = `-- name: CreateExpense :one
+INSERT INTO expenses (group_id, title, notes, amount, currency_code, date, created_by, updated_by)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $7) RETURNING id, group_id, title, notes, amount, currency_code, date, created_at, created_by, updated_at, updated_by, deleted_at
+`
+
+type CreateExpenseParams struct {
+        GroupID      pgtype.UUID    `json:"group_id"`
+        Title        string         `json:"title"`
+        Notes        pgtype.Text    `json:"notes"`
+        Amount       pgtype.Numeric `json:"amount"`
+        CurrencyCode string         `json:"currency_code"`
+        Date         pgtype.Date    `json:"date"`
+        CreatedBy    pgtype.UUID    `json:"created_by"`
+}
+
+func (q *Queries) CreateExpense(ctx context.Context, arg CreateExpenseParams) (Expense, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, createExpense,
+                arg.GroupID,
+                arg.Title,
+                arg.Notes,
+                arg.Amount,
+                arg.CurrencyCode,
+                arg.Date,
+                arg.CreatedBy,
+        )
+        var i Expense
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.GroupID,
+                &amp;i.Title,
+                &amp;i.Notes,
+                &amp;i.Amount,
+                &amp;i.CurrencyCode,
+                &amp;i.Date,
+                &amp;i.CreatedAt,
+                &amp;i.CreatedBy,
+                &amp;i.UpdatedAt,
+                &amp;i.UpdatedBy,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+
+const createExpensePayment = `-- name: CreateExpensePayment :one
+INSERT INTO expense_payments (expense_id, user_id, amount, payment_method)
+VALUES ($1, $2, $3, $4) RETURNING id, expense_id, user_id, amount, payment_method, created_at, updated_at, deleted_at
+`
+
+type CreateExpensePaymentParams struct {
+        ExpenseID     pgtype.UUID    `json:"expense_id"`
+        UserID        pgtype.UUID    `json:"user_id"`
+        Amount        pgtype.Numeric `json:"amount"`
+        PaymentMethod pgtype.Text    `json:"payment_method"`
+}
+
+func (q *Queries) CreateExpensePayment(ctx context.Context, arg CreateExpensePaymentParams) (ExpensePayment, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, createExpensePayment,
+                arg.ExpenseID,
+                arg.UserID,
+                arg.Amount,
+                arg.PaymentMethod,
+        )
+        var i ExpensePayment
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.ExpenseID,
+                &amp;i.UserID,
+                &amp;i.Amount,
+                &amp;i.PaymentMethod,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+
+const createExpenseSplit = `-- name: CreateExpenseSplit :one
+INSERT INTO expense_split (expense_id, user_id, amount_owned, split_type)
+VALUES ($1, $2, $3, $4) RETURNING id, expense_id, user_id, amount_owned, split_type, created_at, updated_at, deleted_at
+`
+
+type CreateExpenseSplitParams struct {
+        ExpenseID   pgtype.UUID    `json:"expense_id"`
+        UserID      pgtype.UUID    `json:"user_id"`
+        AmountOwned pgtype.Numeric `json:"amount_owned"`
+        SplitType   string         `json:"split_type"`
+}
+
+func (q *Queries) CreateExpenseSplit(ctx context.Context, arg CreateExpenseSplitParams) (ExpenseSplit, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, createExpenseSplit,
+                arg.ExpenseID,
+                arg.UserID,
+                arg.AmountOwned,
+                arg.SplitType,
+        )
+        var i ExpenseSplit
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.ExpenseID,
+                &amp;i.UserID,
+                &amp;i.AmountOwned,
+                &amp;i.SplitType,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+
+const deleteExpense = `-- name: DeleteExpense :exec
+UPDATE expenses
+SET deleted_at = CURRENT_TIMESTAMP
+WHERE id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) DeleteExpense(ctx context.Context, id pgtype.UUID) error <span class="cov0" title="0">{
+        _, err := q.db.Exec(ctx, deleteExpense, id)
+        return err
+}</span>
+
+const deleteExpensePayments = `-- name: DeleteExpensePayments :exec
+UPDATE expense_payments
+SET deleted_at = CURRENT_TIMESTAMP
+WHERE expense_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) DeleteExpensePayments(ctx context.Context, expenseID pgtype.UUID) error <span class="cov0" title="0">{
+        _, err := q.db.Exec(ctx, deleteExpensePayments, expenseID)
+        return err
+}</span>
+
+const deleteExpenseSplits = `-- name: DeleteExpenseSplits :exec
+UPDATE expense_split
+SET deleted_at = CURRENT_TIMESTAMP
+WHERE expense_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) DeleteExpenseSplits(ctx context.Context, expenseID pgtype.UUID) error <span class="cov0" title="0">{
+        _, err := q.db.Exec(ctx, deleteExpenseSplits, expenseID)
+        return err
+}</span>
+
+const getExpenseByID = `-- name: GetExpenseByID :one
+SELECT id, group_id, title, notes, amount, currency_code, date, created_at, created_by, updated_at, updated_by, deleted_at FROM expenses
+WHERE id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetExpenseByID(ctx context.Context, id pgtype.UUID) (Expense, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, getExpenseByID, id)
+        var i Expense
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.GroupID,
+                &amp;i.Title,
+                &amp;i.Notes,
+                &amp;i.Amount,
+                &amp;i.CurrencyCode,
+                &amp;i.Date,
+                &amp;i.CreatedAt,
+                &amp;i.CreatedBy,
+                &amp;i.UpdatedAt,
+                &amp;i.UpdatedBy,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+
+const listExpensePayments = `-- name: ListExpensePayments :many
+SELECT
+    ep.id,
+    ep.expense_id,
+    ep.user_id,
+    ep.amount,
+    ep.payment_method,
+    ep.created_at,
+    ep.updated_at,
+    u.email AS user_email,
+    u.name AS user_name,
+    u.avatar_url AS user_avatar_url
+FROM expense_payments ep
+JOIN users u ON ep.user_id = u.id
+WHERE ep.expense_id = $1 AND ep.deleted_at IS NULL
+ORDER BY ep.created_at ASC
+`
+
+type ListExpensePaymentsRow struct {
+        ID            pgtype.UUID        `json:"id"`
+        ExpenseID     pgtype.UUID        `json:"expense_id"`
+        UserID        pgtype.UUID        `json:"user_id"`
+        Amount        pgtype.Numeric     `json:"amount"`
+        PaymentMethod pgtype.Text        `json:"payment_method"`
+        CreatedAt     pgtype.Timestamptz `json:"created_at"`
+        UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+        UserEmail     string             `json:"user_email"`
+        UserName      pgtype.Text        `json:"user_name"`
+        UserAvatarUrl pgtype.Text        `json:"user_avatar_url"`
+}
+
+func (q *Queries) ListExpensePayments(ctx context.Context, expenseID pgtype.UUID) ([]ListExpensePaymentsRow, error) <span class="cov0" title="0">{
+        rows, err := q.db.Query(ctx, listExpensePayments, expenseID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+        items := []ListExpensePaymentsRow{}
+        for rows.Next() </span><span class="cov0" title="0">{
+                var i ListExpensePaymentsRow
+                if err := rows.Scan(
+                        &amp;i.ID,
+                        &amp;i.ExpenseID,
+                        &amp;i.UserID,
+                        &amp;i.Amount,
+                        &amp;i.PaymentMethod,
+                        &amp;i.CreatedAt,
+                        &amp;i.UpdatedAt,
+                        &amp;i.UserEmail,
+                        &amp;i.UserName,
+                        &amp;i.UserAvatarUrl,
+                ); err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">items = append(items, i)</span>
+        }
+        <span class="cov0" title="0">if err := rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return items, nil</span>
+}
+
+const listExpenseSplits = `-- name: ListExpenseSplits :many
+SELECT
+    es.id,
+    es.expense_id,
+    es.user_id,
+    es.amount_owned,
+    es.split_type,
+    es.created_at,
+    es.updated_at,
+    u.email AS user_email,
+    u.name AS user_name,
+    u.avatar_url AS user_avatar_url
+FROM expense_split es
+JOIN users u ON es.user_id = u.id
+WHERE es.expense_id = $1 AND es.deleted_at IS NULL
+ORDER BY es.created_at ASC
+`
+
+type ListExpenseSplitsRow struct {
+        ID            pgtype.UUID        `json:"id"`
+        ExpenseID     pgtype.UUID        `json:"expense_id"`
+        UserID        pgtype.UUID        `json:"user_id"`
+        AmountOwned   pgtype.Numeric     `json:"amount_owned"`
+        SplitType     string             `json:"split_type"`
+        CreatedAt     pgtype.Timestamptz `json:"created_at"`
+        UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+        UserEmail     string             `json:"user_email"`
+        UserName      pgtype.Text        `json:"user_name"`
+        UserAvatarUrl pgtype.Text        `json:"user_avatar_url"`
+}
+
+func (q *Queries) ListExpenseSplits(ctx context.Context, expenseID pgtype.UUID) ([]ListExpenseSplitsRow, error) <span class="cov0" title="0">{
+        rows, err := q.db.Query(ctx, listExpenseSplits, expenseID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+        items := []ListExpenseSplitsRow{}
+        for rows.Next() </span><span class="cov0" title="0">{
+                var i ListExpenseSplitsRow
+                if err := rows.Scan(
+                        &amp;i.ID,
+                        &amp;i.ExpenseID,
+                        &amp;i.UserID,
+                        &amp;i.AmountOwned,
+                        &amp;i.SplitType,
+                        &amp;i.CreatedAt,
+                        &amp;i.UpdatedAt,
+                        &amp;i.UserEmail,
+                        &amp;i.UserName,
+                        &amp;i.UserAvatarUrl,
+                ); err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">items = append(items, i)</span>
+        }
+        <span class="cov0" title="0">if err := rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return items, nil</span>
+}
+
+const listExpensesByGroup = `-- name: ListExpensesByGroup :many
+SELECT id, group_id, title, notes, amount, currency_code, date, created_at, created_by, updated_at, updated_by, deleted_at FROM expenses
+WHERE group_id = $1 AND deleted_at IS NULL
+ORDER BY date DESC, created_at DESC
+`
+
+func (q *Queries) ListExpensesByGroup(ctx context.Context, groupID pgtype.UUID) ([]Expense, error) <span class="cov0" title="0">{
+        rows, err := q.db.Query(ctx, listExpensesByGroup, groupID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+        items := []Expense{}
+        for rows.Next() </span><span class="cov0" title="0">{
+                var i Expense
+                if err := rows.Scan(
+                        &amp;i.ID,
+                        &amp;i.GroupID,
+                        &amp;i.Title,
+                        &amp;i.Notes,
+                        &amp;i.Amount,
+                        &amp;i.CurrencyCode,
+                        &amp;i.Date,
+                        &amp;i.CreatedAt,
+                        &amp;i.CreatedBy,
+                        &amp;i.UpdatedAt,
+                        &amp;i.UpdatedBy,
+                        &amp;i.DeletedAt,
+                ); err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">items = append(items, i)</span>
+        }
+        <span class="cov0" title="0">if err := rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return items, nil</span>
+}
+
+const updateExpense = `-- name: UpdateExpense :one
+UPDATE expenses
+SET title = $2,
+    notes = $3,
+    amount = $4,
+    currency_code = $5,
+    date = $6,
+    updated_by = $7,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1 AND deleted_at IS NULL
+RETURNING id, group_id, title, notes, amount, currency_code, date, created_at, created_by, updated_at, updated_by, deleted_at
+`
+
+type UpdateExpenseParams struct {
+        ID           pgtype.UUID    `json:"id"`
+        Title        string         `json:"title"`
+        Notes        pgtype.Text    `json:"notes"`
+        Amount       pgtype.Numeric `json:"amount"`
+        CurrencyCode string         `json:"currency_code"`
+        Date         pgtype.Date    `json:"date"`
+        UpdatedBy    pgtype.UUID    `json:"updated_by"`
+}
+
+func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (Expense, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, updateExpense,
+                arg.ID,
+                arg.Title,
+                arg.Notes,
+                arg.Amount,
+                arg.CurrencyCode,
+                arg.Date,
+                arg.UpdatedBy,
+        )
+        var i Expense
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.GroupID,
+                &amp;i.Title,
+                &amp;i.Notes,
+                &amp;i.Amount,
+                &amp;i.CurrencyCode,
+                &amp;i.Date,
+                &amp;i.CreatedAt,
+                &amp;i.CreatedBy,
+                &amp;i.UpdatedAt,
+                &amp;i.UpdatedBy,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+
+const updateExpenseSplit = `-- name: UpdateExpenseSplit :one
+UPDATE expense_split
+SET amount_owned = $3,
+    split_type = $4,
+    updated_at = CURRENT_TIMESTAMP
+WHERE expense_id = $1 AND user_id = $2 AND deleted_at IS NULL
+RETURNING id, expense_id, user_id, amount_owned, split_type, created_at, updated_at, deleted_at
+`
+
+type UpdateExpenseSplitParams struct {
+        ExpenseID   pgtype.UUID    `json:"expense_id"`
+        UserID      pgtype.UUID    `json:"user_id"`
+        AmountOwned pgtype.Numeric `json:"amount_owned"`
+        SplitType   string         `json:"split_type"`
+}
+
+func (q *Queries) UpdateExpenseSplit(ctx context.Context, arg UpdateExpenseSplitParams) (ExpenseSplit, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, updateExpenseSplit,
+                arg.ExpenseID,
+                arg.UserID,
+                arg.AmountOwned,
+                arg.SplitType,
+        )
+        var i ExpenseSplit
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.ExpenseID,
+                &amp;i.UserID,
+                &amp;i.AmountOwned,
+                &amp;i.SplitType,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">// Code generated by sqlc. DO NOT EDIT.
+// versions:
+//   sqlc v1.30.0
+// source: group-members.sql
+
+package sqlc
+
+import (
+        "context"
+
+        "github.com/jackc/pgx/v5/pgtype"
+)
+
+const createGroupMember = `-- name: CreateGroupMember :one
+INSERT INTO group_members (group_id, user_id, role, status, invited_by, invited_at, joined_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, group_id, user_id, role, status, invited_by, invited_at, joined_at, created_at, updated_at, deleted_at
+`
+
+type CreateGroupMemberParams struct {
+        GroupID   pgtype.UUID        `json:"group_id"`
+        UserID    pgtype.UUID        `json:"user_id"`
+        Role      string             `json:"role"`
+        Status    string             `json:"status"`
+        InvitedBy pgtype.UUID        `json:"invited_by"`
+        InvitedAt pgtype.Timestamptz `json:"invited_at"`
+        JoinedAt  pgtype.Timestamptz `json:"joined_at"`
+}
+
+func (q *Queries) CreateGroupMember(ctx context.Context, arg CreateGroupMemberParams) (GroupMember, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, createGroupMember,
+                arg.GroupID,
+                arg.UserID,
+                arg.Role,
+                arg.Status,
+                arg.InvitedBy,
+                arg.InvitedAt,
+                arg.JoinedAt,
+        )
+        var i GroupMember
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.GroupID,
+                &amp;i.UserID,
+                &amp;i.Role,
+                &amp;i.Status,
+                &amp;i.InvitedBy,
+                &amp;i.InvitedAt,
+                &amp;i.JoinedAt,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+
+const getGroupMember = `-- name: GetGroupMember :one
+SELECT id, group_id, user_id, role, status, invited_by, invited_at, joined_at, created_at, updated_at, deleted_at FROM group_members
+WHERE group_id = $1 AND user_id = $2 AND deleted_at IS NULL
+`
+
+type GetGroupMemberParams struct {
+        GroupID pgtype.UUID `json:"group_id"`
+        UserID  pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetGroupMember(ctx context.Context, arg GetGroupMemberParams) (GroupMember, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, getGroupMember, arg.GroupID, arg.UserID)
+        var i GroupMember
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.GroupID,
+                &amp;i.UserID,
+                &amp;i.Role,
+                &amp;i.Status,
+                &amp;i.InvitedBy,
+                &amp;i.InvitedAt,
+                &amp;i.JoinedAt,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+
+const getGroupsByUserID = `-- name: GetGroupsByUserID :many
+SELECT
+    g.id,
+    g.name,
+    g.description,
+    g.currency_code,
+    g.created_at,
+    gm.id as membership_id,
+    gm.role as member_role,
+    gm.status as member_status,
+    gm.joined_at as member_joined_at
+FROM group_members AS gm
+INNER JOIN groups AS g ON gm.group_id = g.id
+WHERE gm.user_id = $1 AND gm.deleted_at IS NULL AND g.deleted_at IS NULL
+ORDER BY g.created_at DESC
+`
+
+type GetGroupsByUserIDRow struct {
+        ID             pgtype.UUID        `json:"id"`
+        Name           string             `json:"name"`
+        Description    pgtype.Text        `json:"description"`
+        CurrencyCode   string             `json:"currency_code"`
+        CreatedAt      pgtype.Timestamptz `json:"created_at"`
+        MembershipID   pgtype.UUID        `json:"membership_id"`
+        MemberRole     string             `json:"member_role"`
+        MemberStatus   string             `json:"member_status"`
+        MemberJoinedAt pgtype.Timestamptz `json:"member_joined_at"`
+}
+
+func (q *Queries) GetGroupsByUserID(ctx context.Context, userID pgtype.UUID) ([]GetGroupsByUserIDRow, error) <span class="cov0" title="0">{
+        rows, err := q.db.Query(ctx, getGroupsByUserID, userID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+        items := []GetGroupsByUserIDRow{}
+        for rows.Next() </span><span class="cov0" title="0">{
+                var i GetGroupsByUserIDRow
+                if err := rows.Scan(
+                        &amp;i.ID,
+                        &amp;i.Name,
+                        &amp;i.Description,
+                        &amp;i.CurrencyCode,
+                        &amp;i.CreatedAt,
+                        &amp;i.MembershipID,
+                        &amp;i.MemberRole,
+                        &amp;i.MemberStatus,
+                        &amp;i.MemberJoinedAt,
+                ); err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">items = append(items, i)</span>
+        }
+        <span class="cov0" title="0">if err := rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return items, nil</span>
+}
+
+const listGroupMembers = `-- name: ListGroupMembers :many
+SELECT
+    gm.id,
+    gm.group_id,
+    gm.user_id,
+    gm.role,
+    gm.status,
+    gm.invited_by,
+    gm.invited_at,
+    gm.joined_at,
+    gm.created_at,
+    gm.updated_at,
+    u.email AS user_email,
+    u.name AS user_name,
+    u.avatar_url AS user_avatar_url
+FROM group_members gm
+JOIN users u ON gm.user_id = u.id
+WHERE gm.group_id = $1
+    AND gm.deleted_at IS NULL
+    AND gm.status IN ('active', 'pending')
+ORDER BY gm.created_at ASC
+`
+
+type ListGroupMembersRow struct {
+        ID            pgtype.UUID        `json:"id"`
+        GroupID       pgtype.UUID        `json:"group_id"`
+        UserID        pgtype.UUID        `json:"user_id"`
+        Role          string             `json:"role"`
+        Status        string             `json:"status"`
+        InvitedBy     pgtype.UUID        `json:"invited_by"`
+        InvitedAt     pgtype.Timestamptz `json:"invited_at"`
+        JoinedAt      pgtype.Timestamptz `json:"joined_at"`
+        CreatedAt     pgtype.Timestamptz `json:"created_at"`
+        UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+        UserEmail     string             `json:"user_email"`
+        UserName      pgtype.Text        `json:"user_name"`
+        UserAvatarUrl pgtype.Text        `json:"user_avatar_url"`
+}
+
+func (q *Queries) ListGroupMembers(ctx context.Context, groupID pgtype.UUID) ([]ListGroupMembersRow, error) <span class="cov0" title="0">{
+        rows, err := q.db.Query(ctx, listGroupMembers, groupID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+        items := []ListGroupMembersRow{}
+        for rows.Next() </span><span class="cov0" title="0">{
+                var i ListGroupMembersRow
+                if err := rows.Scan(
+                        &amp;i.ID,
+                        &amp;i.GroupID,
+                        &amp;i.UserID,
+                        &amp;i.Role,
+                        &amp;i.Status,
+                        &amp;i.InvitedBy,
+                        &amp;i.InvitedAt,
+                        &amp;i.JoinedAt,
+                        &amp;i.CreatedAt,
+                        &amp;i.UpdatedAt,
+                        &amp;i.UserEmail,
+                        &amp;i.UserName,
+                        &amp;i.UserAvatarUrl,
+                ); err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">items = append(items, i)</span>
+        }
+        <span class="cov0" title="0">if err := rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return items, nil</span>
+}
+
+const updateGroupMemberStatus = `-- name: UpdateGroupMemberStatus :one
+UPDATE group_members
+SET status = $3, joined_at = $4, updated_at = CURRENT_TIMESTAMP
+WHERE group_id = $1 AND user_id = $2 AND deleted_at IS NULL
+RETURNING id, group_id, user_id, role, status, invited_by, invited_at, joined_at, created_at, updated_at, deleted_at
+`
+
+type UpdateGroupMemberStatusParams struct {
+        GroupID  pgtype.UUID        `json:"group_id"`
+        UserID   pgtype.UUID        `json:"user_id"`
+        Status   string             `json:"status"`
+        JoinedAt pgtype.Timestamptz `json:"joined_at"`
+}
+
+func (q *Queries) UpdateGroupMemberStatus(ctx context.Context, arg UpdateGroupMemberStatusParams) (GroupMember, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, updateGroupMemberStatus,
+                arg.GroupID,
+                arg.UserID,
+                arg.Status,
+                arg.JoinedAt,
+        )
+        var i GroupMember
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.GroupID,
+                &amp;i.UserID,
+                &amp;i.Role,
+                &amp;i.Status,
+                &amp;i.InvitedBy,
+                &amp;i.InvitedAt,
+                &amp;i.JoinedAt,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">// Code generated by sqlc. DO NOT EDIT.
+// versions:
+//   sqlc v1.30.0
+// source: groups.sql
+
+package sqlc
+
+import (
+        "context"
+
+        "github.com/jackc/pgx/v5/pgtype"
+)
+
+const createGroup = `-- name: CreateGroup :one
+INSERT INTO groups (name, description, currency_code, created_by, updated_by)
+VALUES ($1, $2, $3, $4, $4) RETURNING id, name, description, currency_code, default_split_method, settings, created_at, created_by, updated_at, updated_by, deleted_at
+`
+
+type CreateGroupParams struct {
+        Name         string      `json:"name"`
+        Description  pgtype.Text `json:"description"`
+        CurrencyCode string      `json:"currency_code"`
+        CreatedBy    pgtype.UUID `json:"created_by"`
+}
+
+func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) (Group, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, createGroup,
+                arg.Name,
+                arg.Description,
+                arg.CurrencyCode,
+                arg.CreatedBy,
+        )
+        var i Group
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.Name,
+                &amp;i.Description,
+                &amp;i.CurrencyCode,
+                &amp;i.DefaultSplitMethod,
+                &amp;i.Settings,
+                &amp;i.CreatedAt,
+                &amp;i.CreatedBy,
+                &amp;i.UpdatedAt,
+                &amp;i.UpdatedBy,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+
+const getGroupByID = `-- name: GetGroupByID :one
+SELECT id, name, description, currency_code, default_split_method, settings, created_at, created_by, updated_at, updated_by, deleted_at FROM groups
+WHERE id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetGroupByID(ctx context.Context, id pgtype.UUID) (Group, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, getGroupByID, id)
+        var i Group
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.Name,
+                &amp;i.Description,
+                &amp;i.CurrencyCode,
+                &amp;i.DefaultSplitMethod,
+                &amp;i.Settings,
+                &amp;i.CreatedAt,
+                &amp;i.CreatedBy,
+                &amp;i.UpdatedAt,
+                &amp;i.UpdatedBy,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">// Code generated by sqlc. DO NOT EDIT.
+// versions:
+//   sqlc v1.30.0
+// source: users.sql
+
+package sqlc
+
+import (
+        "context"
+
+        "github.com/jackc/pgx/v5/pgtype"
+)
+
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (email, password_hash)
+VALUES ($1, $2) RETURNING id, email, email_verified_at, password_hash, name, avatar_url, language, timezone, created_at, updated_at, deleted_at
+`
+
+type CreateUserParams struct {
+        Email        string `json:"email"`
+        PasswordHash string `json:"password_hash"`
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, createUser, arg.Email, arg.PasswordHash)
+        var i User
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.Email,
+                &amp;i.EmailVerifiedAt,
+                &amp;i.PasswordHash,
+                &amp;i.Name,
+                &amp;i.AvatarUrl,
+                &amp;i.Language,
+                &amp;i.Timezone,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, email, email_verified_at, password_hash, name, avatar_url, language, timezone, created_at, updated_at, deleted_at FROM users
+WHERE id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error) <span class="cov0" title="0">{
+        row := q.db.QueryRow(ctx, getUserByID, id)
+        var i User
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.Email,
+                &amp;i.EmailVerifiedAt,
+                &amp;i.PasswordHash,
+                &amp;i.Name,
+                &amp;i.AvatarUrl,
+                &amp;i.Language,
+                &amp;i.Timezone,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+                &amp;i.DeletedAt,
+        )
+        return i, err
+}</span>
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package handlers
+
+import (
+        "net/http"
+        "time"
+
+        "github.com/go-chi/chi/v5"
+        "github.com/jackc/pgx/v5/pgtype"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/db/sqlc"
+        "github.com/dhruvsaxena1998/splitplus/internal/http/middleware"
+        "github.com/dhruvsaxena1998/splitplus/internal/http/response"
+        "github.com/dhruvsaxena1998/splitplus/internal/service"
+)
+
+// Request structs
+
+type PaymentRequest struct {
+        UserID        string `json:"user_id" validate:"required,uuid"`
+        Amount        string `json:"amount" validate:"required"`
+        PaymentMethod string `json:"payment_method,omitempty"`
+}
+
+type SplitRequest struct {
+        UserID      string `json:"user_id" validate:"required,uuid"`
+        AmountOwned string `json:"amount_owned" validate:"required"`
+        SplitType   string `json:"split_type,omitempty"`
+}
+
+type CreateExpenseRequest struct {
+        Title        string          `json:"title" validate:"required,min=1,max=200"`
+        Notes        string          `json:"notes,omitempty" validate:"max=1000"`
+        Amount       string          `json:"amount" validate:"required"`
+        CurrencyCode string          `json:"currency_code,omitempty" validate:"omitempty,len=3"`
+        Date         string          `json:"date" validate:"required"`
+        Payments     []PaymentRequest `json:"payments" validate:"required,min=1,dive"`
+        Splits       []SplitRequest   `json:"splits" validate:"required,min=1,dive"`
+}
+
+type UpdateExpenseRequest struct {
+        Title        string          `json:"title" validate:"required,min=1,max=200"`
+        Notes        string          `json:"notes,omitempty" validate:"max=1000"`
+        Amount       string          `json:"amount" validate:"required"`
+        CurrencyCode string          `json:"currency_code,omitempty" validate:"omitempty,len=3"`
+        Date         string          `json:"date" validate:"required"`
+        Payments     []PaymentRequest `json:"payments" validate:"required,min=1,dive"`
+        Splits       []SplitRequest   `json:"splits" validate:"required,min=1,dive"`
+}
+
+// Response structs
+
+type ExpenseResponse struct {
+        ID           pgtype.UUID `json:"id"`
+        GroupID      pgtype.UUID `json:"group_id"`
+        Title        string      `json:"title"`
+        Notes        string      `json:"notes,omitempty"`
+        Amount       string      `json:"amount"`
+        CurrencyCode string      `json:"currency_code"`
+        Date         string      `json:"date"`
+        CreatedAt    string      `json:"created_at"`
+        CreatedBy    pgtype.UUID `json:"created_by"`
+        UpdatedAt    string      `json:"updated_at"`
+        UpdatedBy    pgtype.UUID `json:"updated_by"`
+}
+
+type PaymentResponse struct {
+        ID            pgtype.UUID `json:"id"`
+        ExpenseID     pgtype.UUID `json:"expense_id"`
+        UserID        pgtype.UUID `json:"user_id"`
+        Amount        string      `json:"amount"`
+        PaymentMethod string      `json:"payment_method,omitempty"`
+        CreatedAt     string      `json:"created_at"`
+        User          UserInfo    `json:"user,omitempty"`
+}
+
+type SplitResponse struct {
+        ID          pgtype.UUID `json:"id"`
+        ExpenseID   pgtype.UUID `json:"expense_id"`
+        UserID      pgtype.UUID `json:"user_id"`
+        AmountOwned string      `json:"amount_owned"`
+        SplitType   string      `json:"split_type"`
+        CreatedAt   string      `json:"created_at"`
+        User        UserInfo    `json:"user,omitempty"`
+}
+
+type CreateExpenseResponse struct {
+        Expense  ExpenseResponse  `json:"expense"`
+        Payments []PaymentResponse `json:"payments"`
+        Splits   []SplitResponse   `json:"splits"`
+}
+
+// List responses
+
+type GroupExpenseResponse struct {
+        Expense  ExpenseResponse  `json:"expense"`
+        Payments []PaymentResponse `json:"payments"`
+}
+
+// Handlers
+
+func CreateExpenseHandler(expenseService service.ExpenseService) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                req, ok := middleware.GetBody[CreateExpenseRequest](r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusInternalServerError, "invalid request context")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">groupID, err := parseUUID(chi.URLParam(r, "group_id"))
+                if err != nil </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusBadRequest, "invalid group_id")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">userID, ok := middleware.GetUserID(r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusUnauthorized, "unauthorized")
+                        return
+                }</span>
+
+                // Parse date
+                <span class="cov8" title="1">date, err := time.Parse("2006-01-02", req.Date)
+                if err != nil </span><span class="cov8" title="1">{
+                        response.SendError(w, http.StatusBadRequest, "invalid date format, expected YYYY-MM-DD")
+                        return
+                }</span>
+
+                // Convert payments
+                <span class="cov8" title="1">payments := make([]service.PaymentInput, len(req.Payments))
+                for i, p := range req.Payments </span><span class="cov8" title="1">{
+                        userID, err := parseUUID(p.UserID)
+                        if err != nil </span><span class="cov0" title="0">{
+                                response.SendError(w, http.StatusBadRequest, "invalid payment user_id")
+                                return
+                        }</span>
+                        <span class="cov8" title="1">payments[i] = service.PaymentInput{
+                                UserID:        userID,
+                                Amount:        p.Amount,
+                                PaymentMethod: p.PaymentMethod,
+                        }</span>
+                }
+
+                // Convert splits
+                <span class="cov8" title="1">splits := make([]service.SplitInput, len(req.Splits))
+                for i, s := range req.Splits </span><span class="cov8" title="1">{
+                        userID, err := parseUUID(s.UserID)
+                        if err != nil </span><span class="cov0" title="0">{
+                                response.SendError(w, http.StatusBadRequest, "invalid split user_id")
+                                return
+                        }</span>
+                        <span class="cov8" title="1">splits[i] = service.SplitInput{
+                                UserID:      userID,
+                                AmountOwned: s.AmountOwned,
+                                SplitType:   s.SplitType,
+                        }</span>
+                }
+
+                <span class="cov8" title="1">result, err := expenseService.CreateExpense(r.Context(), service.CreateExpenseInput{
+                        GroupID:      groupID,
+                        Title:        req.Title,
+                        Notes:        req.Notes,
+                        Amount:       req.Amount,
+                        CurrencyCode: req.CurrencyCode,
+                        Date:         date,
+                        CreatedBy:    userID,
+                        Payments:     payments,
+                        Splits:       splits,
+                })
+                if err != nil </span><span class="cov8" title="1">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrExpenseNotFound:<span class="cov0" title="0">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember:<span class="cov8" title="1">
+                                statusCode = http.StatusForbidden</span>
+                        case service.ErrInvalidAmount, service.ErrPaymentTotalMismatch, service.ErrSplitTotalMismatch:<span class="cov0" title="0">
+                                statusCode = http.StatusUnprocessableEntity</span>
+                        }
+                        <span class="cov8" title="1">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                // Load payments and splits with user info so response contains full user details
+                <span class="cov8" title="1">paymentRows, err := expenseService.GetExpensePayments(r.Context(), result.Expense.ID, userID)
+                if err != nil </span><span class="cov0" title="0">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrExpenseNotFound:<span class="cov0" title="0">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember:<span class="cov0" title="0">
+                                statusCode = http.StatusForbidden</span>
+                        }
+                        <span class="cov0" title="0">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov8" title="1">splitRows, err := expenseService.GetExpenseSplits(r.Context(), result.Expense.ID, userID)
+                if err != nil </span><span class="cov0" title="0">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrExpenseNotFound:<span class="cov0" title="0">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember:<span class="cov0" title="0">
+                                statusCode = http.StatusForbidden</span>
+                        }
+                        <span class="cov0" title="0">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov8" title="1">resp := CreateExpenseResponse{
+                        Expense:  expenseToResponse(result.Expense),
+                        Payments: paymentsWithUserToResponse(paymentRows),
+                        Splits:   splitsWithUserToResponse(splitRows),
+                }
+
+                response.SendSuccess(w, http.StatusCreated, resp)</span>
+        }
+}
+
+func GetExpenseHandler(expenseService service.ExpenseService) http.HandlerFunc <span class="cov0" title="0">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                expenseID, err := parseUUID(chi.URLParam(r, "expense_id"))
+                if err != nil </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusBadRequest, "invalid expense_id")
+                        return
+                }</span>
+
+                <span class="cov0" title="0">userID, ok := middleware.GetUserID(r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusUnauthorized, "unauthorized")
+                        return
+                }</span>
+
+                <span class="cov0" title="0">expense, err := expenseService.GetExpenseByID(r.Context(), expenseID, userID)
+                if err != nil </span><span class="cov0" title="0">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrExpenseNotFound:<span class="cov0" title="0">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember:<span class="cov0" title="0">
+                                statusCode = http.StatusForbidden</span>
+                        }
+                        <span class="cov0" title="0">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                // Load payments and splits with user info
+                <span class="cov0" title="0">payments, err := expenseService.GetExpensePayments(r.Context(), expenseID, userID)
+                if err != nil </span><span class="cov0" title="0">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrExpenseNotFound:<span class="cov0" title="0">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember:<span class="cov0" title="0">
+                                statusCode = http.StatusForbidden</span>
+                        }
+                        <span class="cov0" title="0">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov0" title="0">splits, err := expenseService.GetExpenseSplits(r.Context(), expenseID, userID)
+                if err != nil </span><span class="cov0" title="0">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrExpenseNotFound:<span class="cov0" title="0">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember:<span class="cov0" title="0">
+                                statusCode = http.StatusForbidden</span>
+                        }
+                        <span class="cov0" title="0">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov0" title="0">resp := CreateExpenseResponse{
+                        Expense:  expenseToResponse(expense),
+                        Payments: paymentsWithUserToResponse(payments),
+                        Splits:   splitsWithUserToResponse(splits),
+                }
+
+                response.SendSuccess(w, http.StatusOK, resp)</span>
+        }
+}
+
+func ListExpensesHandler(expenseService service.ExpenseService) http.HandlerFunc <span class="cov0" title="0">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                groupID, err := parseUUID(chi.URLParam(r, "group_id"))
+                if err != nil </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusBadRequest, "invalid group_id")
+                        return
+                }</span>
+
+                <span class="cov0" title="0">userID, ok := middleware.GetUserID(r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusUnauthorized, "unauthorized")
+                        return
+                }</span>
+
+                <span class="cov0" title="0">expenses, err := expenseService.ListExpensesByGroup(r.Context(), groupID, userID)
+                if err != nil </span><span class="cov0" title="0">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrExpenseNotFound:<span class="cov0" title="0">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember:<span class="cov0" title="0">
+                                statusCode = http.StatusForbidden</span>
+                        }
+                        <span class="cov0" title="0">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov0" title="0">resp := make([]GroupExpenseResponse, len(expenses))
+                for i, e := range expenses </span><span class="cov0" title="0">{
+                        // For each expense, load payments with user info so we can show who paid
+                        paymentRows, err := expenseService.GetExpensePayments(r.Context(), e.ID, userID)
+                        if err != nil </span><span class="cov0" title="0">{
+                                statusCode := http.StatusBadRequest
+                                switch err </span>{
+                                case service.ErrExpenseNotFound:<span class="cov0" title="0">
+                                        statusCode = http.StatusNotFound</span>
+                                case service.ErrNotGroupMember:<span class="cov0" title="0">
+                                        statusCode = http.StatusForbidden</span>
+                                }
+                                <span class="cov0" title="0">response.SendError(w, statusCode, err.Error())
+                                return</span>
+                        }
+
+                        <span class="cov0" title="0">resp[i] = GroupExpenseResponse{
+                                Expense:  expenseToResponse(e),
+                                Payments: paymentsWithUserToResponse(paymentRows),
+                        }</span>
+                }
+
+                <span class="cov0" title="0">response.SendSuccess(w, http.StatusOK, resp)</span>
+        }
+}
+
+func UpdateExpenseHandler(expenseService service.ExpenseService) http.HandlerFunc <span class="cov0" title="0">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                req, ok := middleware.GetBody[UpdateExpenseRequest](r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusInternalServerError, "invalid request context")
+                        return
+                }</span>
+
+                <span class="cov0" title="0">expenseID, err := parseUUID(chi.URLParam(r, "expense_id"))
+                if err != nil </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusBadRequest, "invalid expense_id")
+                        return
+                }</span>
+
+                <span class="cov0" title="0">userID, ok := middleware.GetUserID(r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusUnauthorized, "unauthorized")
+                        return
+                }</span>
+
+                // Parse date
+                <span class="cov0" title="0">date, err := time.Parse("2006-01-02", req.Date)
+                if err != nil </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusBadRequest, "invalid date format, expected YYYY-MM-DD")
+                        return
+                }</span>
+
+                // Convert payments
+                <span class="cov0" title="0">payments := make([]service.PaymentInput, len(req.Payments))
+                for i, p := range req.Payments </span><span class="cov0" title="0">{
+                        paymentUserID, err := parseUUID(p.UserID)
+                        if err != nil </span><span class="cov0" title="0">{
+                                response.SendError(w, http.StatusBadRequest, "invalid payment user_id")
+                                return
+                        }</span>
+                        <span class="cov0" title="0">payments[i] = service.PaymentInput{
+                                UserID:        paymentUserID,
+                                Amount:        p.Amount,
+                                PaymentMethod: p.PaymentMethod,
+                        }</span>
+                }
+
+                // Convert splits
+                <span class="cov0" title="0">splits := make([]service.SplitInput, len(req.Splits))
+                for i, s := range req.Splits </span><span class="cov0" title="0">{
+                        splitUserID, err := parseUUID(s.UserID)
+                        if err != nil </span><span class="cov0" title="0">{
+                                response.SendError(w, http.StatusBadRequest, "invalid split user_id")
+                                return
+                        }</span>
+                        <span class="cov0" title="0">splits[i] = service.SplitInput{
+                                UserID:      splitUserID,
+                                AmountOwned: s.AmountOwned,
+                                SplitType:   s.SplitType,
+                        }</span>
+                }
+
+                <span class="cov0" title="0">result, err := expenseService.UpdateExpense(r.Context(), service.UpdateExpenseInput{
+                        ExpenseID:    expenseID,
+                        Title:        req.Title,
+                        Notes:        req.Notes,
+                        Amount:       req.Amount,
+                        CurrencyCode: req.CurrencyCode,
+                        Date:         date,
+                        UpdatedBy:    userID,
+                        Payments:     payments,
+                        Splits:       splits,
+                })
+                if err != nil </span><span class="cov0" title="0">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrExpenseNotFound:<span class="cov0" title="0">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember:<span class="cov0" title="0">
+                                statusCode = http.StatusForbidden</span>
+                        case service.ErrInvalidAmount, service.ErrPaymentTotalMismatch, service.ErrSplitTotalMismatch:<span class="cov0" title="0">
+                                statusCode = http.StatusUnprocessableEntity</span>
+                        }
+                        <span class="cov0" title="0">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                // Load payments and splits with user info so response contains full user details
+                <span class="cov0" title="0">paymentRows, err := expenseService.GetExpensePayments(r.Context(), result.Expense.ID, userID)
+                if err != nil </span><span class="cov0" title="0">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrExpenseNotFound:<span class="cov0" title="0">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember:<span class="cov0" title="0">
+                                statusCode = http.StatusForbidden</span>
+                        }
+                        <span class="cov0" title="0">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov0" title="0">splitRows, err := expenseService.GetExpenseSplits(r.Context(), result.Expense.ID, userID)
+                if err != nil </span><span class="cov0" title="0">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrExpenseNotFound:<span class="cov0" title="0">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember:<span class="cov0" title="0">
+                                statusCode = http.StatusForbidden</span>
+                        }
+                        <span class="cov0" title="0">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov0" title="0">resp := CreateExpenseResponse{
+                        Expense:  expenseToResponse(result.Expense),
+                        Payments: paymentsWithUserToResponse(paymentRows),
+                        Splits:   splitsWithUserToResponse(splitRows),
+                }
+
+                response.SendSuccess(w, http.StatusOK, resp)</span>
+        }
+}
+
+func DeleteExpenseHandler(expenseService service.ExpenseService) http.HandlerFunc <span class="cov0" title="0">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                expenseID, err := parseUUID(chi.URLParam(r, "expense_id"))
+                if err != nil </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusBadRequest, "invalid expense_id")
+                        return
+                }</span>
+
+                <span class="cov0" title="0">userID, ok := middleware.GetUserID(r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusUnauthorized, "unauthorized")
+                        return
+                }</span>
+
+                <span class="cov0" title="0">err = expenseService.DeleteExpense(r.Context(), expenseID, userID)
+                if err != nil </span><span class="cov0" title="0">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrExpenseNotFound:<span class="cov0" title="0">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember:<span class="cov0" title="0">
+                                statusCode = http.StatusForbidden</span>
+                        }
+                        <span class="cov0" title="0">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov0" title="0">w.WriteHeader(http.StatusNoContent)</span>
+        }
+}
+
+// Helper functions
+
+func expenseToResponse(expense sqlc.Expense) ExpenseResponse <span class="cov8" title="1">{
+        amount, _ := numericToString(expense.Amount)
+        dateStr := ""
+        if expense.Date.Valid </span><span class="cov0" title="0">{
+                dateStr = expense.Date.Time.Format("2006-01-02")
+        }</span>
+        <span class="cov8" title="1">return ExpenseResponse{
+                ID:           expense.ID,
+                GroupID:      expense.GroupID,
+                Title:        expense.Title,
+                Notes:        expense.Notes.String,
+                Amount:       amount,
+                CurrencyCode: expense.CurrencyCode,
+                Date:         dateStr,
+                CreatedAt:    formatTimestamp(expense.CreatedAt),
+                CreatedBy:    expense.CreatedBy,
+                UpdatedAt:    formatTimestamp(expense.UpdatedAt),
+                UpdatedBy:    expense.UpdatedBy,
+        }</span>
+}
+
+func paymentsToResponse(payments []sqlc.ExpensePayment) []PaymentResponse <span class="cov0" title="0">{
+        resp := make([]PaymentResponse, len(payments))
+        for i, p := range payments </span><span class="cov0" title="0">{
+                amount, _ := numericToString(p.Amount)
+                resp[i] = PaymentResponse{
+                        ID:            p.ID,
+                        ExpenseID:     p.ExpenseID,
+                        UserID:        p.UserID,
+                        Amount:        amount,
+                        PaymentMethod: p.PaymentMethod.String,
+                        CreatedAt:     formatTimestamp(p.CreatedAt),
+                }
+        }</span>
+        <span class="cov0" title="0">return resp</span>
+}
+
+func paymentsWithUserToResponse(payments []sqlc.ListExpensePaymentsRow) []PaymentResponse <span class="cov8" title="1">{
+        resp := make([]PaymentResponse, len(payments))
+        for i, p := range payments </span><span class="cov8" title="1">{
+                amount, _ := numericToString(p.Amount)
+                resp[i] = PaymentResponse{
+                        ID:            p.ID,
+                        ExpenseID:     p.ExpenseID,
+                        UserID:        p.UserID,
+                        Amount:        amount,
+                        PaymentMethod: p.PaymentMethod.String,
+                        CreatedAt:     formatTimestamp(p.CreatedAt),
+                        User: UserInfo{
+                                Email:     p.UserEmail,
+                                Name:      p.UserName.String,
+                                AvatarURL: p.UserAvatarUrl.String,
+                        },
+                }
+        }</span>
+        <span class="cov8" title="1">return resp</span>
+}
+
+func splitsToResponse(splits []sqlc.ExpenseSplit) []SplitResponse <span class="cov0" title="0">{
+        resp := make([]SplitResponse, len(splits))
+        for i, s := range splits </span><span class="cov0" title="0">{
+                amount, _ := numericToString(s.AmountOwned)
+                resp[i] = SplitResponse{
+                        ID:          s.ID,
+                        ExpenseID:   s.ExpenseID,
+                        UserID:      s.UserID,
+                        AmountOwned: amount,
+                        SplitType:   s.SplitType,
+                        CreatedAt:   formatTimestamp(s.CreatedAt),
+                }
+        }</span>
+        <span class="cov0" title="0">return resp</span>
+}
+
+func splitsWithUserToResponse(splits []sqlc.ListExpenseSplitsRow) []SplitResponse <span class="cov8" title="1">{
+        resp := make([]SplitResponse, len(splits))
+        for i, s := range splits </span><span class="cov8" title="1">{
+                amount, _ := numericToString(s.AmountOwned)
+                resp[i] = SplitResponse{
+                        ID:          s.ID,
+                        ExpenseID:   s.ExpenseID,
+                        UserID:      s.UserID,
+                        AmountOwned: amount,
+                        SplitType:   s.SplitType,
+                        CreatedAt:   formatTimestamp(s.CreatedAt),
+                        User: UserInfo{
+                                Email:     s.UserEmail,
+                                Name:      s.UserName.String,
+                                AvatarURL: s.UserAvatarUrl.String,
+                        },
+                }
+        }</span>
+        <span class="cov8" title="1">return resp</span>
+}
+
+func numericToString(n pgtype.Numeric) (string, error) <span class="cov8" title="1">{
+        if !n.Valid </span><span class="cov8" title="1">{
+                return "0", nil
+        }</span>
+        <span class="cov0" title="0">val, err := n.Value()
+        if err != nil </span><span class="cov0" title="0">{
+                return "0", err
+        }</span>
+        <span class="cov0" title="0">if str, ok := val.(string); ok </span><span class="cov0" title="0">{
+                return str, nil
+        }</span>
+        <span class="cov0" title="0">return "0", nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package handlers
+
+import (
+        "net/http"
+
+        "github.com/go-chi/chi/v5"
+        "github.com/jackc/pgx/v5/pgtype"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/http/middleware"
+        "github.com/dhruvsaxena1998/splitplus/internal/http/response"
+        "github.com/dhruvsaxena1998/splitplus/internal/service"
+)
+
+// Request structs
+
+type CreateGroupRequest struct {
+        Name         string `json:"name" validate:"required,min=1,max=100"`
+        Description  string `json:"description" validate:"max=500"`
+        CurrencyCode string `json:"currency_code" validate:"omitempty,len=3"`
+}
+
+type InviteUserRequest struct {
+        UserID string `json:"user_id" validate:"required,uuid"`
+}
+
+// Response structs
+
+type CreateGroupResponse struct {
+        ID           pgtype.UUID `json:"id"`
+        Name         string      `json:"name"`
+        Description  string      `json:"description,omitempty"`
+        CurrencyCode string      `json:"currency_code"`
+        CreatedAt    string      `json:"created_at"`
+        Role         string      `json:"role"`
+}
+
+type GroupMemberResponse struct {
+        ID        pgtype.UUID `json:"id"`
+        GroupID   pgtype.UUID `json:"group_id"`
+        UserID    pgtype.UUID `json:"user_id"`
+        Role      string      `json:"role"`
+        Status    string      `json:"status"`
+        InvitedAt string      `json:"invited_at,omitempty"`
+        JoinedAt  string      `json:"joined_at,omitempty"`
+}
+
+type GroupMemberWithUserResponse struct {
+        ID        pgtype.UUID `json:"id"`
+        GroupID   pgtype.UUID `json:"group_id"`
+        UserID    pgtype.UUID `json:"user_id"`
+        Role      string      `json:"role"`
+        Status    string      `json:"status"`
+        InvitedAt string      `json:"invited_at,omitempty"`
+        JoinedAt  string      `json:"joined_at,omitempty"`
+        User      UserInfo    `json:"user"`
+}
+
+type UserInfo struct {
+        Email     string `json:"email"`
+        Name      string `json:"name,omitempty"`
+        AvatarURL string `json:"avatar_url,omitempty"`
+}
+
+type UserGroupResponse struct {
+        ID             pgtype.UUID `json:"id"`
+        Name           string      `json:"name"`
+        Description    string      `json:"description,omitempty"`
+        CurrencyCode   string      `json:"currency_code"`
+        CreatedAt      string      `json:"created_at"`
+        MembershipID   pgtype.UUID `json:"membership_id"`
+        MemberRole     string      `json:"member_role"`
+        MemberStatus   string      `json:"member_status"`
+        MemberJoinedAt string      `json:"member_joined_at,omitempty"`
+}
+
+// Handlers
+
+func CreateGroupHandler(groupService service.GroupService) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                req, ok := middleware.GetBody[CreateGroupRequest](r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusInternalServerError, "invalid request context")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">userID, ok := middleware.GetUserID(r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusUnauthorized, "unauthorized")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">result, err := groupService.CreateGroup(r.Context(), service.CreateGroupInput{
+                        Name:         req.Name,
+                        Description:  req.Description,
+                        CurrencyCode: req.CurrencyCode,
+                        CreatedBy:    userID,
+                })
+                if err != nil </span><span class="cov8" title="1">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrInvalidGroupName:<span class="cov8" title="1">
+                                statusCode = http.StatusUnprocessableEntity</span>
+                        }
+                        <span class="cov8" title="1">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov8" title="1">resp := CreateGroupResponse{
+                        ID:           result.Group.ID,
+                        Name:         result.Group.Name,
+                        Description:  result.Group.Description.String,
+                        CurrencyCode: result.Group.CurrencyCode,
+                        CreatedAt:    result.Group.CreatedAt.Time.String(),
+                        Role:         result.Membership.Role,
+                }
+
+                response.SendSuccess(w, http.StatusCreated, resp)</span>
+        }
+}
+
+func InviteUserHandler(groupService service.GroupService) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                req, ok := middleware.GetBody[InviteUserRequest](r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusInternalServerError, "invalid request context")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">groupID, err := parseUUID(chi.URLParam(r, "group_id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        response.SendError(w, http.StatusBadRequest, "invalid group_id")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">inviterID, ok := middleware.GetUserID(r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusUnauthorized, "unauthorized")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">userID, err := parseUUID(req.UserID)
+                if err != nil </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusBadRequest, "invalid user_id")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">membership, err := groupService.InviteUser(r.Context(), service.InviteUserInput{
+                        GroupID:   groupID,
+                        UserID:    userID,
+                        InvitedBy: inviterID,
+                })
+                if err != nil </span><span class="cov8" title="1">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrGroupNotFound, service.ErrUserNotFound:<span class="cov8" title="1">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember, service.ErrInsufficientPermissions:<span class="cov8" title="1">
+                                statusCode = http.StatusForbidden</span>
+                        case service.ErrAlreadyMember:<span class="cov8" title="1">
+                                statusCode = http.StatusConflict</span>
+                        }
+                        <span class="cov8" title="1">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov8" title="1">resp := GroupMemberResponse{
+                        ID:        membership.ID,
+                        GroupID:   membership.GroupID,
+                        UserID:    membership.UserID,
+                        Role:      membership.Role,
+                        Status:    membership.Status,
+                        InvitedAt: formatTimestamp(membership.InvitedAt),
+                }
+
+                response.SendSuccess(w, http.StatusCreated, resp)</span>
+        }
+}
+
+func JoinGroupHandler(groupService service.GroupService) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                groupID, err := parseUUID(chi.URLParam(r, "group_id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        response.SendError(w, http.StatusBadRequest, "invalid group_id")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">userID, ok := middleware.GetUserID(r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusUnauthorized, "unauthorized")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">membership, err := groupService.JoinGroup(r.Context(), service.JoinGroupInput{
+                        GroupID: groupID,
+                        UserID:  userID,
+                })
+                if err != nil </span><span class="cov8" title="1">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrGroupNotFound:<span class="cov8" title="1">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNoPendingInvitation:<span class="cov8" title="1">
+                                statusCode = http.StatusForbidden</span>
+                        }
+                        <span class="cov8" title="1">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov8" title="1">resp := GroupMemberResponse{
+                        ID:       membership.ID,
+                        GroupID:  membership.GroupID,
+                        UserID:   membership.UserID,
+                        Role:     membership.Role,
+                        Status:   membership.Status,
+                        JoinedAt: formatTimestamp(membership.JoinedAt),
+                }
+
+                response.SendSuccess(w, http.StatusOK, resp)</span>
+        }
+}
+
+func ListGroupMembersHandler(groupService service.GroupService) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                groupID, err := parseUUID(chi.URLParam(r, "group_id"))
+                if err != nil </span><span class="cov8" title="1">{
+                        response.SendError(w, http.StatusBadRequest, "invalid group_id")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">userID, ok := middleware.GetUserID(r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusUnauthorized, "unauthorized")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">members, err := groupService.ListGroupMembers(r.Context(), groupID, userID)
+                if err != nil </span><span class="cov8" title="1">{
+                        statusCode := http.StatusBadRequest
+                        switch err </span>{
+                        case service.ErrGroupNotFound:<span class="cov8" title="1">
+                                statusCode = http.StatusNotFound</span>
+                        case service.ErrNotGroupMember:<span class="cov8" title="1">
+                                statusCode = http.StatusForbidden</span>
+                        }
+                        <span class="cov8" title="1">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov8" title="1">resp := make([]GroupMemberWithUserResponse, len(members))
+                for i, m := range members </span><span class="cov8" title="1">{
+                        resp[i] = GroupMemberWithUserResponse{
+                                ID:        m.ID,
+                                GroupID:   m.GroupID,
+                                UserID:    m.UserID,
+                                Role:      m.Role,
+                                Status:    m.Status,
+                                InvitedAt: formatTimestamp(m.InvitedAt),
+                                JoinedAt:  formatTimestamp(m.JoinedAt),
+                                User: UserInfo{
+                                        Email:     m.UserEmail,
+                                        Name:      m.UserName.String,
+                                        AvatarURL: m.UserAvatarUrl.String,
+                                },
+                        }
+                }</span>
+
+                <span class="cov8" title="1">response.SendSuccess(w, http.StatusOK, resp)</span>
+        }
+}
+
+func ListUserGroupsHandler(groupService service.GroupService) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                userID, ok := middleware.GetUserID(r)
+                if !ok </span><span class="cov8" title="1">{
+                        response.SendError(w, http.StatusUnauthorized, "unauthorized")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">groups, err := groupService.ListUserGroups(r.Context(), userID)
+                if err != nil </span><span class="cov8" title="1">{
+                        response.SendError(w, http.StatusInternalServerError, err.Error())
+                        return
+                }</span>
+
+                <span class="cov8" title="1">resp := make([]UserGroupResponse, len(groups))
+                for i, g := range groups </span><span class="cov8" title="1">{
+                        resp[i] = UserGroupResponse{
+                                ID:             g.ID,
+                                Name:           g.Name,
+                                Description:    g.Description.String,
+                                CurrencyCode:   g.CurrencyCode,
+                                CreatedAt:      formatTimestamp(g.CreatedAt),
+                                MembershipID:   g.MembershipID,
+                                MemberRole:     g.MemberRole,
+                                MemberStatus:   g.MemberStatus,
+                                MemberJoinedAt: formatTimestamp(g.MemberJoinedAt),
+                        }
+                }</span>
+
+                <span class="cov8" title="1">response.SendSuccess(w, http.StatusOK, resp)</span>
+        }
+}
+
+// Helper functions
+
+func parseUUID(s string) (pgtype.UUID, error) <span class="cov8" title="1">{
+        var uuid pgtype.UUID
+        err := uuid.Scan(s)
+        return uuid, err
+}</span>
+
+func formatTimestamp(ts pgtype.Timestamptz) string <span class="cov8" title="1">{
+        if !ts.Valid </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+        <span class="cov8" title="1">return ts.Time.String()</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package handlers
+
+import (
+        "net/http"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/http/middleware"
+        "github.com/dhruvsaxena1998/splitplus/internal/http/response"
+        "github.com/dhruvsaxena1998/splitplus/internal/service"
+        "github.com/jackc/pgx/v5/pgtype"
+)
+
+type CreateUserRequest struct {
+        Email    string `json:"email" validate:"required,email"`
+        Password string `json:"password" validate:"required,min=8"`
+}
+
+type UserResponse struct {
+        ID        pgtype.UUID `json:"id"`
+        Email     string      `json:"email"`
+        CreatedAt string      `json:"created_at"`
+}
+
+func CreateUserHandler(userService service.UserService) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                req, ok := middleware.GetBody[CreateUserRequest](r)
+                if !ok </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusInternalServerError, "invalid request context")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">user, err := userService.CreateUser(r.Context(), req.Email, req.Password)
+                if err != nil </span><span class="cov8" title="1">{
+                        var statusCode int
+                        switch err </span>{
+                        case service.ErrUserAlreadyExists:<span class="cov8" title="1">
+                                statusCode = http.StatusConflict</span>
+                        default:<span class="cov8" title="1">
+                                statusCode = http.StatusBadRequest</span>
+                        }
+                        <span class="cov8" title="1">response.SendError(w, statusCode, err.Error())
+                        return</span>
+                }
+
+                <span class="cov8" title="1">resp := UserResponse{
+                        ID:        user.ID,
+                        Email:     user.Email,
+                        CreatedAt: user.CreatedAt.Time.String(),
+                }
+
+                response.SendSuccess(w, http.StatusCreated, resp)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package middleware
+
+import (
+        "context"
+        "net/http"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/http/response"
+        "github.com/jackc/pgx/v5/pgtype"
+)
+
+type userIDKey struct{}
+
+// SetUserID sets the authenticated user ID in the request context
+func SetUserID(ctx context.Context, userID pgtype.UUID) context.Context <span class="cov0" title="0">{
+        return context.WithValue(ctx, userIDKey{}, userID)
+}</span>
+
+// GetUserID retrieves the authenticated user ID from the request context
+func GetUserID(r *http.Request) (pgtype.UUID, bool) <span class="cov0" title="0">{
+        userID, ok := r.Context().Value(userIDKey{}).(pgtype.UUID)
+        return userID, ok
+}</span>
+
+// RequireAuth is a middleware that ensures the user is authenticated
+// For now, this is a placeholder using X-User-ID header for testing
+// TODO: Replace with actual JWT validation
+func RequireAuth(next http.Handler) http.Handler <span class="cov0" title="0">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                userIDStr := r.Header.Get("X-User-ID")
+                if userIDStr == "" </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusUnauthorized, "unauthorized")
+                        return
+                }</span>
+
+                <span class="cov0" title="0">var userID pgtype.UUID
+                if err := userID.Scan(userIDStr); err != nil </span><span class="cov0" title="0">{
+                        response.SendError(w, http.StatusUnauthorized, "invalid user id")
+                        return
+                }</span>
+
+                <span class="cov0" title="0">ctx := SetUserID(r.Context(), userID)
+                next.ServeHTTP(w, r.WithContext(ctx))</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package middleware
+
+import (
+        "context"
+        "encoding/json"
+        "fmt"
+        "net/http"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/http/response"
+        "github.com/go-playground/validator/v10"
+)
+
+type ctxKey[T any] struct{}
+func GetBody[T any](r *http.Request) (T, bool) <span class="cov0" title="0">{
+    body, ok := r.Context().Value(ctxKey[T]{}).(T)
+    return body, ok
+}</span>
+
+func ValidateBody[T any](
+    v *validator.Validate,
+) func(http.Handler) http.Handler <span class="cov0" title="0">{
+    return func(next http.Handler) http.Handler </span><span class="cov0" title="0">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+            var body T
+
+            decoder := json.NewDecoder(r.Body)
+            decoder.DisallowUnknownFields()
+
+            if err := decoder.Decode(&amp;body); err != nil </span><span class="cov0" title="0">{
+                response.SendError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %s", err.Error()))
+                return
+            }</span>
+
+            <span class="cov0" title="0">if err := v.Struct(body); err != nil </span><span class="cov0" title="0">{
+                var validationErrors []string
+                if validatorErrors, ok := err.(validator.ValidationErrors); ok </span><span class="cov0" title="0">{
+                    for _, fieldError := range validatorErrors </span><span class="cov0" title="0">{
+                        validationErrors = append(validationErrors, fmt.Sprintf("%s: %s", fieldError.Field(), getValidationErrorMessage(fieldError)))
+                    }</span>
+                } else<span class="cov0" title="0"> {
+                    validationErrors = append(validationErrors, err.Error())
+                }</span>
+                <span class="cov0" title="0">response.SendValidationErrors(w, http.StatusUnprocessableEntity, validationErrors)
+                return</span>
+            }
+
+            <span class="cov0" title="0">ctx := context.WithValue(r.Context(), ctxKey[T]{}, body)
+            next.ServeHTTP(w, r.WithContext(ctx))</span>
+        })
+    }
+}
+
+func getValidationErrorMessage(fieldError validator.FieldError) string <span class="cov0" title="0">{
+    switch fieldError.Tag() </span>{
+    case "required":<span class="cov0" title="0">
+        return "is required"</span>
+    case "email":<span class="cov0" title="0">
+        return "must be a valid email address"</span>
+    case "min":<span class="cov0" title="0">
+        return fmt.Sprintf("must be at least %s characters", fieldError.Param())</span>
+    case "max":<span class="cov0" title="0">
+        return fmt.Sprintf("must be at most %s characters", fieldError.Param())</span>
+    default:<span class="cov0" title="0">
+        return fmt.Sprintf("failed validation for '%s'", fieldError.Tag())</span>
+    }
+}</pre>
+		
+		<pre class="file" id="file13" style="display: none">package response
+
+import (
+        "encoding/json"
+        "net/http"
+)
+
+type StandardResponse[TData any, TError any] struct {
+        Status bool   `json:"status"`
+        Data   *TData `json:"data,omitempty"`
+        Error  *TError `json:"error,omitempty"`
+}
+
+type ErrorDetail struct {
+        Message interface{} `json:"message"`
+}
+
+func SendSuccess[TData any](w http.ResponseWriter, statusCode int, data TData) <span class="cov0" title="0">{
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(statusCode)
+        _ = json.NewEncoder(w).Encode(StandardResponse[TData, ErrorDetail]{
+                Status: true,
+                Data:   &amp;data,
+                Error:  nil,
+        })
+}</span>
+
+func SendError(w http.ResponseWriter, statusCode int, errorMessage string) <span class="cov0" title="0">{
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(statusCode)
+        errorDetail := ErrorDetail{Message: errorMessage}
+        _ = json.NewEncoder(w).Encode(StandardResponse[interface{}, ErrorDetail]{
+                Status: false,
+                Data:   nil,
+                Error:  &amp;errorDetail,
+        })
+}</span>
+
+func SendValidationErrors(w http.ResponseWriter, statusCode int, errorMessages []string) <span class="cov0" title="0">{
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(statusCode)
+        errorDetail := ErrorDetail{Message: errorMessages}
+        _ = json.NewEncoder(w).Encode(StandardResponse[interface{}, ErrorDetail]{
+                Status: false,
+                Data:   nil,
+                Error:  &amp;errorDetail,
+        })
+}</span>
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">package router
+
+import (
+        "fmt"
+        "net/http"
+
+        "github.com/go-chi/chi/v5"
+)
+
+func PrintRoutes(r chi.Router) <span class="cov0" title="0">{
+        _ = chi.Walk(r, func(
+                method string,
+                route string,
+                handler http.Handler,
+                middlewares ...func(http.Handler) http.Handler,
+        ) error </span><span class="cov0" title="0">{
+                fmt.Printf("%-6s %s\n", method, route)
+                return nil
+        }</span>)
+}
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">package router
+
+import (
+        "github.com/go-chi/chi/v5"
+        "github.com/go-playground/validator/v10"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/http/handlers"
+        "github.com/dhruvsaxena1998/splitplus/internal/http/middleware"
+        "github.com/dhruvsaxena1998/splitplus/internal/service"
+)
+
+func WithExpenseRoutes(expenseService service.ExpenseService) Option <span class="cov0" title="0">{
+        return optionFunc(func(r chi.Router) </span><span class="cov0" title="0">{
+                v := validator.New()
+
+                // All expense routes require authentication
+                r.Route("/groups/{group_id}/expenses", func(r chi.Router) </span><span class="cov0" title="0">{
+                        r.Use(middleware.RequireAuth)
+
+                        // GET /groups/{group_id}/expenses - List all expenses for a group
+                        r.Get("/", handlers.ListExpensesHandler(expenseService))
+
+                        // POST /groups/{group_id}/expenses - Create a new expense
+                        r.Post("/",
+                                middleware.ValidateBody[handlers.CreateExpenseRequest](v)(
+                                        handlers.CreateExpenseHandler(expenseService),
+                                ).ServeHTTP,
+                        )
+
+                        // Expense-specific routes with {expense_id}
+                        r.Route("/{expense_id}", func(r chi.Router) </span><span class="cov0" title="0">{
+                                // GET /groups/{group_id}/expenses/{expense_id} - Get expense by ID
+                                r.Get("/", handlers.GetExpenseHandler(expenseService))
+
+                                // PUT /groups/{group_id}/expenses/{expense_id} - Update expense
+                                r.Put("/",
+                                        middleware.ValidateBody[handlers.UpdateExpenseRequest](v)(
+                                                handlers.UpdateExpenseHandler(expenseService),
+                                        ).ServeHTTP,
+                                )
+
+                                // DELETE /groups/{group_id}/expenses/{expense_id} - Delete expense
+                                r.Delete("/", handlers.DeleteExpenseHandler(expenseService))
+                        }</span>)
+                })
+        })
+}
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">package router
+
+import (
+        "github.com/go-chi/chi/v5"
+        "github.com/go-playground/validator/v10"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/http/handlers"
+        "github.com/dhruvsaxena1998/splitplus/internal/http/middleware"
+        "github.com/dhruvsaxena1998/splitplus/internal/service"
+)
+
+func WithGroupRoutes(groupService service.GroupService) Option <span class="cov0" title="0">{
+        return optionFunc(func(r chi.Router) </span><span class="cov0" title="0">{
+                v := validator.New()
+
+                r.Route("/groups", func(r chi.Router) </span><span class="cov0" title="0">{
+                        // All group routes require authentication
+                        r.Use(middleware.RequireAuth)
+
+                        // GET /groups - List all groups for the authenticated user
+                        r.Get("/", handlers.ListUserGroupsHandler(groupService))
+
+                        // POST /groups - Create a new group
+                        r.Post("/",
+                                middleware.ValidateBody[handlers.CreateGroupRequest](v)(
+                                        handlers.CreateGroupHandler(groupService),
+                                ).ServeHTTP,
+                        )
+
+                        // Group-specific routes with {group_id}
+                        r.Route("/{group_id}", func(r chi.Router) </span><span class="cov0" title="0">{
+                                // POST /groups/{group_id}/invitations - Invite user to group
+                                r.Post("/invitations",
+                                        middleware.ValidateBody[handlers.InviteUserRequest](v)(
+                                                handlers.InviteUserHandler(groupService),
+                                        ).ServeHTTP,
+                                )
+
+                                // POST /groups/{group_id}/join - Accept invitation / join group
+                                r.Post("/join", handlers.JoinGroupHandler(groupService))
+
+                                // GET /groups/{group_id}/members - List group members
+                                r.Get("/members", handlers.ListGroupMembersHandler(groupService))
+                        }</span>)
+                })
+        })
+}
+</pre>
+		
+		<pre class="file" id="file17" style="display: none">package router
+
+import (
+        "net/http"
+
+        "github.com/go-chi/chi/v5"
+        "github.com/go-chi/chi/v5/middleware"
+)
+
+type Option interface {
+        Apply(r chi.Router)
+}
+type optionFunc func(r chi.Router)
+
+func (f optionFunc) Apply(r chi.Router) <span class="cov0" title="0">{
+        f(r)
+}</span>
+
+func New(opts ...Option) http.Handler <span class="cov0" title="0">{
+        r := chi.NewRouter()
+
+        // global middleware
+        r.Use(middleware.RequestID)
+        r.Use(middleware.RealIP)
+        r.Use(middleware.Logger)
+        r.Use(middleware.Recoverer)
+
+        for _, opt := range opts </span><span class="cov0" title="0">{
+                opt.Apply(r)
+        }</span>
+
+        <span class="cov0" title="0">return r</span>
+}
+</pre>
+		
+		<pre class="file" id="file18" style="display: none">package router
+
+import (
+        "github.com/go-chi/chi/v5"
+        "github.com/go-playground/validator/v10"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/http/handlers"
+        "github.com/dhruvsaxena1998/splitplus/internal/http/middleware"
+        "github.com/dhruvsaxena1998/splitplus/internal/service"
+)
+
+func WithUserRoutes(userService service.UserService) Option <span class="cov0" title="0">{
+        return optionFunc(func(r chi.Router) </span><span class="cov0" title="0">{
+                v := validator.New()
+
+                r.Route("/users", func(r chi.Router) </span><span class="cov0" title="0">{
+                        r.Post("/", middleware.ValidateBody[handlers.CreateUserRequest](v)(handlers.CreateUserHandler(userService)).ServeHTTP)
+                }</span>)
+        })
+}
+</pre>
+		
+		<pre class="file" id="file19" style="display: none">package repository
+
+import (
+        "context"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/db/sqlc"
+        "github.com/jackc/pgx/v5"
+        "github.com/jackc/pgx/v5/pgtype"
+        "github.com/jackc/pgx/v5/pgxpool"
+)
+
+type ExpenseRepository interface {
+        // Transaction support
+        BeginTx(ctx context.Context) (pgx.Tx, error)
+        WithTx(tx pgx.Tx) ExpenseRepository
+
+        // Expense operations
+        CreateExpense(ctx context.Context, params sqlc.CreateExpenseParams) (sqlc.Expense, error)
+        GetExpenseByID(ctx context.Context, id pgtype.UUID) (sqlc.Expense, error)
+        ListExpensesByGroup(ctx context.Context, groupID pgtype.UUID) ([]sqlc.Expense, error)
+        UpdateExpense(ctx context.Context, params sqlc.UpdateExpenseParams) (sqlc.Expense, error)
+        DeleteExpense(ctx context.Context, id pgtype.UUID) error
+
+        // Payment operations
+        CreateExpensePayment(ctx context.Context, params sqlc.CreateExpensePaymentParams) (sqlc.ExpensePayment, error)
+        ListExpensePayments(ctx context.Context, expenseID pgtype.UUID) ([]sqlc.ListExpensePaymentsRow, error)
+        DeleteExpensePayments(ctx context.Context, expenseID pgtype.UUID) error
+
+        // Split operations
+        CreateExpenseSplit(ctx context.Context, params sqlc.CreateExpenseSplitParams) (sqlc.ExpenseSplit, error)
+        ListExpenseSplits(ctx context.Context, expenseID pgtype.UUID) ([]sqlc.ListExpenseSplitsRow, error)
+        DeleteExpenseSplits(ctx context.Context, expenseID pgtype.UUID) error
+
+        // Group lookup (for validation)
+        GetGroupByID(ctx context.Context, id pgtype.UUID) (sqlc.Group, error)
+        GetGroupMember(ctx context.Context, params sqlc.GetGroupMemberParams) (sqlc.GroupMember, error)
+}
+
+type expenseRepository struct {
+        pool    *pgxpool.Pool
+        queries *sqlc.Queries
+}
+
+func NewExpenseRepository(pool *pgxpool.Pool, queries *sqlc.Queries) ExpenseRepository <span class="cov0" title="0">{
+        return &amp;expenseRepository{pool: pool, queries: queries}
+}</span>
+
+func (r *expenseRepository) BeginTx(ctx context.Context) (pgx.Tx, error) <span class="cov0" title="0">{
+        return r.pool.Begin(ctx)
+}</span>
+
+func (r *expenseRepository) WithTx(tx pgx.Tx) ExpenseRepository <span class="cov0" title="0">{
+        return &amp;expenseRepository{
+                pool:    r.pool,
+                queries: r.queries.WithTx(tx),
+        }
+}</span>
+
+func (r *expenseRepository) CreateExpense(ctx context.Context, params sqlc.CreateExpenseParams) (sqlc.Expense, error) <span class="cov0" title="0">{
+        return r.queries.CreateExpense(ctx, params)
+}</span>
+
+func (r *expenseRepository) GetExpenseByID(ctx context.Context, id pgtype.UUID) (sqlc.Expense, error) <span class="cov0" title="0">{
+        return r.queries.GetExpenseByID(ctx, id)
+}</span>
+
+func (r *expenseRepository) ListExpensesByGroup(ctx context.Context, groupID pgtype.UUID) ([]sqlc.Expense, error) <span class="cov0" title="0">{
+        return r.queries.ListExpensesByGroup(ctx, groupID)
+}</span>
+
+func (r *expenseRepository) UpdateExpense(ctx context.Context, params sqlc.UpdateExpenseParams) (sqlc.Expense, error) <span class="cov0" title="0">{
+        return r.queries.UpdateExpense(ctx, params)
+}</span>
+
+func (r *expenseRepository) DeleteExpense(ctx context.Context, id pgtype.UUID) error <span class="cov0" title="0">{
+        return r.queries.DeleteExpense(ctx, id)
+}</span>
+
+func (r *expenseRepository) CreateExpensePayment(ctx context.Context, params sqlc.CreateExpensePaymentParams) (sqlc.ExpensePayment, error) <span class="cov0" title="0">{
+        return r.queries.CreateExpensePayment(ctx, params)
+}</span>
+
+func (r *expenseRepository) ListExpensePayments(ctx context.Context, expenseID pgtype.UUID) ([]sqlc.ListExpensePaymentsRow, error) <span class="cov0" title="0">{
+        return r.queries.ListExpensePayments(ctx, expenseID)
+}</span>
+
+func (r *expenseRepository) DeleteExpensePayments(ctx context.Context, expenseID pgtype.UUID) error <span class="cov0" title="0">{
+        return r.queries.DeleteExpensePayments(ctx, expenseID)
+}</span>
+
+func (r *expenseRepository) CreateExpenseSplit(ctx context.Context, params sqlc.CreateExpenseSplitParams) (sqlc.ExpenseSplit, error) <span class="cov0" title="0">{
+        return r.queries.CreateExpenseSplit(ctx, params)
+}</span>
+
+func (r *expenseRepository) ListExpenseSplits(ctx context.Context, expenseID pgtype.UUID) ([]sqlc.ListExpenseSplitsRow, error) <span class="cov0" title="0">{
+        return r.queries.ListExpenseSplits(ctx, expenseID)
+}</span>
+
+func (r *expenseRepository) DeleteExpenseSplits(ctx context.Context, expenseID pgtype.UUID) error <span class="cov0" title="0">{
+        return r.queries.DeleteExpenseSplits(ctx, expenseID)
+}</span>
+
+func (r *expenseRepository) GetGroupByID(ctx context.Context, id pgtype.UUID) (sqlc.Group, error) <span class="cov0" title="0">{
+        return r.queries.GetGroupByID(ctx, id)
+}</span>
+
+func (r *expenseRepository) GetGroupMember(ctx context.Context, params sqlc.GetGroupMemberParams) (sqlc.GroupMember, error) <span class="cov0" title="0">{
+        return r.queries.GetGroupMember(ctx, params)
+}</span>
+</pre>
+		
+		<pre class="file" id="file20" style="display: none">package repository
+
+import (
+        "context"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/db/sqlc"
+        "github.com/jackc/pgx/v5"
+        "github.com/jackc/pgx/v5/pgtype"
+        "github.com/jackc/pgx/v5/pgxpool"
+)
+
+type GroupRepository interface {
+        // Transaction support
+        BeginTx(ctx context.Context) (pgx.Tx, error)
+        WithTx(tx pgx.Tx) GroupRepository
+
+        // Group operations
+        CreateGroup(ctx context.Context, params sqlc.CreateGroupParams) (sqlc.Group, error)
+        GetGroupByID(ctx context.Context, id pgtype.UUID) (sqlc.Group, error)
+
+        // Group member operations
+        CreateGroupMember(ctx context.Context, params sqlc.CreateGroupMemberParams) (sqlc.GroupMember, error)
+        GetGroupMember(ctx context.Context, params sqlc.GetGroupMemberParams) (sqlc.GroupMember, error)
+        UpdateGroupMemberStatus(ctx context.Context, params sqlc.UpdateGroupMemberStatusParams) (sqlc.GroupMember, error)
+        ListGroupMembers(ctx context.Context, groupID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error)
+        GetGroupsByUserID(ctx context.Context, userID pgtype.UUID) ([]sqlc.GetGroupsByUserIDRow, error)
+
+        // User lookup (for validation)
+        GetUserByID(ctx context.Context, id pgtype.UUID) (sqlc.User, error)
+}
+
+type groupRepository struct {
+        pool    *pgxpool.Pool
+        queries *sqlc.Queries
+}
+
+func NewGroupRepository(pool *pgxpool.Pool, queries *sqlc.Queries) GroupRepository <span class="cov0" title="0">{
+        return &amp;groupRepository{pool: pool, queries: queries}
+}</span>
+
+func (r *groupRepository) BeginTx(ctx context.Context) (pgx.Tx, error) <span class="cov0" title="0">{
+        return r.pool.Begin(ctx)
+}</span>
+
+func (r *groupRepository) WithTx(tx pgx.Tx) GroupRepository <span class="cov0" title="0">{
+        return &amp;groupRepository{
+                pool:    r.pool,
+                queries: r.queries.WithTx(tx),
+        }
+}</span>
+
+func (r *groupRepository) CreateGroup(ctx context.Context, params sqlc.CreateGroupParams) (sqlc.Group, error) <span class="cov0" title="0">{
+        return r.queries.CreateGroup(ctx, params)
+}</span>
+
+func (r *groupRepository) GetGroupByID(ctx context.Context, id pgtype.UUID) (sqlc.Group, error) <span class="cov0" title="0">{
+        return r.queries.GetGroupByID(ctx, id)
+}</span>
+
+func (r *groupRepository) CreateGroupMember(ctx context.Context, params sqlc.CreateGroupMemberParams) (sqlc.GroupMember, error) <span class="cov0" title="0">{
+        return r.queries.CreateGroupMember(ctx, params)
+}</span>
+
+func (r *groupRepository) GetGroupMember(ctx context.Context, params sqlc.GetGroupMemberParams) (sqlc.GroupMember, error) <span class="cov0" title="0">{
+        return r.queries.GetGroupMember(ctx, params)
+}</span>
+
+func (r *groupRepository) UpdateGroupMemberStatus(ctx context.Context, params sqlc.UpdateGroupMemberStatusParams) (sqlc.GroupMember, error) <span class="cov0" title="0">{
+        return r.queries.UpdateGroupMemberStatus(ctx, params)
+}</span>
+
+func (r *groupRepository) ListGroupMembers(ctx context.Context, groupID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error) <span class="cov0" title="0">{
+        return r.queries.ListGroupMembers(ctx, groupID)
+}</span>
+
+func (r *groupRepository) GetGroupsByUserID(ctx context.Context, userID pgtype.UUID) ([]sqlc.GetGroupsByUserIDRow, error) <span class="cov0" title="0">{
+        return r.queries.GetGroupsByUserID(ctx, userID)
+}</span>
+
+func (r *groupRepository) GetUserByID(ctx context.Context, id pgtype.UUID) (sqlc.User, error) <span class="cov0" title="0">{
+        return r.queries.GetUserByID(ctx, id)
+}</span>
+</pre>
+		
+		<pre class="file" id="file21" style="display: none">package repository
+
+import (
+        "context"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/db/sqlc"
+)
+
+type UserRepository interface {
+        CreateUser(ctx context.Context, params sqlc.CreateUserParams) (sqlc.User, error)
+}
+
+type userRepository struct {
+        queries *sqlc.Queries
+}
+
+func NewUserRepository(queries *sqlc.Queries) UserRepository <span class="cov0" title="0">{
+        return &amp;userRepository{queries: queries}
+}</span>
+
+func (r *userRepository) CreateUser(ctx context.Context, params sqlc.CreateUserParams) (sqlc.User, error) <span class="cov0" title="0">{
+        return r.queries.CreateUser(ctx, params)
+}</span>
+</pre>
+		
+		<pre class="file" id="file22" style="display: none">package service
+
+import (
+        "context"
+        "errors"
+        "strings"
+        "time"
+
+        "github.com/jackc/pgx/v5/pgtype"
+        "github.com/shopspring/decimal"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/db/sqlc"
+        "github.com/dhruvsaxena1998/splitplus/internal/repository"
+)
+
+var (
+        ErrExpenseNotFound      = errors.New("expense not found")
+        ErrInvalidAmount        = errors.New("invalid amount")
+        ErrPaymentTotalMismatch  = errors.New("payment total does not match expense amount")
+        ErrSplitTotalMismatch   = errors.New("split total does not match expense amount")
+)
+
+type PaymentInput struct {
+        UserID        pgtype.UUID
+        Amount        string
+        PaymentMethod string
+}
+
+type SplitInput struct {
+        UserID      pgtype.UUID
+        AmountOwned string
+        SplitType   string
+}
+
+type CreateExpenseInput struct {
+        GroupID      pgtype.UUID
+        Title        string
+        Notes        string
+        Amount       string
+        CurrencyCode string
+        Date         time.Time
+        CreatedBy    pgtype.UUID
+        Payments     []PaymentInput
+        Splits       []SplitInput
+}
+
+type UpdateExpenseInput struct {
+        ExpenseID    pgtype.UUID
+        Title        string
+        Notes        string
+        Amount       string
+        CurrencyCode string
+        Date         time.Time
+        UpdatedBy    pgtype.UUID
+        Payments     []PaymentInput
+        Splits       []SplitInput
+}
+
+type CreateExpenseResult struct {
+        Expense  sqlc.Expense
+        Payments []sqlc.ExpensePayment
+        Splits   []sqlc.ExpenseSplit
+}
+
+type ExpenseService interface {
+        CreateExpense(ctx context.Context, input CreateExpenseInput) (CreateExpenseResult, error)
+        GetExpenseByID(ctx context.Context, expenseID, requesterID pgtype.UUID) (sqlc.Expense, error)
+        ListExpensesByGroup(ctx context.Context, groupID, requesterID pgtype.UUID) ([]sqlc.Expense, error)
+        UpdateExpense(ctx context.Context, input UpdateExpenseInput) (CreateExpenseResult, error)
+        DeleteExpense(ctx context.Context, expenseID, requesterID pgtype.UUID) error
+        GetExpensePayments(ctx context.Context, expenseID, requesterID pgtype.UUID) ([]sqlc.ListExpensePaymentsRow, error)
+        GetExpenseSplits(ctx context.Context, expenseID, requesterID pgtype.UUID) ([]sqlc.ListExpenseSplitsRow, error)
+}
+
+type expenseService struct {
+        repo repository.ExpenseRepository
+}
+
+func NewExpenseService(repo repository.ExpenseRepository) ExpenseService <span class="cov8" title="1">{
+        return &amp;expenseService{repo: repo}
+}</span>
+
+// Helper functions for numeric conversion
+func stringToNumeric(s string) (pgtype.Numeric, error) <span class="cov8" title="1">{
+        d, err := decimal.NewFromString(s)
+        if err != nil </span><span class="cov0" title="0">{
+                return pgtype.Numeric{}, err
+        }</span>
+        <span class="cov8" title="1">var n pgtype.Numeric
+        err = n.Scan(d.String())
+        return n, err</span>
+}
+
+func numericToString(n pgtype.Numeric) (string, error) <span class="cov0" title="0">{
+        if !n.Valid </span><span class="cov0" title="0">{
+                return "0", nil
+        }</span>
+        <span class="cov0" title="0">val, err := n.Value()
+        if err != nil </span><span class="cov0" title="0">{
+                return "0", err
+        }</span>
+        <span class="cov0" title="0">if str, ok := val.(string); ok </span><span class="cov0" title="0">{
+                return str, nil
+        }</span>
+        <span class="cov0" title="0">return "0", errors.New("invalid numeric value")</span>
+}
+
+func numericToDecimal(n pgtype.Numeric) (decimal.Decimal, error) <span class="cov0" title="0">{
+        if !n.Valid </span><span class="cov0" title="0">{
+                return decimal.Zero, nil
+        }</span>
+        <span class="cov0" title="0">val, err := n.Value()
+        if err != nil </span><span class="cov0" title="0">{
+                return decimal.Zero, err
+        }</span>
+        <span class="cov0" title="0">if str, ok := val.(string); ok </span><span class="cov0" title="0">{
+                return decimal.NewFromString(str)
+        }</span>
+        <span class="cov0" title="0">return decimal.Zero, errors.New("invalid numeric value")</span>
+}
+
+func (s *expenseService) validateGroupMembership(ctx context.Context, groupID, userID pgtype.UUID) error <span class="cov8" title="1">{
+        _, err := s.repo.GetGroupMember(ctx, sqlc.GetGroupMemberParams{
+                GroupID: groupID,
+                UserID:  userID,
+        })
+        if err != nil </span><span class="cov8" title="1">{
+                return ErrNotGroupMember
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (s *expenseService) validatePaymentsTotal(expenseAmount string, payments []PaymentInput) error <span class="cov8" title="1">{
+        expenseDecimal, err := decimal.NewFromString(expenseAmount)
+        if err != nil </span><span class="cov0" title="0">{
+                return ErrInvalidAmount
+        }</span>
+
+        <span class="cov8" title="1">var total decimal.Decimal
+        for _, payment := range payments </span><span class="cov8" title="1">{
+                amount, err := decimal.NewFromString(payment.Amount)
+                if err != nil </span><span class="cov0" title="0">{
+                        return ErrInvalidAmount
+                }</span>
+                <span class="cov8" title="1">if amount.LessThanOrEqual(decimal.Zero) </span><span class="cov8" title="1">{
+                        return ErrInvalidAmount
+                }</span>
+                <span class="cov8" title="1">total = total.Add(amount)</span>
+        }
+
+        <span class="cov8" title="1">if !total.Equal(expenseDecimal) </span><span class="cov8" title="1">{
+                return ErrPaymentTotalMismatch
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (s *expenseService) validateSplitsTotal(expenseAmount string, splits []SplitInput) error <span class="cov8" title="1">{
+        expenseDecimal, err := decimal.NewFromString(expenseAmount)
+        if err != nil </span><span class="cov0" title="0">{
+                return ErrInvalidAmount
+        }</span>
+
+        <span class="cov8" title="1">var total decimal.Decimal
+        for _, split := range splits </span><span class="cov8" title="1">{
+                amount, err := decimal.NewFromString(split.AmountOwned)
+                if err != nil </span><span class="cov0" title="0">{
+                        return ErrInvalidAmount
+                }</span>
+                <span class="cov8" title="1">if amount.LessThan(decimal.Zero) </span><span class="cov8" title="1">{
+                        return ErrInvalidAmount
+                }</span>
+                <span class="cov8" title="1">total = total.Add(amount)</span>
+        }
+
+        <span class="cov8" title="1">if !total.Equal(expenseDecimal) </span><span class="cov8" title="1">{
+                return ErrSplitTotalMismatch
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (s *expenseService) CreateExpense(ctx context.Context, input CreateExpenseInput) (CreateExpenseResult, error) <span class="cov8" title="1">{
+        // Validate group exists
+        group, err := s.repo.GetGroupByID(ctx, input.GroupID)
+        if err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, ErrExpenseNotFound
+        }</span>
+
+        // Validate user is group member
+        <span class="cov8" title="1">if err := s.validateGroupMembership(ctx, input.GroupID, input.CreatedBy); err != nil </span><span class="cov8" title="1">{
+                return CreateExpenseResult{}, err
+        }</span>
+
+        // Validate amount
+        <span class="cov8" title="1">expenseAmount, err := decimal.NewFromString(input.Amount)
+        if err != nil || expenseAmount.LessThanOrEqual(decimal.Zero) </span><span class="cov8" title="1">{
+                return CreateExpenseResult{}, ErrInvalidAmount
+        }</span>
+
+        // Use group currency if not provided
+        <span class="cov8" title="1">currencyCode := strings.TrimSpace(input.CurrencyCode)
+        if currencyCode == "" </span><span class="cov8" title="1">{
+                currencyCode = group.CurrencyCode
+        }</span>
+
+        // Validate payments
+        <span class="cov8" title="1">if len(input.Payments) == 0 </span><span class="cov8" title="1">{
+                return CreateExpenseResult{}, errors.New("at least one payment is required")
+        }</span>
+        <span class="cov8" title="1">if err := s.validatePaymentsTotal(input.Amount, input.Payments); err != nil </span><span class="cov8" title="1">{
+                return CreateExpenseResult{}, err
+        }</span>
+
+        // Validate splits
+        <span class="cov8" title="1">if len(input.Splits) == 0 </span><span class="cov8" title="1">{
+                return CreateExpenseResult{}, errors.New("at least one split is required")
+        }</span>
+        <span class="cov8" title="1">if err := s.validateSplitsTotal(input.Amount, input.Splits); err != nil </span><span class="cov8" title="1">{
+                return CreateExpenseResult{}, err
+        }</span>
+
+        // Validate title
+        <span class="cov8" title="1">title := strings.TrimSpace(input.Title)
+        if title == "" </span><span class="cov8" title="1">{
+                return CreateExpenseResult{}, errors.New("title is required")
+        }</span>
+
+        // Convert amount to numeric
+        <span class="cov8" title="1">amountNumeric, err := stringToNumeric(input.Amount)
+        if err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, ErrInvalidAmount
+        }</span>
+
+        // Convert date
+        <span class="cov8" title="1">date := pgtype.Date{Time: input.Date, Valid: true}
+
+        // Start transaction
+        tx, err := s.repo.BeginTx(ctx)
+        if err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, err
+        }</span>
+        <span class="cov8" title="1">defer tx.Rollback(ctx)
+
+        txRepo := s.repo.WithTx(tx)
+
+        // Create expense
+        expense, err := txRepo.CreateExpense(ctx, sqlc.CreateExpenseParams{
+                GroupID:      input.GroupID,
+                Title:        title,
+                Notes:        pgtype.Text{String: input.Notes, Valid: input.Notes != ""},
+                Amount:       amountNumeric,
+                CurrencyCode: currencyCode,
+                Date:         date,
+                CreatedBy:    input.CreatedBy,
+        })
+        if err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, err
+        }</span>
+
+        // Create payments
+        <span class="cov8" title="1">payments := make([]sqlc.ExpensePayment, 0, len(input.Payments))
+        for _, paymentInput := range input.Payments </span><span class="cov8" title="1">{
+                paymentAmount, err := stringToNumeric(paymentInput.Amount)
+                if err != nil </span><span class="cov0" title="0">{
+                        return CreateExpenseResult{}, ErrInvalidAmount
+                }</span>
+
+                <span class="cov8" title="1">payment, err := txRepo.CreateExpensePayment(ctx, sqlc.CreateExpensePaymentParams{
+                        ExpenseID:     expense.ID,
+                        UserID:        paymentInput.UserID,
+                        Amount:        paymentAmount,
+                        PaymentMethod: pgtype.Text{String: paymentInput.PaymentMethod, Valid: paymentInput.PaymentMethod != ""},
+                })
+                if err != nil </span><span class="cov0" title="0">{
+                        return CreateExpenseResult{}, err
+                }</span>
+                <span class="cov8" title="1">payments = append(payments, payment)</span>
+        }
+
+        // Create splits
+        <span class="cov8" title="1">splits := make([]sqlc.ExpenseSplit, 0, len(input.Splits))
+        for _, splitInput := range input.Splits </span><span class="cov8" title="1">{
+                splitAmount, err := stringToNumeric(splitInput.AmountOwned)
+                if err != nil </span><span class="cov0" title="0">{
+                        return CreateExpenseResult{}, ErrInvalidAmount
+                }</span>
+
+                <span class="cov8" title="1">splitType := strings.TrimSpace(splitInput.SplitType)
+                if splitType == "" </span><span class="cov0" title="0">{
+                        splitType = "equal"
+                }</span>
+
+                <span class="cov8" title="1">split, err := txRepo.CreateExpenseSplit(ctx, sqlc.CreateExpenseSplitParams{
+                        ExpenseID:   expense.ID,
+                        UserID:      splitInput.UserID,
+                        AmountOwned: splitAmount,
+                        SplitType:   splitType,
+                })
+                if err != nil </span><span class="cov0" title="0">{
+                        return CreateExpenseResult{}, err
+                }</span>
+                <span class="cov8" title="1">splits = append(splits, split)</span>
+        }
+
+        // Commit transaction
+        <span class="cov8" title="1">if err := tx.Commit(ctx); err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, err
+        }</span>
+
+        <span class="cov8" title="1">return CreateExpenseResult{
+                Expense:  expense,
+                Payments: payments,
+                Splits:   splits,
+        }, nil</span>
+}
+
+func (s *expenseService) GetExpenseByID(ctx context.Context, expenseID, requesterID pgtype.UUID) (sqlc.Expense, error) <span class="cov0" title="0">{
+        expense, err := s.repo.GetExpenseByID(ctx, expenseID)
+        if err != nil </span><span class="cov0" title="0">{
+                return sqlc.Expense{}, ErrExpenseNotFound
+        }</span>
+
+        // Validate user is group member
+        <span class="cov0" title="0">if err := s.validateGroupMembership(ctx, expense.GroupID, requesterID); err != nil </span><span class="cov0" title="0">{
+                return sqlc.Expense{}, err
+        }</span>
+
+        <span class="cov0" title="0">return expense, nil</span>
+}
+
+func (s *expenseService) ListExpensesByGroup(ctx context.Context, groupID, requesterID pgtype.UUID) ([]sqlc.Expense, error) <span class="cov0" title="0">{
+        // Validate group exists
+        _, err := s.repo.GetGroupByID(ctx, groupID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, ErrExpenseNotFound
+        }</span>
+
+        // Validate user is group member
+        <span class="cov0" title="0">if err := s.validateGroupMembership(ctx, groupID, requesterID); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return s.repo.ListExpensesByGroup(ctx, groupID)</span>
+}
+
+func (s *expenseService) UpdateExpense(ctx context.Context, input UpdateExpenseInput) (CreateExpenseResult, error) <span class="cov0" title="0">{
+        // Get existing expense
+        expense, err := s.repo.GetExpenseByID(ctx, input.ExpenseID)
+        if err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, ErrExpenseNotFound
+        }</span>
+
+        // Validate user is group member
+        <span class="cov0" title="0">if err := s.validateGroupMembership(ctx, expense.GroupID, input.UpdatedBy); err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, err
+        }</span>
+
+        // Validate amount
+        <span class="cov0" title="0">expenseAmount, err := decimal.NewFromString(input.Amount)
+        if err != nil || expenseAmount.LessThanOrEqual(decimal.Zero) </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, ErrInvalidAmount
+        }</span>
+
+        // Validate payments
+        <span class="cov0" title="0">if len(input.Payments) == 0 </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, errors.New("at least one payment is required")
+        }</span>
+        <span class="cov0" title="0">if err := s.validatePaymentsTotal(input.Amount, input.Payments); err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, err
+        }</span>
+
+        // Validate splits
+        <span class="cov0" title="0">if len(input.Splits) == 0 </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, errors.New("at least one split is required")
+        }</span>
+        <span class="cov0" title="0">if err := s.validateSplitsTotal(input.Amount, input.Splits); err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, err
+        }</span>
+
+        // Validate title
+        <span class="cov0" title="0">title := strings.TrimSpace(input.Title)
+        if title == "" </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, errors.New("title is required")
+        }</span>
+
+        // Use group currency if not provided
+        <span class="cov0" title="0">currencyCode := strings.TrimSpace(input.CurrencyCode)
+        if currencyCode == "" </span><span class="cov0" title="0">{
+                group, err := s.repo.GetGroupByID(ctx, expense.GroupID)
+                if err != nil </span><span class="cov0" title="0">{
+                        return CreateExpenseResult{}, ErrExpenseNotFound
+                }</span>
+                <span class="cov0" title="0">currencyCode = group.CurrencyCode</span>
+        }
+
+        // Convert amount to numeric
+        <span class="cov0" title="0">amountNumeric, err := stringToNumeric(input.Amount)
+        if err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, ErrInvalidAmount
+        }</span>
+
+        // Convert date
+        <span class="cov0" title="0">date := pgtype.Date{Time: input.Date, Valid: true}
+
+        // Start transaction
+        tx, err := s.repo.BeginTx(ctx)
+        if err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, err
+        }</span>
+        <span class="cov0" title="0">defer tx.Rollback(ctx)
+
+        txRepo := s.repo.WithTx(tx)
+
+        // Update expense
+        updatedExpense, err := txRepo.UpdateExpense(ctx, sqlc.UpdateExpenseParams{
+                ID:           input.ExpenseID,
+                Title:        title,
+                Notes:        pgtype.Text{String: input.Notes, Valid: input.Notes != ""},
+                Amount:       amountNumeric,
+                CurrencyCode: currencyCode,
+                Date:         date,
+                UpdatedBy:    input.UpdatedBy,
+        })
+        if err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, err
+        }</span>
+
+        // Delete old payments and splits
+        <span class="cov0" title="0">if err := txRepo.DeleteExpensePayments(ctx, input.ExpenseID); err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, err
+        }</span>
+        <span class="cov0" title="0">if err := txRepo.DeleteExpenseSplits(ctx, input.ExpenseID); err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, err
+        }</span>
+
+        // Create new payments
+        <span class="cov0" title="0">payments := make([]sqlc.ExpensePayment, 0, len(input.Payments))
+        for _, paymentInput := range input.Payments </span><span class="cov0" title="0">{
+                paymentAmount, err := stringToNumeric(paymentInput.Amount)
+                if err != nil </span><span class="cov0" title="0">{
+                        return CreateExpenseResult{}, ErrInvalidAmount
+                }</span>
+
+                <span class="cov0" title="0">payment, err := txRepo.CreateExpensePayment(ctx, sqlc.CreateExpensePaymentParams{
+                        ExpenseID:     updatedExpense.ID,
+                        UserID:        paymentInput.UserID,
+                        Amount:        paymentAmount,
+                        PaymentMethod: pgtype.Text{String: paymentInput.PaymentMethod, Valid: paymentInput.PaymentMethod != ""},
+                })
+                if err != nil </span><span class="cov0" title="0">{
+                        return CreateExpenseResult{}, err
+                }</span>
+                <span class="cov0" title="0">payments = append(payments, payment)</span>
+        }
+
+        // Create new splits
+        <span class="cov0" title="0">splits := make([]sqlc.ExpenseSplit, 0, len(input.Splits))
+        for _, splitInput := range input.Splits </span><span class="cov0" title="0">{
+                splitAmount, err := stringToNumeric(splitInput.AmountOwned)
+                if err != nil </span><span class="cov0" title="0">{
+                        return CreateExpenseResult{}, ErrInvalidAmount
+                }</span>
+
+                <span class="cov0" title="0">splitType := strings.TrimSpace(splitInput.SplitType)
+                if splitType == "" </span><span class="cov0" title="0">{
+                        splitType = "equal"
+                }</span>
+
+                <span class="cov0" title="0">split, err := txRepo.CreateExpenseSplit(ctx, sqlc.CreateExpenseSplitParams{
+                        ExpenseID:   updatedExpense.ID,
+                        UserID:      splitInput.UserID,
+                        AmountOwned: splitAmount,
+                        SplitType:   splitType,
+                })
+                if err != nil </span><span class="cov0" title="0">{
+                        return CreateExpenseResult{}, err
+                }</span>
+                <span class="cov0" title="0">splits = append(splits, split)</span>
+        }
+
+        // Commit transaction
+        <span class="cov0" title="0">if err := tx.Commit(ctx); err != nil </span><span class="cov0" title="0">{
+                return CreateExpenseResult{}, err
+        }</span>
+
+        <span class="cov0" title="0">return CreateExpenseResult{
+                Expense:  updatedExpense,
+                Payments: payments,
+                Splits:   splits,
+        }, nil</span>
+}
+
+func (s *expenseService) DeleteExpense(ctx context.Context, expenseID, requesterID pgtype.UUID) error <span class="cov0" title="0">{
+        expense, err := s.repo.GetExpenseByID(ctx, expenseID)
+        if err != nil </span><span class="cov0" title="0">{
+                return ErrExpenseNotFound
+        }</span>
+
+        // Validate user is group member
+        <span class="cov0" title="0">if err := s.validateGroupMembership(ctx, expense.GroupID, requesterID); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">return s.repo.DeleteExpense(ctx, expenseID)</span>
+}
+
+func (s *expenseService) GetExpensePayments(ctx context.Context, expenseID, requesterID pgtype.UUID) ([]sqlc.ListExpensePaymentsRow, error) <span class="cov0" title="0">{
+        expense, err := s.repo.GetExpenseByID(ctx, expenseID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, ErrExpenseNotFound
+        }</span>
+
+        // Validate user is group member
+        <span class="cov0" title="0">if err := s.validateGroupMembership(ctx, expense.GroupID, requesterID); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return s.repo.ListExpensePayments(ctx, expenseID)</span>
+}
+
+func (s *expenseService) GetExpenseSplits(ctx context.Context, expenseID, requesterID pgtype.UUID) ([]sqlc.ListExpenseSplitsRow, error) <span class="cov0" title="0">{
+        expense, err := s.repo.GetExpenseByID(ctx, expenseID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, ErrExpenseNotFound
+        }</span>
+
+        // Validate user is group member
+        <span class="cov0" title="0">if err := s.validateGroupMembership(ctx, expense.GroupID, requesterID); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return s.repo.ListExpenseSplits(ctx, expenseID)</span>
+}
+</pre>
+		
+		<pre class="file" id="file23" style="display: none">package service
+
+import (
+        "context"
+        "errors"
+        "strings"
+        "time"
+
+        "github.com/jackc/pgconn"
+        "github.com/jackc/pgx/v5/pgtype"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/db/sqlc"
+        "github.com/dhruvsaxena1998/splitplus/internal/repository"
+)
+
+var (
+        ErrGroupNotFound           = errors.New("group not found")
+        ErrNotGroupMember          = errors.New("user is not a member of this group")
+        ErrInsufficientPermissions = errors.New("insufficient permissions to perform this action")
+        ErrAlreadyMember           = errors.New("user is already a member of this group")
+        ErrNoPendingInvitation     = errors.New("no pending invitation found")
+        ErrInvalidGroupName        = errors.New("group name is required")
+)
+
+type CreateGroupInput struct {
+        Name         string
+        Description  string
+        CurrencyCode string
+        CreatedBy    pgtype.UUID
+}
+
+type CreateGroupResult struct {
+        Group      sqlc.Group
+        Membership sqlc.GroupMember
+}
+
+type InviteUserInput struct {
+        GroupID   pgtype.UUID
+        UserID    pgtype.UUID // user to invite
+        InvitedBy pgtype.UUID // from auth context
+}
+
+type JoinGroupInput struct {
+        GroupID pgtype.UUID
+        UserID  pgtype.UUID
+}
+
+type GroupService interface {
+        CreateGroup(ctx context.Context, input CreateGroupInput) (CreateGroupResult, error)
+        InviteUser(ctx context.Context, input InviteUserInput) (sqlc.GroupMember, error)
+        JoinGroup(ctx context.Context, input JoinGroupInput) (sqlc.GroupMember, error)
+        ListGroupMembers(ctx context.Context, groupID, requesterID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error)
+        ListUserGroups(ctx context.Context, userID pgtype.UUID) ([]sqlc.GetGroupsByUserIDRow, error)
+}
+
+type groupService struct {
+        repo repository.GroupRepository
+}
+
+func NewGroupService(repo repository.GroupRepository) GroupService <span class="cov8" title="1">{
+        return &amp;groupService{repo: repo}
+}</span>
+
+func (s *groupService) CreateGroup(ctx context.Context, input CreateGroupInput) (CreateGroupResult, error) <span class="cov8" title="1">{
+        name := strings.TrimSpace(input.Name)
+        if name == "" </span><span class="cov8" title="1">{
+                return CreateGroupResult{}, ErrInvalidGroupName
+        }</span>
+
+        <span class="cov8" title="1">currencyCode := strings.TrimSpace(input.CurrencyCode)
+        if currencyCode == "" </span><span class="cov8" title="1">{
+                currencyCode = "USD"
+        }</span>
+
+        // Start transaction
+        <span class="cov8" title="1">tx, err := s.repo.BeginTx(ctx)
+        if err != nil </span><span class="cov0" title="0">{
+                return CreateGroupResult{}, err
+        }</span>
+        <span class="cov8" title="1">defer tx.Rollback(ctx)
+
+        txRepo := s.repo.WithTx(tx)
+
+        // Create group
+        group, err := txRepo.CreateGroup(ctx, sqlc.CreateGroupParams{
+                Name:         name,
+                Description:  pgtype.Text{String: input.Description, Valid: input.Description != ""},
+                CurrencyCode: currencyCode,
+                CreatedBy:    input.CreatedBy,
+        })
+        if err != nil </span><span class="cov8" title="1">{
+                return CreateGroupResult{}, err
+        }</span>
+
+        // Create owner membership
+        <span class="cov8" title="1">now := pgtype.Timestamptz{Time: time.Now(), Valid: true}
+        membership, err := txRepo.CreateGroupMember(ctx, sqlc.CreateGroupMemberParams{
+                GroupID:   group.ID,
+                UserID:    input.CreatedBy,
+                Role:      "owner",
+                Status:    "active",
+                InvitedBy: pgtype.UUID{},        // null - self-joined as creator
+                InvitedAt: pgtype.Timestamptz{}, // null
+                JoinedAt:  now,
+        })
+        if err != nil </span><span class="cov8" title="1">{
+                return CreateGroupResult{}, err
+        }</span>
+
+        // Commit transaction
+        <span class="cov8" title="1">if err := tx.Commit(ctx); err != nil </span><span class="cov0" title="0">{
+                return CreateGroupResult{}, err
+        }</span>
+
+        <span class="cov8" title="1">return CreateGroupResult{
+                Group:      group,
+                Membership: membership,
+        }, nil</span>
+}
+
+func (s *groupService) InviteUser(ctx context.Context, input InviteUserInput) (sqlc.GroupMember, error) <span class="cov8" title="1">{
+        // Verify group exists
+        _, err := s.repo.GetGroupByID(ctx, input.GroupID)
+        if err != nil </span><span class="cov8" title="1">{
+                return sqlc.GroupMember{}, ErrGroupNotFound
+        }</span>
+
+        // Verify user to invite exists
+        <span class="cov8" title="1">_, err = s.repo.GetUserByID(ctx, input.UserID)
+        if err != nil </span><span class="cov8" title="1">{
+                return sqlc.GroupMember{}, ErrUserNotFound
+        }</span>
+
+        // Check inviter's role (must be owner or admin)
+        <span class="cov8" title="1">inviterMembership, err := s.repo.GetGroupMember(ctx, sqlc.GetGroupMemberParams{
+                GroupID: input.GroupID,
+                UserID:  input.InvitedBy,
+        })
+        if err != nil </span><span class="cov8" title="1">{
+                return sqlc.GroupMember{}, ErrNotGroupMember
+        }</span>
+        <span class="cov8" title="1">if inviterMembership.Role != "owner" &amp;&amp; inviterMembership.Role != "admin" </span><span class="cov8" title="1">{
+                return sqlc.GroupMember{}, ErrInsufficientPermissions
+        }</span>
+
+        // Check if user is already a member
+        <span class="cov8" title="1">_, err = s.repo.GetGroupMember(ctx, sqlc.GetGroupMemberParams{
+                GroupID: input.GroupID,
+                UserID:  input.UserID,
+        })
+        if err == nil </span><span class="cov8" title="1">{
+                return sqlc.GroupMember{}, ErrAlreadyMember
+        }</span>
+
+        // Create pending membership
+        <span class="cov8" title="1">now := pgtype.Timestamptz{Time: time.Now(), Valid: true}
+        membership, err := s.repo.CreateGroupMember(ctx, sqlc.CreateGroupMemberParams{
+                GroupID:   input.GroupID,
+                UserID:    input.UserID,
+                Role:      "member",
+                Status:    "pending",
+                InvitedBy: input.InvitedBy,
+                InvitedAt: now,
+                JoinedAt:  pgtype.Timestamptz{}, // null until accepted
+        })
+        if err != nil </span><span class="cov0" title="0">{
+                var pgErr *pgconn.PgError
+                if errors.As(err, &amp;pgErr) &amp;&amp; pgErr.Code == "23505" </span><span class="cov0" title="0">{
+                        return sqlc.GroupMember{}, ErrAlreadyMember
+                }</span>
+                <span class="cov0" title="0">return sqlc.GroupMember{}, err</span>
+        }
+
+        <span class="cov8" title="1">return membership, nil</span>
+}
+
+func (s *groupService) JoinGroup(ctx context.Context, input JoinGroupInput) (sqlc.GroupMember, error) <span class="cov8" title="1">{
+        // Verify group exists
+        _, err := s.repo.GetGroupByID(ctx, input.GroupID)
+        if err != nil </span><span class="cov8" title="1">{
+                return sqlc.GroupMember{}, ErrGroupNotFound
+        }</span>
+
+        // Check if user has pending invitation
+        <span class="cov8" title="1">membership, err := s.repo.GetGroupMember(ctx, sqlc.GetGroupMemberParams{
+                GroupID: input.GroupID,
+                UserID:  input.UserID,
+        })
+        if err != nil </span><span class="cov8" title="1">{
+                return sqlc.GroupMember{}, ErrNoPendingInvitation
+        }</span>
+        <span class="cov8" title="1">if membership.Status != "pending" </span><span class="cov8" title="1">{
+                return sqlc.GroupMember{}, ErrNoPendingInvitation
+        }</span>
+
+        // Update to active status
+        <span class="cov8" title="1">now := pgtype.Timestamptz{Time: time.Now(), Valid: true}
+        updatedMembership, err := s.repo.UpdateGroupMemberStatus(ctx, sqlc.UpdateGroupMemberStatusParams{
+                GroupID:  input.GroupID,
+                UserID:   input.UserID,
+                Status:   "active",
+                JoinedAt: now,
+        })
+        if err != nil </span><span class="cov0" title="0">{
+                return sqlc.GroupMember{}, err
+        }</span>
+
+        <span class="cov8" title="1">return updatedMembership, nil</span>
+}
+
+func (s *groupService) ListGroupMembers(ctx context.Context, groupID, requesterID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error) <span class="cov8" title="1">{
+        // Verify group exists
+        _, err := s.repo.GetGroupByID(ctx, groupID)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, ErrGroupNotFound
+        }</span>
+
+        // Verify requester is a member
+        <span class="cov8" title="1">_, err = s.repo.GetGroupMember(ctx, sqlc.GetGroupMemberParams{
+                GroupID: groupID,
+                UserID:  requesterID,
+        })
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, ErrNotGroupMember
+        }</span>
+
+        // Fetch members with user details
+        <span class="cov8" title="1">return s.repo.ListGroupMembers(ctx, groupID)</span>
+}
+
+func (s *groupService) ListUserGroups(ctx context.Context, userID pgtype.UUID) ([]sqlc.GetGroupsByUserIDRow, error) <span class="cov8" title="1">{
+        return s.repo.GetGroupsByUserID(ctx, userID)
+}</span>
+</pre>
+		
+		<pre class="file" id="file24" style="display: none">package service
+
+import (
+        "context"
+        "errors"
+        "strings"
+
+        "github.com/jackc/pgconn"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/db/sqlc"
+        "github.com/dhruvsaxena1998/splitplus/internal/repository"
+)
+
+var (
+        ErrUserAlreadyExists = errors.New("user already exists")
+        ErrUserNotFound      = errors.New("user not found")
+)
+
+type UserService interface {
+        CreateUser(ctx context.Context, email string, password string) (sqlc.User, error)
+}
+
+type userService struct {
+        repo repository.UserRepository
+}
+
+func NewUserService(repo repository.UserRepository) UserService <span class="cov8" title="1">{
+        return &amp;userService{repo: repo}
+}</span>
+
+func (s *userService) CreateUser(
+        ctx context.Context,
+        email string,
+        password string,
+) (sqlc.User, error) <span class="cov8" title="1">{
+        email = strings.TrimSpace(email)
+        if email == "" </span><span class="cov8" title="1">{
+                return sqlc.User{}, errors.New("email is required")
+        }</span>
+
+        // URGENT TODO: Hash the password before storing it
+        <span class="cov8" title="1">user, err := s.repo.CreateUser(ctx, sqlc.CreateUserParams{
+                Email:        email,
+                PasswordHash: password,
+        })
+        if err != nil </span><span class="cov8" title="1">{
+                var pgErr *pgconn.PgError
+                if errors.As(err, &amp;pgErr) &amp;&amp; pgErr.Code == "23505" </span><span class="cov8" title="1">{
+                        return sqlc.User{}, ErrUserAlreadyExists
+                }</span>
+                <span class="cov8" title="1">return sqlc.User{}, err</span>
+        }
+
+        <span class="cov8" title="1">return user, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file25" style="display: none">package testutil
+
+import (
+        "context"
+        "time"
+
+        "github.com/jackc/pgx/v5"
+        "github.com/jackc/pgx/v5/pgconn"
+        "github.com/jackc/pgx/v5/pgtype"
+
+        "github.com/dhruvsaxena1998/splitplus/internal/db/sqlc"
+        "github.com/dhruvsaxena1998/splitplus/internal/repository"
+)
+
+// ============================================================================
+// MockUserRepository
+// ============================================================================
+
+type MockUserRepository struct {
+        CreateUserFunc func(ctx context.Context, params sqlc.CreateUserParams) (sqlc.User, error)
+}
+
+func (m *MockUserRepository) CreateUser(ctx context.Context, params sqlc.CreateUserParams) (sqlc.User, error) <span class="cov0" title="0">{
+        if m.CreateUserFunc != nil </span><span class="cov0" title="0">{
+                return m.CreateUserFunc(ctx, params)
+        }</span>
+        <span class="cov0" title="0">return sqlc.User{}, nil</span>
+}
+
+var _ repository.UserRepository = (*MockUserRepository)(nil)
+
+// ============================================================================
+// MockGroupRepository
+// ============================================================================
+
+type MockGroupRepository struct {
+        BeginTxFunc                 func(ctx context.Context) (pgx.Tx, error)
+        WithTxFunc                  func(tx pgx.Tx) repository.GroupRepository
+        CreateGroupFunc             func(ctx context.Context, params sqlc.CreateGroupParams) (sqlc.Group, error)
+        GetGroupByIDFunc            func(ctx context.Context, id pgtype.UUID) (sqlc.Group, error)
+        CreateGroupMemberFunc       func(ctx context.Context, params sqlc.CreateGroupMemberParams) (sqlc.GroupMember, error)
+        GetGroupMemberFunc          func(ctx context.Context, params sqlc.GetGroupMemberParams) (sqlc.GroupMember, error)
+        UpdateGroupMemberStatusFunc func(ctx context.Context, params sqlc.UpdateGroupMemberStatusParams) (sqlc.GroupMember, error)
+        ListGroupMembersFunc        func(ctx context.Context, groupID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error)
+        GetGroupsByUserIDFunc       func(ctx context.Context, userID pgtype.UUID) ([]sqlc.GetGroupsByUserIDRow, error)
+        GetUserByIDFunc             func(ctx context.Context, id pgtype.UUID) (sqlc.User, error)
+}
+
+func (m *MockGroupRepository) BeginTx(ctx context.Context) (pgx.Tx, error) <span class="cov0" title="0">{
+        if m.BeginTxFunc != nil </span><span class="cov0" title="0">{
+                return m.BeginTxFunc(ctx)
+        }</span>
+        <span class="cov0" title="0">return &amp;MockTx{}, nil</span>
+}
+
+func (m *MockGroupRepository) WithTx(tx pgx.Tx) repository.GroupRepository <span class="cov0" title="0">{
+        if m.WithTxFunc != nil </span><span class="cov0" title="0">{
+                return m.WithTxFunc(tx)
+        }</span>
+        <span class="cov0" title="0">return m</span>
+}
+
+func (m *MockGroupRepository) CreateGroup(ctx context.Context, params sqlc.CreateGroupParams) (sqlc.Group, error) <span class="cov0" title="0">{
+        if m.CreateGroupFunc != nil </span><span class="cov0" title="0">{
+                return m.CreateGroupFunc(ctx, params)
+        }</span>
+        <span class="cov0" title="0">return sqlc.Group{}, nil</span>
+}
+
+func (m *MockGroupRepository) GetGroupByID(ctx context.Context, id pgtype.UUID) (sqlc.Group, error) <span class="cov0" title="0">{
+        if m.GetGroupByIDFunc != nil </span><span class="cov0" title="0">{
+                return m.GetGroupByIDFunc(ctx, id)
+        }</span>
+        <span class="cov0" title="0">return sqlc.Group{}, nil</span>
+}
+
+func (m *MockGroupRepository) CreateGroupMember(ctx context.Context, params sqlc.CreateGroupMemberParams) (sqlc.GroupMember, error) <span class="cov0" title="0">{
+        if m.CreateGroupMemberFunc != nil </span><span class="cov0" title="0">{
+                return m.CreateGroupMemberFunc(ctx, params)
+        }</span>
+        <span class="cov0" title="0">return sqlc.GroupMember{}, nil</span>
+}
+
+func (m *MockGroupRepository) GetGroupMember(ctx context.Context, params sqlc.GetGroupMemberParams) (sqlc.GroupMember, error) <span class="cov0" title="0">{
+        if m.GetGroupMemberFunc != nil </span><span class="cov0" title="0">{
+                return m.GetGroupMemberFunc(ctx, params)
+        }</span>
+        <span class="cov0" title="0">return sqlc.GroupMember{}, nil</span>
+}
+
+func (m *MockGroupRepository) UpdateGroupMemberStatus(ctx context.Context, params sqlc.UpdateGroupMemberStatusParams) (sqlc.GroupMember, error) <span class="cov0" title="0">{
+        if m.UpdateGroupMemberStatusFunc != nil </span><span class="cov0" title="0">{
+                return m.UpdateGroupMemberStatusFunc(ctx, params)
+        }</span>
+        <span class="cov0" title="0">return sqlc.GroupMember{}, nil</span>
+}
+
+func (m *MockGroupRepository) ListGroupMembers(ctx context.Context, groupID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error) <span class="cov0" title="0">{
+        if m.ListGroupMembersFunc != nil </span><span class="cov0" title="0">{
+                return m.ListGroupMembersFunc(ctx, groupID)
+        }</span>
+        <span class="cov0" title="0">return []sqlc.ListGroupMembersRow{}, nil</span>
+}
+
+func (m *MockGroupRepository) GetGroupsByUserID(ctx context.Context, userID pgtype.UUID) ([]sqlc.GetGroupsByUserIDRow, error) <span class="cov0" title="0">{
+        if m.GetGroupsByUserIDFunc != nil </span><span class="cov0" title="0">{
+                return m.GetGroupsByUserIDFunc(ctx, userID)
+        }</span>
+        <span class="cov0" title="0">return []sqlc.GetGroupsByUserIDRow{}, nil</span>
+}
+
+func (m *MockGroupRepository) GetUserByID(ctx context.Context, id pgtype.UUID) (sqlc.User, error) <span class="cov0" title="0">{
+        if m.GetUserByIDFunc != nil </span><span class="cov0" title="0">{
+                return m.GetUserByIDFunc(ctx, id)
+        }</span>
+        <span class="cov0" title="0">return sqlc.User{}, nil</span>
+}
+
+var _ repository.GroupRepository = (*MockGroupRepository)(nil)
+
+// ============================================================================
+// MockTx - Mock transaction for testing
+// ============================================================================
+
+type MockTx struct {
+        CommitFunc   func(ctx context.Context) error
+        RollbackFunc func(ctx context.Context) error
+}
+
+func (m *MockTx) Begin(ctx context.Context) (pgx.Tx, error) <span class="cov0" title="0">{
+        return m, nil
+}</span>
+
+func (m *MockTx) Commit(ctx context.Context) error <span class="cov0" title="0">{
+        if m.CommitFunc != nil </span><span class="cov0" title="0">{
+                return m.CommitFunc(ctx)
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (m *MockTx) Rollback(ctx context.Context) error <span class="cov0" title="0">{
+        if m.RollbackFunc != nil </span><span class="cov0" title="0">{
+                return m.RollbackFunc(ctx)
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (m *MockTx) CopyFrom(ctx context.Context, tableName pgx.Identifier, columnNames []string, rowSrc pgx.CopyFromSource) (int64, error) <span class="cov0" title="0">{
+        return 0, nil
+}</span>
+
+func (m *MockTx) SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults <span class="cov0" title="0">{
+        return nil
+}</span>
+
+func (m *MockTx) LargeObjects() pgx.LargeObjects <span class="cov0" title="0">{
+        return pgx.LargeObjects{}
+}</span>
+
+func (m *MockTx) Prepare(ctx context.Context, name, sql string) (*pgconn.StatementDescription, error) <span class="cov0" title="0">{
+        return nil, nil
+}</span>
+
+func (m *MockTx) Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error) <span class="cov0" title="0">{
+        return pgconn.CommandTag{}, nil
+}</span>
+
+func (m *MockTx) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) <span class="cov0" title="0">{
+        return nil, nil
+}</span>
+
+func (m *MockTx) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row <span class="cov0" title="0">{
+        return nil
+}</span>
+
+func (m *MockTx) Conn() *pgx.Conn <span class="cov0" title="0">{
+        return nil
+}</span>
+
+// ============================================================================
+// Test Data Helpers
+// ============================================================================
+
+func CreateTestUser(id pgtype.UUID, email string) sqlc.User <span class="cov0" title="0">{
+        return sqlc.User{
+                ID:    id,
+                Email: email,
+                CreatedAt: pgtype.Timestamptz{
+                        Time:  parseTime("2024-01-01T00:00:00Z"),
+                        Valid: true,
+                },
+                UpdatedAt: pgtype.Timestamptz{
+                        Time:  parseTime("2024-01-01T00:00:00Z"),
+                        Valid: true,
+                },
+                DeletedAt: pgtype.Timestamptz{Valid: false},
+        }
+}</span>
+
+func CreateTestGroup(id pgtype.UUID, name string, createdBy pgtype.UUID) sqlc.Group <span class="cov0" title="0">{
+        return sqlc.Group{
+                ID:           id,
+                Name:         name,
+                Description:  pgtype.Text{String: "Test group description", Valid: true},
+                CurrencyCode: "USD",
+                CreatedBy:    createdBy,
+                UpdatedBy:    createdBy,
+                CreatedAt: pgtype.Timestamptz{
+                        Time:  parseTime("2024-01-01T00:00:00Z"),
+                        Valid: true,
+                },
+                UpdatedAt: pgtype.Timestamptz{
+                        Time:  parseTime("2024-01-01T00:00:00Z"),
+                        Valid: true,
+                },
+                DeletedAt: pgtype.Timestamptz{Valid: false},
+        }
+}</span>
+
+func CreateTestGroupMember(id, groupID, userID pgtype.UUID, role, status string) sqlc.GroupMember <span class="cov0" title="0">{
+        now := pgtype.Timestamptz{Time: parseTime("2024-01-01T00:00:00Z"), Valid: true}
+        return sqlc.GroupMember{
+                ID:        id,
+                GroupID:   groupID,
+                UserID:    userID,
+                Role:      role,
+                Status:    status,
+                InvitedBy: pgtype.UUID{},
+                InvitedAt: pgtype.Timestamptz{},
+                JoinedAt:  now,
+                CreatedAt: now,
+                UpdatedAt: now,
+                DeletedAt: pgtype.Timestamptz{Valid: false},
+        }
+}</span>
+
+func CreateTestUUID(n int) pgtype.UUID <span class="cov0" title="0">{
+        uuid := pgtype.UUID{Valid: true}
+        uuid.Bytes[15] = byte(n)
+        return uuid
+}</span>
+
+func parseTime(timeStr string) time.Time <span class="cov0" title="0">{
+        t, _ := time.Parse(time.RFC3339, timeStr)
+        return t
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

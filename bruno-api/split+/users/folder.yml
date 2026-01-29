@@ -1,0 +1,19 @@
+info:
+  name: users
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit
+
+docs: |
+  # Users API
+  
+  Endpoints for user management and authentication.
+  
+  ## Available Endpoints
+  - **Create User**: Register a new user account
+  
+  ## Notes
+  - User creation does not require authentication
+  - After creating a user, save the returned `id` to the `user_id` environment variable for authenticated requests

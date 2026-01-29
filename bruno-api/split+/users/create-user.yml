@@ -1,0 +1,45 @@
+info:
+  name: create-user
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{base_url}}/users"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "gauri@splitplus.com",
+        "password": "password123"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # Create User
+
+  Creates a new user account in the system.
+
+  ## Request Body
+  - `email` (required): Valid email address
+  - `password` (required): Minimum 8 characters
+
+  ## Response
+  Returns the created user with:
+  - `id`: UUID of the user (save this to `user_id` variable for authenticated requests)
+  - `email`: User's email address
+  - `created_at`: Timestamp of account creation
+
+  ## Status Codes
+  - `201 Created`: User successfully created
+  - `409 Conflict`: User with this email already exists
+  - `400 Bad Request`: Invalid request data
+
+  ## Notes
+  After creating a user, copy the `id` from the response and set it as the `user_id` environment variable to use in authenticated requests.

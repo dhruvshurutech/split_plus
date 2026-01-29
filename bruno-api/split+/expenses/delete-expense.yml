@@ -1,0 +1,45 @@
+info:
+  name: delete-expense
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: "{{base_url}}/groups/{{group_id}}/expenses/{{expense_id}}"
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # Delete Expense
+
+  Soft deletes an expense. The expense is not permanently removed but marked as deleted.
+
+  ## Authentication
+  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+
+  ## Path Parameters
+  - `group_id`: UUID of the group (use `{{group_id}}` variable)
+  - `expense_id`: UUID of the expense to delete (use `{{expense_id}}` variable)
+
+  ## Response
+  Returns no content (204 No Content).
+
+  ## Status Codes
+  - `204 No Content`: Expense successfully deleted
+  - `401 Unauthorized`: Missing or invalid user ID
+  - `403 Forbidden`: User is not a group member
+  - `404 Not Found`: Expense not found
+
+  ## Notes
+  - This is a soft delete - the expense is marked as deleted but not removed from the database
+  - Soft-deleted expenses are excluded from list queries
+  - Payments and splits associated with the expense are also soft-deleted
+  - Only group members can delete expenses

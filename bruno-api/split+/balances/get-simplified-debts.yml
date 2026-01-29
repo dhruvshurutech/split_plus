@@ -1,0 +1,50 @@
+info:
+  name: get-simplified-debts
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{base_url}}/groups/{{group_id}}/debts"
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # Get Simplified Debts
+
+  Get "who owes whom" view for a group. Shows debt relationships between users.
+
+  ## Authentication
+  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+
+  ## Path Parameters
+  - `group_id`: UUID of the group (use `{{group_id}}` variable)
+
+  ## Response
+  Returns an array of debt objects, each containing:
+  - `debtor_id`: UUID of the user who owes money
+  - `debtor_email`: Email of the debtor
+  - `debtor_name`: Name of the debtor
+  - `creditor_id`: UUID of the user who is owed money
+  - `creditor_email`: Email of the creditor
+  - `creditor_name`: Name of the creditor
+  - `amount`: Amount owed
+
+  ## Status Codes
+  - `200 OK`: Successfully retrieved debts
+  - `401 Unauthorized`: Missing or invalid user ID
+  - `403 Forbidden`: User is not a group member
+  - `404 Not Found`: Group not found
+
+  ## Notes
+  - This is a simplified view showing direct debt relationships
+  - Use this to see who should pay whom
+  - For more complex debt simplification, this may show multiple entries

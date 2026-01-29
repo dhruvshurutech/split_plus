@@ -1,0 +1,57 @@
+info:
+  name: create-group
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{base_url}}/groups"
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Jaipur - Udaipur",
+        "description": "Trip to the cities",
+        "currency_code": "INR"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # Create Group
+
+  Creates a new group and automatically adds the creator as an owner.
+
+  ## Authentication
+  Requires `X-User-ID` header with a valid user UUID.
+
+  ## Request Body
+  - `name` (required): Group name (1-100 characters)
+  - `description` (optional): Group description (max 500 characters)
+  - `currency_code` (optional): 3-letter currency code (e.g., "USD", "EUR")
+
+  ## Response
+  Returns the created group with:
+  - `id`: Group UUID (save this to `group_id` variable for group-specific requests)
+  - `name`: Group name
+  - `description`: Group description
+  - `currency_code`: Currency code
+  - `created_at`: Group creation timestamp
+  - `role`: Creator's role in the group (always "owner")
+
+  ## Status Codes
+  - `201 Created`: Group successfully created
+  - `401 Unauthorized`: Missing or invalid user ID
+  - `422 Unprocessable Entity`: Invalid group name
+  - `400 Bad Request`: Invalid request data
+
+  ## Notes
+  After creating a group, copy the `id` from the response and set it as the `group_id` environment variable.

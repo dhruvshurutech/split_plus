@@ -1,0 +1,86 @@
+services:
+  frontend:
+    build:
+      context: ../fe
+      dockerfile: ../docker/fe.dockerfile
+    container_name: app-frontend
+    restart: unless-stopped
+    environment:
+      # Backend API URL - accessible from browser (host machine)
+      VITE_API_URL: http://localhost:8080
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source code for hot reload
+      - ../fe:/app
+      # Exclude node_modules to prevent host/container conflicts
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ../be
+      dockerfile: ../docker/be.dockerfile
+    container_name: app-backend
+    restart: unless-stopped
+    env_file:
+      - ../be/.env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+      # Allow frontend to make API requests
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../be:/app
+      - go-mod-cache:/go/pkg/mod
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ../be
+      dockerfile: ../docker/be.dockerfile
+    container_name: app-worker
+    restart: unless-stopped
+    env_file:
+      - ../be/.env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+    command: ["go", "run", "./cmd/worker"]
+    volumes:
+      - ../be:/app
+      - go-mod-cache:/go/pkg/mod
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    # Override entrypoint to run worker directly without air
+    entrypoint: ["go", "run", "./cmd/worker"]
+
+  postgres:
+    image: postgres:16
+    container_name: app-postgres
+    restart: unless-stopped
+    env_file:
+      - ../be/.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  go-mod-cache:

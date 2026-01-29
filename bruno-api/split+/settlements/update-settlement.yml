@@ -1,0 +1,63 @@
+info:
+  name: update-settlement
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{base_url}}/groups/{{group_id}}/settlements/{{settlement_id}}"
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+  body:
+    type: json
+    data: |-
+      {
+        "amount": "400.00",
+        "currency_code": "INR",
+        "status": "completed",
+        "payment_method": "bank_transfer",
+        "transaction_reference": "TXN123456",
+        "notes": "Updated settlement with transaction reference"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # Update Settlement
+
+  Update settlement details.
+
+  ## Authentication
+  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+
+  ## Path Parameters
+  - `group_id`: UUID of the group (use `{{group_id}}` variable)
+  - `settlement_id`: UUID of the settlement (use `{{settlement_id}}` variable)
+
+  ## Request Body
+  - `amount` (required): Payment amount (must be positive)
+  - `currency_code` (optional): 3-letter currency code (defaults to group currency)
+  - `status` (required): Settlement status ("pending", "completed", "cancelled")
+  - `payment_method` (optional): Payment method
+  - `transaction_reference` (optional): Transaction reference number
+  - `notes` (optional): Additional notes
+
+  ## Response
+  Returns the updated settlement object.
+
+  ## Status Codes
+  - `200 OK`: Settlement successfully updated
+  - `401 Unauthorized`: Missing or invalid user ID
+  - `403 Forbidden`: User is not a group member
+  - `400 Bad Request`: Invalid request data
+  - `404 Not Found`: Settlement not found
+
+  ## Notes
+  - When status is set to "completed", `paid_at` is automatically set to current timestamp
+  - Only group members can update settlements

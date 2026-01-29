@@ -1,0 +1,442 @@
+# Split+ Project - Cursor AI Coding Standards
+
+## Quick Reference - Common Patterns
+
+### Creating a New Feature (e.g., "Product")
+0. **Migrations** → `just migrate-create <name>`, update created migration file with the new feature requirements.
+1. **SQL Query** → `internal/db/queries/products.sql`
+2. **Run** → `just sqlc-generate`
+3. **Repository** → `internal/repository/product_repository.go` (interface + implementation)
+4. **Service** → `internal/service/product_service.go` (interface + implementation + errors)
+5. **Handler** → `internal/http/handlers/products.go` (request/response structs + handlers)
+6. **Router** → `internal/http/router/product_router.go` (WithProductRoutes function)
+7. **Wire** → Add to `internal/app/app.go`
+8. **Tests** → `*_test.go` files for service and handlers
+
+### Handler Template
+```go
+type CreateProductRequest struct {
+    Name string `json:"name" validate:"required"`
+}
+
+type ProductResponse struct {
+    ID   int64  `json:"id"`
+    Name string `json:"name"`
+}
+
+func CreateProductHandler(productService service.ProductService) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        req, ok := middleware.GetBody[CreateProductRequest](r)
+        if !ok {
+            response.SendError(w, http.StatusInternalServerError, "invalid request context")
+            return
+        }
+        
+        product, err := productService.CreateProduct(r.Context(), req.Name)
+        if err != nil {
+            // Map service errors to HTTP status codes
+            var statusCode int
+            switch err {
+            case service.ErrProductNotFound:
+                statusCode = http.StatusNotFound
+            default:
+                statusCode = http.StatusBadRequest
+            }
+            response.SendError(w, statusCode, err.Error())
+            return
+        }
+        
+        resp := ProductResponse{ID: product.ID, Name: product.Name}
+        response.SendSuccess(w, http.StatusCreated, resp)
+    }
+}
+```
+
+### Service Template
+```go
+var (
+    ErrProductNotFound = errors.New("product not found")
+)
+
+type ProductService interface {
+    CreateProduct(ctx context.Context, name string) (sqlc.Product, error)
+}
+
+type productService struct {
+    repo repository.ProductRepository
+}
+
+func NewProductService(repo repository.ProductRepository) ProductService {
+    return &productService{repo: repo}
+}
+
+func (s *productService) CreateProduct(ctx context.Context, name string) (sqlc.Product, error) {
+    name = strings.TrimSpace(name)
+    if name == "" {
+        return sqlc.Product{}, errors.New("name is required")
+    }
+    
+    return s.repo.CreateProduct(ctx, name)
+}
+```
+
+### Repository Template
+```go
+type ProductRepository interface {
+    CreateProduct(ctx context.Context, name string) (sqlc.Product, error)
+}
+
+type productRepository struct {
+    queries *sqlc.Queries
+}
+
+func NewProductRepository(queries *sqlc.Queries) ProductRepository {
+    return &productRepository{queries: queries}
+}
+
+func (r *productRepository) CreateProduct(ctx context.Context, name string) (sqlc.Product, error) {
+    return r.queries.CreateProduct(ctx, name)
+}
+```
+
+## Project Overview
+This is a Go-based REST API project using clean architecture with layered structure:
+- **Handlers** (`internal/http/handlers/`) - HTTP request/response handling
+- **Services** (`internal/service/`) - Business logic
+- **Repositories** (`internal/repository/`) - Data access abstraction
+- **Database** (`internal/db/`) - SQL queries via sqlc
+
+## Architecture Patterns
+
+### Layer Responsibilities
+1. **Handlers**: 
+   - Parse HTTP requests
+   - Call services
+   - Format HTTP responses using `response` package
+   - Handle HTTP-specific errors (status codes)
+   - NEVER contain business logic
+
+2. **Services**:
+   - Contain ALL business logic
+   - Validate input data
+   - Transform domain errors to service errors
+   - Use repository interfaces (dependency injection)
+   - Return domain models or service errors
+
+3. **Repositories**:
+   - Thin wrapper around sqlc queries
+   - Return domain models directly from database
+   - NO business logic
+   - Implement interfaces for testability
+
+### Dependency Flow
+```
+Handlers → Services → Repositories → Database (sqlc)
+```
+
+## Code Style & Conventions
+
+### Naming
+- **Interfaces**: Use descriptive names ending with the type (e.g., `UserService`, `UserRepository`)
+- **Implementations**: Use lowercase prefix (e.g., `userService`, `userRepository`)
+- **Constructors**: Always use `New` prefix (e.g., `NewUserService`, `NewUserRepository`)
+- **Error variables**: Use `Err` prefix (e.g., `ErrUserNotFound`, `ErrUserAlreadyExists`)
+- **Test files**: Always `*_test.go`
+- **Test functions**: `Test<FunctionName>_<Scenario>` format
+
+### File Organization
+- One main type per file (with exceptions for related types)
+- Keep files focused and small
+- Group related functionality together
+
+### Imports
+- Standard library first
+- Third-party packages second
+- Internal packages last
+- Use `goimports` or `gofmt` to organize
+
+## Error Handling
+
+### Service Layer Errors
+- Define exported error variables at package level:
+  ```go
+  var (
+      ErrUserNotFound = errors.New("user not found")
+      ErrUserAlreadyExists = errors.New("user already exists")
+  )
+  ```
+- Use `errors.Is()` and `errors.As()` for error checking
+- Wrap database errors appropriately (e.g., `pgx.ErrNoRows` → `ErrUserNotFound`)
+- Return domain-specific errors, not raw database errors
+
+### Handler Layer Errors
+- Map service errors to appropriate HTTP status codes:
+  - `ErrNotFound` → `http.StatusNotFound`
+  - `ErrAlreadyExists` → `http.StatusConflict`
+  - Validation errors → `http.StatusUnprocessableEntity`
+  - Generic errors → `http.StatusBadRequest` or `http.StatusInternalServerError`
+- Always use `response.SendError()` or `response.SendValidationErrors()` for error responses
+- NEVER expose internal error details to clients
+
+### Error Response Format
+Always use the standardized response format:
+```go
+response.SendError(w, statusCode, errorMessage)
+// or
+response.SendValidationErrors(w, statusCode, []string{...})
+```
+
+## HTTP/API Conventions
+
+### Request/Response
+- Use request structs in handlers (e.g., `CreateUserRequest`)
+- Use response structs (e.g., `UserResponse`)
+- Always validate request bodies using `middleware.ValidateBody[T]()`
+- Use `middleware.GetBody[T]()` to retrieve validated body from context
+
+### Status Codes
+- `200 OK` - Successful GET/PUT/PATCH
+- `201 Created` - Successful POST
+- `400 Bad Request` - Invalid request format
+- `404 Not Found` - Resource not found
+- `409 Conflict` - Resource already exists
+- `422 Unprocessable Entity` - Validation errors
+- `500 Internal Server Error` - Unexpected server errors
+
+### Routing
+- Use functional options pattern for router configuration
+- Group related routes (e.g., `/users/*`)
+- Use chi router features (middleware, route groups)
+
+## Database Patterns
+
+### SQL Queries
+- All SQL queries in `internal/db/queries/*.sql`
+- Use sqlc for type-safe code generation
+- Run `sqlc generate` after adding/modifying queries
+- Queries should be simple and focused
+
+### Repository Pattern
+- Repository interfaces in `internal/repository/`
+- Implementations wrap sqlc queries
+- Always accept `context.Context` as first parameter
+- Return domain models (sqlc types) directly
+
+### Migrations
+- Use goose for migrations
+- Migration files in `internal/db/migrations/`
+- Naming: `YYYYMMDDHHMMSS_description.sql`
+
+## Testing Standards
+
+### Test Structure
+- Use table-driven tests for multiple scenarios
+- Test both success and error cases
+- Test edge cases (empty strings, whitespace, nil values)
+- Mock dependencies using interfaces
+
+### Test Organization
+- Test files: `*_test.go` in same package
+- Test utilities: `internal/testutil/` package
+- Mock implementations: Create in `testutil` or test file
+- Use descriptive test names: `TestFunctionName_Scenario`
+
+### Coverage Requirements
+- Service layer: Aim for 100% coverage
+- Handler layer: Aim for >90% coverage
+- Test error paths, not just happy paths
+- Test validation and edge cases
+
+### Mocking
+- Create mock structs that implement interfaces
+- Use function fields for flexible behavior:
+  ```go
+  type MockUserRepository struct {
+      CreateUserFunc func(ctx context.Context, email string) (sqlc.User, error)
+  }
+  ```
+- Ensure mocks implement interfaces: `var _ Interface = (*Mock)(nil)`
+
+## Code Quality
+
+### Validation
+- Always validate input in service layer
+- Trim whitespace from user inputs
+- Check for empty/required fields
+- Use `go-playground/validator` for struct validation
+
+### Context Usage
+- Always pass `context.Context` as first parameter
+- Use context for cancellation and timeouts
+- Don't store contexts in structs
+
+### Resource Management
+- Always close database connections/pools
+- Use `defer` for cleanup
+- Handle errors from cleanup operations
+
+## Documentation
+
+### Comments
+- Export all public types, functions, and methods
+- Use clear, concise comments
+- Explain "why" not "what" when non-obvious
+- Document complex business logic
+
+### Code Examples
+- Include examples in package documentation when helpful
+- Keep examples simple and focused
+
+## Go-Specific Best Practices
+
+### Interfaces
+- Define interfaces where they're used (not where they're implemented)
+- Keep interfaces small and focused
+- Prefer composition over inheritance
+
+### Generics
+- Use generics for reusable code (e.g., `response.StandardResponse[T]`)
+- Don't overuse generics - prefer clarity
+
+### Error Handling
+- Always check errors
+- Don't ignore errors with `_` unless intentional
+- Provide context when wrapping errors
+- Use `errors.Is()` and `errors.As()` for error checking
+
+### Concurrency
+- Use channels and goroutines appropriately
+- Always handle context cancellation
+- Avoid race conditions
+
+## Project-Specific Patterns
+
+### Router Configuration
+- Use functional options pattern:
+  ```go
+  router.New(
+      router.WithUserRoutes(userService),
+      router.WithOtherRoutes(...),
+  )
+  ```
+- Each route group should have its own `With*Routes` function
+
+### App Initialization
+- Initialize in `internal/app/app.go`
+- Dependency injection: repositories → services → handlers
+- Keep initialization logic centralized
+
+### Environment Variables
+- Use `os.Getenv()` for configuration
+- Check `ENV` variable for environment-specific behavior
+- Document required environment variables
+
+## Commands & Tools
+
+### Development Commands (justfile)
+- `just test` - Run all tests
+- `just test-coverage` - Generate coverage report
+- `just sqlc-generate` - Regenerate sqlc code
+- `just migrate-up` - Run migrations
+- `just fmt` - Format code
+- `just vet` - Run go vet
+
+### Before Committing
+1. **Write tests** for any new code or changes
+2. Run `just fmt` to format code
+3. Run `just vet` to check for issues
+4. Run `just test` to ensure all tests pass
+5. Run `just sqlc-generate` if SQL queries changed
+6. Verify test coverage meets requirements
+
+## What NOT to Do
+
+### Anti-patterns to Avoid
+- ❌ Business logic in handlers
+- ❌ Business logic in repositories
+- ❌ Direct database access from handlers
+- ❌ Ignoring errors
+- ❌ Exposing internal errors to clients
+- ❌ Hardcoding values (use config/env vars)
+- ❌ Skipping tests for new features (MANDATORY - tests must be written)
+- ❌ Committing code without tests
+- ❌ Mixing concerns between layers
+- ❌ Creating god objects/structs
+- ❌ Using global state
+
+### Code Smells
+- Functions longer than 50 lines (consider breaking up)
+- Files longer than 300 lines (consider splitting)
+- Deeply nested conditionals (extract functions)
+- Duplicate code (extract common logic)
+- Magic numbers/strings (use constants)
+
+## When Adding New Features
+
+1. **Plan the layers**: Handler → Service → Repository → Database
+2. **Define interfaces**: Service and Repository interfaces first
+3. **Write SQL queries**: Add to `internal/db/queries/`
+4. **Generate sqlc code**: Run `just sqlc-generate`
+5. **Implement repository**: Thin wrapper around sqlc
+6. **Implement service**: Business logic and validation
+7. **Implement handler**: HTTP handling and response formatting
+8. **Add routes**: Use functional options pattern
+9. **Write tests**: **MANDATORY** - Service and handler tests with mocks (see Testing Requirements)
+10. **Update app**: Wire everything together in `app.go`
+11. **Verify tests pass**: Run `just test` before completing
+
+## Testing Requirements
+
+### MANDATORY: Write Tests After Any Code Change
+
+**IMPORTANT**: After implementing ANY feature, bug fix, or code change, you MUST write comprehensive tests before considering the task complete.
+
+### Testing New Features
+
+- **ALWAYS** write tests for service layer (business logic)
+- **ALWAYS** write tests for handler layer (HTTP handling)
+- Test error cases and edge cases
+- Use table-driven tests for multiple scenarios
+- Ensure tests pass before committing
+
+### Test Coverage Requirements
+
+- **Service Layer**: Aim for 100% coverage of business logic
+- **Handler Layer**: Aim for >90% coverage
+- Test both success and error paths
+- Test validation and edge cases
+- Test all error conditions
+
+### Test Structure
+
+- Use table-driven tests for multiple scenarios
+- Create mock repositories/services for testing
+- Test both happy paths and error cases
+- Test edge cases (empty strings, whitespace, nil values, invalid inputs)
+- Use descriptive test names: `TestFunctionName_Scenario`
+
+### When to Write Tests
+
+- ✅ **After implementing a new feature** - Write tests immediately
+- ✅ **After fixing a bug** - Add regression test
+- ✅ **After refactoring** - Ensure existing tests still pass, add new ones if needed
+- ✅ **Before committing** - All tests must pass
+
+### Test File Naming
+
+- Service tests: `*_service_test.go` (e.g., `recurring_expense_service_test.go`)
+- Handler tests: `*_test.go` in handlers directory (e.g., `recurring_expenses_test.go`)
+
+## Code Review Checklist
+
+- [ ] Follows layer architecture (no business logic in handlers/repos)
+- [ ] Proper error handling and status codes
+- [ ] Input validation in service layer
+- [ ] Tests written and passing (MANDATORY - no exceptions)
+- [ ] Test coverage meets requirements (Service: 100%, Handler: >90%)
+- [ ] Uses standardized response format
+- [ ] Context passed correctly
+- [ ] No hardcoded values
+- [ ] Code formatted and vetted
+- [ ] Documentation added for public APIs
+- [ ] No security issues (SQL injection, etc.)

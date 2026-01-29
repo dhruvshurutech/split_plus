@@ -1,0 +1,50 @@
+info:
+  name: join-group
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{base_url}}/groups/{{group_id}}/join"
+  headers:
+    - name: X-User-ID
+      value: "{{invite_user_id}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # Join Group
+
+  Accepts a pending invitation and joins a group. The user must have a pending invitation to join.
+
+  ## Authentication
+  Requires `X-User-ID` header with a valid user UUID (must match the invited user).
+
+  ## Path Parameters
+  - `group_id`: UUID of the group to join (use `{{group_id}}` variable)
+
+  ## Response
+  Returns the updated membership record:
+  - `id`: Membership UUID
+  - `group_id`: Group UUID
+  - `user_id`: User's UUID
+  - `role`: User's role ("member")
+  - `status`: Membership status ("active")
+  - `joined_at`: Join timestamp
+
+  ## Status Codes
+  - `200 OK`: Successfully joined the group
+  - `401 Unauthorized`: Missing or invalid user ID
+  - `403 Forbidden`: No pending invitation found
+  - `404 Not Found`: Group not found
+  - `400 Bad Request`: Invalid request data
+
+  ## Notes
+  - The user must have a pending invitation to join
+  - Use this endpoint as the invited user (set `user_id` to the invited user's UUID)
+  - After joining, the membership status changes from "pending" to "active"

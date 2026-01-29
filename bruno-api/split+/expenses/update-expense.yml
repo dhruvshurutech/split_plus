@@ -1,0 +1,92 @@
+info:
+  name: update-expense
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{base_url}}/groups/{{group_id}}/expenses/{{expense_id}}"
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Updated Dinner at Restaurant",
+        "notes": "Updated notes",
+        "amount": "1600.00",
+        "currency_code": "INR",
+        "date": "2026-01-19",
+        "payments": [
+          {
+            "user_id": "{{user_id}}",
+            "amount": "1600.00",
+            "payment_method": "card"
+          }
+        ],
+        "splits": [
+          {
+            "user_id": "{{user_id}}",
+            "amount_owned": "800.00",
+            "split_type": "equal"
+          },
+          {
+            "user_id": "{{invite_user_id}}",
+            "amount_owned": "800.00",
+            "split_type": "equal"
+          }
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # Update Expense
+
+  Updates an existing expense. This replaces all payments and splits with the new ones provided.
+
+  ## Authentication
+  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+
+  ## Path Parameters
+  - `group_id`: UUID of the group (use `{{group_id}}` variable)
+  - `expense_id`: UUID of the expense to update (use `{{expense_id}}` variable)
+
+  ## Request Body
+  - `title` (required): Expense title (1-200 characters)
+  - `notes` (optional): Additional notes about the expense (max 1000 characters)
+  - `amount` (required): Total expense amount (must be positive)
+  - `currency_code` (optional): 3-letter currency code (defaults to group currency)
+  - `date` (required): Expense date in YYYY-MM-DD format
+  - `payments` (required): Array of payment objects (replaces all existing payments)
+  - `splits` (required): Array of split objects (replaces all existing splits)
+
+  ## Validation Rules
+  - Payment amounts must total to expense amount
+  - Split amounts must total to expense amount
+  - All payment and split user_ids must be group members
+
+  ## Response
+  Returns the updated expense with:
+  - `expense`: Updated expense object
+  - `payments`: Array of new payment objects
+  - `splits`: Array of new split objects
+
+  ## Status Codes
+  - `200 OK`: Expense successfully updated
+  - `401 Unauthorized`: Missing or invalid user ID
+  - `403 Forbidden`: User is not a group member
+  - `404 Not Found`: Expense not found
+  - `422 Unprocessable Entity`: Validation errors (amount mismatch, etc.)
+  - `400 Bad Request`: Invalid request data
+
+  ## Notes
+  - This operation replaces all existing payments and splits
+  - Old payments and splits are soft-deleted
+  - The update is atomic (all or nothing)

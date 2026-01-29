@@ -1,0 +1,46 @@
+info:
+  name: get-user-balance-in-group
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{base_url}}/groups/{{group_id}}/balances/{{user_id}}"
+  headers:
+    - name: X-User-ID
+      value: "{{user_id}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |
+  # Get User Balance in Group
+
+  Get balance for a specific user in a group.
+
+  ## Authentication
+  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+
+  ## Path Parameters
+  - `group_id`: UUID of the group (use `{{group_id}}` variable)
+  - `user_id`: UUID of the user (use `{{user_id}}` or `{{invite_user_id}}` variable)
+
+  ## Response
+  Returns a balance object containing:
+  - `user_id`: User UUID
+  - `user_email`: User email
+  - `user_name`: User name
+  - `user_avatar_url`: User avatar URL
+  - `total_paid`: Total amount paid by this user
+  - `total_owed`: Total amount owed by this user
+  - `balance`: Net balance (total_paid - total_owed)
+
+  ## Status Codes
+  - `200 OK`: Successfully retrieved balance
+  - `401 Unauthorized`: Missing or invalid user ID
+  - `403 Forbidden`: User is not a group member
+  - `404 Not Found`: Group or user balance not found
