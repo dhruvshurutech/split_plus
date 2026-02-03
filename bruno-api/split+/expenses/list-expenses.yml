@@ -7,9 +7,9 @@ http:
   method: GET
   url: "{{base_url}}/groups/{{group_id}}/expenses"
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
-  auth: inherit
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+  auth: none
 
 settings:
   encodeUrl: true
@@ -23,28 +23,38 @@ docs: |
   Retrieves all expenses for a specific group. The authenticated user must be a member of the group.
 
   ## Authentication
-  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+  Requires `Authorization: Bearer {access_token}` header with a valid JWT token.
 
   ## Path Parameters
   - `group_id`: UUID of the group (use `{{group_id}}` variable)
 
   ## Response
-  Returns an array of expenses:
-  - `id`: Expense UUID
-  - `group_id`: Group UUID
-  - `title`: Expense title
-  - `notes`: Expense notes (optional)
-  - `amount`: Expense amount (as string)
-  - `currency_code`: Currency code
-  - `date`: Expense date (YYYY-MM-DD format)
-  - `created_at`: Creation timestamp
-  - `created_by`: Creator's UUID
-  - `updated_at`: Last update timestamp
-  - `updated_by`: Last updater's UUID
+  Returns an array of expenses, each containing:
+  - `expense`: Expense object
+    - `id`: Expense UUID
+    - `group_id`: Group UUID
+    - `title`: Expense title
+    - `notes`: Expense notes (optional)
+    - `amount`: Expense amount (as string)
+    - `currency_code`: Currency code
+    - `date`: Expense date (YYYY-MM-DD format)
+    - `category_id`: Category UUID (optional)
+    - `tags`: Array of tag strings
+    - `type`: Expense type
+    - `created_at`: Creation timestamp
+    - `created_by`: Creator's UUID
+    - `updated_at`: Last update timestamp
+    - `updated_by`: Last updater's UUID
+  - `payments`: Array of payments with user details
+    - `id`: Payment UUID
+    - `user_id`: User UUID who paid
+    - `amount`: Payment amount
+    - `payment_method`: Payment method used
+    - `user`: User details object
 
   ## Status Codes
   - `200 OK`: Successfully retrieved expenses
-  - `401 Unauthorized`: Missing or invalid user ID
+  - `401 Unauthorized`: Missing or invalid access token
   - `403 Forbidden`: User is not a group member
   - `404 Not Found`: Group not found
 

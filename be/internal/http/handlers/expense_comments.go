@@ -22,7 +22,7 @@ type CommentResponse struct {
 	Comment   string      `json:"comment"`
 	CreatedAt string      `json:"created_at"`
 	UpdatedAt string      `json:"updated_at"`
-	User      UserInfo    `json:"user,omitempty"`
+	User      *UserInfo   `json:"user,omitempty"`
 }
 
 func CreateCommentHandler(commentService service.ExpenseCommentService) http.HandlerFunc {
@@ -58,16 +58,6 @@ func CreateCommentHandler(commentService service.ExpenseCommentService) http.Han
 			return
 		}
 
-		// Since CreateComment returns sqlc.ExpenseComment without user info, we might want to return simple response
-		// or fetch the full comment with user info. For now, let's construct what we have.
-		// Note: The UI might need the user info immediately.
-		// The service returns the created comment. To get user info we'd need to fetch user details or just return what we have?
-		// The `CreateComment` returns `sqlc.ExpenseComment`.
-		// Let's rely on client refetching or just return basic info.
-		// Wait, the client usually wants to append the comment immediately.
-		// Ideally `CreateComment` should return the comment with user info or we construct it if we have user info from context (we have ID, maybe name/avatar is in JWT claim? No).
-		// For simplicity, let's just return the comment data. The user created it so they know who they are.
-
 		resp := CommentResponse{
 			ID:        result.ID,
 			ExpenseID: result.ExpenseID,
@@ -75,8 +65,11 @@ func CreateCommentHandler(commentService service.ExpenseCommentService) http.Han
 			Comment:   result.Comment,
 			CreatedAt: formatTimestamp(result.CreatedAt),
 			UpdatedAt: formatTimestamp(result.UpdatedAt),
-			// User info omitted for simple create response unless we fetch it.
-			// Ideally we fetch the comment we just created to get the join.
+			User: &UserInfo{
+				Email:     result.UserEmail,
+				Name:      result.UserName.String,
+				AvatarURL: result.UserAvatarUrl.String,
+			},
 		}
 
 		response.SendSuccess(w, http.StatusCreated, resp)
@@ -106,7 +99,7 @@ func ListCommentsHandler(commentService service.ExpenseCommentService) http.Hand
 				Comment:   c.Comment,
 				CreatedAt: formatTimestamp(c.CreatedAt),
 				UpdatedAt: formatTimestamp(c.UpdatedAt),
-				User: UserInfo{
+				User: &UserInfo{
 					Email:     c.UserEmail,
 					Name:      c.UserName.String,
 					AvatarURL: c.UserAvatarUrl.String,

@@ -12,26 +12,26 @@ default:
 # Start all services (frontend, backend, worker, postgres)
 up:
     @echo "Starting Docker services..."
-    docker compose -f docker/docker-compose.yml up -d
+    set -a; [ -f be/.env ] && source be/.env; set +a; docker compose -f docker/docker-compose.yml up -d
 
 # Stop all services
 down *FLAGS:
     @echo "Stopping Docker services..."
-    docker compose -f docker/docker-compose.yml down --remove-orphans {{FLAGS}}
+    set -a; [ -f be/.env ] && source be/.env; set +a; docker compose -f docker/docker-compose.yml down --remove-orphans {{FLAGS}}
 
 # Stop services and remove volumes (clean slate)
 down-v:
     @echo "Stopping Docker services and removing volumes..."
-    docker compose -f docker/docker-compose.yml down -v
+    set -a; [ -f be/.env ] && source be/.env; set +a; docker compose -f docker/docker-compose.yml down -v
 
 # Rebuild and restart services
 restart:
     @echo "Rebuilding and restarting services..."
-    docker compose -f docker/docker-compose.yml up -d --build
+    set -a; [ -f be/.env ] && source be/.env; set +a; docker compose -f docker/docker-compose.yml up -d --build
 
 # Connect to postgres database
 db:
-    docker compose -f docker/docker-compose.yml exec postgres psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}"
+    set -a; [ -f be/.env ] && source be/.env; set +a; docker compose -f docker/docker-compose.yml exec postgres psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}"
 
 # View logs from all services
 logs:
@@ -85,8 +85,9 @@ test-e2e:
     @echo "Loading .env.test if present..."
     set -a; [ -f be/.env.test ] && source be/.env.test; set +a
     @echo "Running integration test suite..."
-    DATABASE_URL_TEST="${DATABASE_URL_TEST:-postgres://splitplus_test:splitplus_test@localhost:${POSTGRES_PORT_TEST:-55432}/splitplus_test?sslmode=disable}" \
-      cd be && go test -count=1 ./internal/integration/...
+    DATABASE_URL_TEST="${DATABASE_URL_TEST:-postgres://splitplus_test:splitplus_test@localhost:${POSTGRES_PORT_TEST:-55432}/splitplus_test?sslmode=disable}"
+    export DATABASE_URL_TEST
+    cd be && go test -count=1 ./internal/integration/... -v
     @echo "Stopping integration test database..."
     docker compose -f docker/docker-compose.test.yml down -v --remove-orphans
 
@@ -135,7 +136,7 @@ sqlc-generate:
 # ============================================================================
 
 # Build API and Worker binaries
-go-build:
+be-build:
     @echo "Building API..."
     cd be && go build -o bin/api ./cmd/api
     @echo "Building Worker..."

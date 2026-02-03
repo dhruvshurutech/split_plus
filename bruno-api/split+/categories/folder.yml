@@ -7,3 +7,39 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |
+  # Expense Categories API
+
+  Endpoints for managing expense categories within groups.
+
+  ## Authentication
+  All category endpoints require Bearer token in Authorization header.
+
+  ## Available Endpoints
+  - **Get Category Presets**: Public endpoint to get preset categories
+  - **List Group Categories**: Get all categories for a group
+  - **Create Category**: Create a custom category
+  - **Create from Presets**: Bulk create categories from presets
+  - **Update Category**: Modify a category (name, icon, color)
+  - **Delete Category**: Remove a custom category
+
+  ## Category Properties
+  - **id**: Unique category UUID
+  - **group_id**: Group this category belongs to
+  - **slug**: URL-friendly identifier
+  - **name**: Display name
+  - **icon**: Icon identifier (e.g., "food", "transport")
+  - **color**: Color code (e.g., "#FF5733")
+
+  ## Workflow
+  1. Get preset categories to see available options
+  2. Create categories from presets or create custom ones
+  3. Assign categories when creating expenses
+  4. Filter expenses by category
+
+  ## Notes
+  - Categories are group-scoped (each group has its own categories)
+  - Preset categories provide a starting point
+  - Custom categories can be created per group
+  - Categories help organize and filter expenses

@@ -2,9 +2,44 @@
 
 ## Summary
 
-**Total API Endpoints**: ~56  
-**Documented in Bruno**: ~56 (100%)  
-**Missing Documentation**: 0
+**Total API Endpoints**: 56+  
+**Documented in Bruno**: 56+ (100%)  
+**Missing Documentation**: 0  
+**Last Updated**: 2026-02-02
+
+## Recent Updates (2026-02-02)
+
+✅ **Authentication Updated**: All endpoints now use Bearer token authentication  
+✅ **Expense Fields Added**: CategoryID and Tags fields documented  
+✅ **Split Types Documented**: All split types (equal, fixed, percentage, shares, custom) with examples  
+✅ **Folder Documentation**: Added comprehensive docs to all API folders  
+
+## Authentication
+
+All protected endpoints require JWT Bearer token authentication:
+
+```
+Authorization: Bearer {access_token}
+```
+
+### Getting a Token
+1. Create a user: `POST /users`
+2. Login: `POST /auth/login`  
+3. Tokens are automatically saved to environment variables
+4. Use `access_token` for all authenticated requests
+
+### Token Lifetimes
+- **Access Token**: 7 days
+- **Refresh Token**: 30 days
+
+### Public Endpoints (No Auth Required)
+- `POST /users` - Create user
+- `POST /auth/login` - Login
+- `POST /auth/refresh` - Refresh token
+- `GET /categories/presets` - Get category presets
+- `GET /invitations/{token}` - View invitation details
+
+## Endpoint Categories
 
 ## ✅ Fully Documented
 

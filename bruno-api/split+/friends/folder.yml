@@ -7,3 +7,36 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |
+  # Friends API
+
+  Endpoints for managing friendships, friend requests, and friend-specific expenses/settlements.
+
+  ## Authentication
+  All friends endpoints require Bearer token in Authorization header.
+
+  ## Available Endpoints
+  - **List Friends**: Get all accepted friends
+  - **Send Friend Request**: Send a friend request to another user
+  - **List Incoming Requests**: View pending friend requests received
+  - **List Outgoing Requests**: View friend requests sent
+  - **Accept Friend Request**: Accept an incoming friend request
+  - **Decline Friend Request**: Decline an incoming friend request
+  - **Remove Friend**: Remove an existing friend
+  - **Create Friend Expense**: Add an expense with a friend (1-on-1)
+  - **List Friend Expenses**: View expenses with a specific friend
+  - **Create Friend Settlement**: Record a settlement with a friend
+  - **List Friend Settlements**: View settlements with a specific friend
+
+  ## Friend Request Flow
+  1. User A sends friend request to User B (using User B's user_id)
+  2. User B lists incoming requests and sees the request from User A
+  3. User B accepts the request
+  4. Both users can now see each other in their friends list
+  5. Users can create expenses and settlements with each other
+
+  ## Friend Expenses vs Group Expenses
+  - **Friend Expenses**: Direct expenses between two friends (1-on-1)
+  - **Group Expenses**: Expenses within a group context
+  - Both types track payments and splits separately

@@ -21,7 +21,7 @@ func TestUserService_CreateUser(t *testing.T) {
 		expectedError error
 	}{
 		{
-			name:     "successful user creation",
+			name:     "Test User",
 			email:    "test@example.com",
 			password: "password123",
 			mockSetup: func(mock *testutil.MockUserRepository) {
@@ -33,7 +33,7 @@ func TestUserService_CreateUser(t *testing.T) {
 			expectedError: nil,
 		},
 		{
-			name:     "empty email",
+			name:     "",
 			email:    "",
 			password: "password123",
 			mockSetup: func(mock *testutil.MockUserRepository) {
@@ -42,7 +42,7 @@ func TestUserService_CreateUser(t *testing.T) {
 			expectedError: errors.New("email is required"),
 		},
 		{
-			name:     "whitespace only email",
+			name:     "",
 			email:    "   ",
 			password: "password123",
 			mockSetup: func(mock *testutil.MockUserRepository) {
@@ -51,7 +51,7 @@ func TestUserService_CreateUser(t *testing.T) {
 			expectedError: errors.New("email is required"),
 		},
 		{
-			name:     "email with leading/trailing whitespace",
+			name:     "Test User",
 			email:    "  test@example.com  ",
 			password: "password123",
 			mockSetup: func(mock *testutil.MockUserRepository) {
@@ -67,7 +67,7 @@ func TestUserService_CreateUser(t *testing.T) {
 			expectedError: nil,
 		},
 		{
-			name:     "duplicate email (unique constraint violation)",
+			name:     "Test User",
 			email:    "existing@example.com",
 			password: "password123",
 			mockSetup: func(mock *testutil.MockUserRepository) {
@@ -81,7 +81,7 @@ func TestUserService_CreateUser(t *testing.T) {
 			expectedError: ErrUserAlreadyExists,
 		},
 		{
-			name:     "repository error",
+			name:     "Test User",
 			email:    "test@example.com",
 			password: "password123",
 			mockSetup: func(mock *testutil.MockUserRepository) {
@@ -103,7 +103,7 @@ func TestUserService_CreateUser(t *testing.T) {
 			service := NewUserService(mockRepo)
 			ctx := context.Background()
 
-			user, err := service.CreateUser(ctx, tt.email, tt.password)
+			user, err := service.CreateUser(ctx, tt.name, tt.email, tt.password)
 
 			if tt.expectedError != nil {
 				if err == nil {

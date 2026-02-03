@@ -8,9 +8,7 @@ http:
   url: "{{base_url}}/groups/{{group_id}}/activity/"
   headers:
     - name: Authorization
-      value: "Bearer {{access_token}}"
-      enabled: true
-  auth: none
+      value: Bearer {{access_token}}
 
 settings:
   encodeUrl: true

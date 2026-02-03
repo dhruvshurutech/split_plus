@@ -18,8 +18,10 @@ SET status = $2, updated_at = NOW()
 WHERE id = $1 RETURNING *;
 
 -- name: ListInvitationsByGroup :many
-SELECT * FROM group_invitations
-WHERE group_id = $1 ORDER BY created_at DESC;
+SELECT gi.*, pu.name as pending_user_name, pu.id as pending_user_id
+FROM group_invitations gi
+LEFT JOIN pending_users pu ON gi.email = pu.email
+WHERE gi.group_id = $1 ORDER BY gi.created_at DESC;
 
 -- name: GetPendingInvitationsByEmail :many
 SELECT gi.*, g.name as group_name, u.name as inviter_name

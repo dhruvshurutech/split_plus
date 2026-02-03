@@ -7,8 +7,8 @@ http:
   method: POST
   url: "{{base_url}}/groups/{{group_id}}/expenses"
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
+    - name: Authorization
+      value: Bearer {{access_token}}
   body:
     type: json
     data: |-
@@ -16,8 +16,8 @@ http:
         "title": "Team Lunch at Pizza Place",
         "notes": "Lunch with the team - split equally among everyone",
         "amount": "120.00",
-        "currency_code": "USD",
         "date": "2026-01-31",
+        "category_id": "{{category_id}}",
         "payments": [
           {
             "user_id": "{{user_id}}",
@@ -33,14 +33,14 @@ http:
           {
             "user_id": "{{invite_user_id}}",
             "type": "equal"
-          },
-          {
-            "user_id": "9c9c52b3-f5c2-4cc1-88a2-e9c1799037d3",
-            "type": "equal"
           }
         ]
       }
-  auth: inherit
+
+runtime:
+  variables:
+    - name: category_id
+      value: 827d0d2b-ea53-4700-9e3d-3177d6898fc4
 
 settings:
   encodeUrl: true
@@ -96,5 +96,5 @@ docs: |
   - `201 Created`: Expense successfully created with calculated splits
   - `422 Unprocessable Entity`: Invalid split configuration
   - `400 Bad Request`: Invalid request data (e.g., missing type field)
-  - `401 Unauthorized`: Missing or invalid user ID
+  - `401 Unauthorized`: Missing or invalid access token
   - `403 Forbidden`: User is not a group member

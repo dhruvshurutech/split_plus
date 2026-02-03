@@ -43,6 +43,7 @@ func TestAuthenticationFlow(t *testing.T) {
 
 	// Register user
 	registerBody := map[string]string{
+		"name":     "Test User",
 		"email":    testEmail,
 		"password": testPassword,
 	}

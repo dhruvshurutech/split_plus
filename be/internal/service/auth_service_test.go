@@ -19,13 +19,18 @@ type MockUserService struct {
 	mock.Mock
 }
 
-func (m *MockUserService) CreateUser(ctx context.Context, email, password string) (sqlc.User, error) {
-	args := m.Called(ctx, email, password)
+func (m *MockUserService) CreateUser(ctx context.Context, name, email, password string) (sqlc.User, error) {
+	args := m.Called(ctx, name, email, password)
 	return args.Get(0).(sqlc.User), args.Error(1)
 }
 
 func (m *MockUserService) AuthenticateUser(ctx context.Context, email, password string) (sqlc.User, error) {
 	args := m.Called(ctx, email, password)
+	return args.Get(0).(sqlc.User), args.Error(1)
+}
+
+func (m *MockUserService) GetUser(ctx context.Context, id pgtype.UUID) (sqlc.User, error) {
+	args := m.Called(ctx, id)
 	return args.Get(0).(sqlc.User), args.Error(1)
 }
 

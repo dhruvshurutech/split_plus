@@ -15,6 +15,7 @@ func WithUserRoutes(userService service.UserService) Option {
 
 		r.Route("/users", func(r chi.Router) {
 			r.Post("/", middleware.ValidateBody[handlers.CreateUserRequest](v)(handlers.CreateUserHandler(userService)).ServeHTTP)
+			r.Get("/me", handlers.GetMeHandler(userService))
 		})
 	})
 }

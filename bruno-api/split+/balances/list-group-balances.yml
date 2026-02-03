@@ -7,9 +7,9 @@ http:
   method: GET
   url: "{{base_url}}/groups/{{group_id}}/balances"
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
-  auth: inherit
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+  auth: none
 
 settings:
   encodeUrl: true
@@ -23,7 +23,7 @@ docs: |
   Get balances for all users in a group.
 
   ## Authentication
-  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+  Requires Bearer token in Authorization header (user must be a group member).
 
   ## Path Parameters
   - `group_id`: UUID of the group (use `{{group_id}}` variable)

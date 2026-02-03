@@ -9,6 +9,7 @@ import (
 
 type BalanceRepository interface {
 	GetGroupBalances(ctx context.Context, groupID pgtype.UUID) ([]sqlc.GetGroupBalancesRow, error)
+	GetGroupBalancesWithPending(ctx context.Context, groupID pgtype.UUID) ([]sqlc.GetGroupBalancesWithPendingRow, error)
 	GetUserBalanceInGroup(ctx context.Context, params sqlc.GetUserBalanceInGroupParams) (sqlc.GetUserBalanceInGroupRow, error)
 	GetOverallUserBalance(ctx context.Context, userID pgtype.UUID) ([]sqlc.GetOverallUserBalanceRow, error)
 
@@ -27,6 +28,10 @@ func NewBalanceRepository(queries *sqlc.Queries) BalanceRepository {
 
 func (r *balanceRepository) GetGroupBalances(ctx context.Context, groupID pgtype.UUID) ([]sqlc.GetGroupBalancesRow, error) {
 	return r.queries.GetGroupBalances(ctx, groupID)
+}
+
+func (r *balanceRepository) GetGroupBalancesWithPending(ctx context.Context, groupID pgtype.UUID) ([]sqlc.GetGroupBalancesWithPendingRow, error) {
+	return r.queries.GetGroupBalancesWithPending(ctx, groupID)
 }
 
 func (r *balanceRepository) GetUserBalanceInGroup(ctx context.Context, params sqlc.GetUserBalanceInGroupParams) (sqlc.GetUserBalanceInGroupRow, error) {

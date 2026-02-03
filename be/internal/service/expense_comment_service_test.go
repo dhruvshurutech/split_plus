@@ -105,7 +105,7 @@ func TestExpenseCommentService_CreateComment(t *testing.T) {
 		comment       string
 		mockSetup     func(*MockExpenseCommentRepository, *MockExpenseService, *MockGroupActivityService)
 		expectedError error
-		validate      func(*testing.T, sqlc.ExpenseComment)
+		validate      func(*testing.T, sqlc.GetExpenseCommentByIDRow)
 	}{
 		{
 			name:      "success - create comment",
@@ -128,12 +128,22 @@ func TestExpenseCommentService_CreateComment(t *testing.T) {
 						Comment:   params.Comment,
 					}, nil
 				}
+				repo.GetCommentByIDFunc = func(ctx context.Context, id pgtype.UUID) (sqlc.GetExpenseCommentByIDRow, error) {
+					return sqlc.GetExpenseCommentByIDRow{
+						ID:        id,
+						ExpenseID: testutil.CreateTestUUID(1),
+						UserID:    testutil.CreateTestUUID(10),
+						Comment:   "This is a test comment",
+						UserName:  pgtype.Text{String: "Test User", Valid: true},
+						UserEmail: "test@example.com",
+					}, nil
+				}
 				actSvc.LogActivityFunc = func(ctx context.Context, input LogActivityInput) error {
 					return nil
 				}
 			},
 			expectedError: nil,
-			validate: func(t *testing.T, comment sqlc.ExpenseComment) {
+			validate: func(t *testing.T, comment sqlc.GetExpenseCommentByIDRow) {
 				if comment.Comment != "This is a test comment" {
 					t.Errorf("expected comment text 'This is a test comment', got '%s'", comment.Comment)
 				}
@@ -199,12 +209,22 @@ func TestExpenseCommentService_CreateComment(t *testing.T) {
 						Comment:   params.Comment,
 					}, nil
 				}
+				repo.GetCommentByIDFunc = func(ctx context.Context, id pgtype.UUID) (sqlc.GetExpenseCommentByIDRow, error) {
+					return sqlc.GetExpenseCommentByIDRow{
+						ID:        id,
+						ExpenseID: testutil.CreateTestUUID(1),
+						UserID:    testutil.CreateTestUUID(10),
+						Comment:   "Test comment",
+						UserName:  pgtype.Text{String: "Test User", Valid: true},
+						UserEmail: "test@example.com",
+					}, nil
+				}
 				actSvc.LogActivityFunc = func(ctx context.Context, input LogActivityInput) error {
 					return errors.New("activity service error")
 				}
 			},
 			expectedError: nil,
-			validate: func(t *testing.T, comment sqlc.ExpenseComment) {
+			validate: func(t *testing.T, comment sqlc.GetExpenseCommentByIDRow) {
 				if comment.ID.Bytes != testutil.CreateTestUUID(1000).Bytes {
 					t.Error("comment should be created even if activity logging fails")
 				}

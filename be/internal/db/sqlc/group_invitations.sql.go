@@ -172,19 +172,36 @@ func (q *Queries) GetPendingInvitationsByEmail(ctx context.Context, email string
 }
 
 const listInvitationsByGroup = `-- name: ListInvitationsByGroup :many
-SELECT id, group_id, email, token, role, status, invited_by, expires_at, created_at, updated_at FROM group_invitations
-WHERE group_id = $1 ORDER BY created_at DESC
+SELECT gi.id, gi.group_id, gi.email, gi.token, gi.role, gi.status, gi.invited_by, gi.expires_at, gi.created_at, gi.updated_at, pu.name as pending_user_name, pu.id as pending_user_id
+FROM group_invitations gi
+LEFT JOIN pending_users pu ON gi.email = pu.email
+WHERE gi.group_id = $1 ORDER BY gi.created_at DESC
 `
 
-func (q *Queries) ListInvitationsByGroup(ctx context.Context, groupID pgtype.UUID) ([]GroupInvitation, error) {
+type ListInvitationsByGroupRow struct {
+	ID              pgtype.UUID        `json:"id"`
+	GroupID         pgtype.UUID        `json:"group_id"`
+	Email           string             `json:"email"`
+	Token           string             `json:"token"`
+	Role            string             `json:"role"`
+	Status          string             `json:"status"`
+	InvitedBy       pgtype.UUID        `json:"invited_by"`
+	ExpiresAt       pgtype.Timestamptz `json:"expires_at"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+	PendingUserName pgtype.Text        `json:"pending_user_name"`
+	PendingUserID   pgtype.UUID        `json:"pending_user_id"`
+}
+
+func (q *Queries) ListInvitationsByGroup(ctx context.Context, groupID pgtype.UUID) ([]ListInvitationsByGroupRow, error) {
 	rows, err := q.db.Query(ctx, listInvitationsByGroup, groupID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GroupInvitation{}
+	items := []ListInvitationsByGroupRow{}
 	for rows.Next() {
-		var i GroupInvitation
+		var i ListInvitationsByGroupRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.GroupID,
@@ -196,6 +213,8 @@ func (q *Queries) ListInvitationsByGroup(ctx context.Context, groupID pgtype.UUI
 			&i.ExpiresAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.PendingUserName,
+			&i.PendingUserID,
 		); err != nil {
 			return nil, err
 		}

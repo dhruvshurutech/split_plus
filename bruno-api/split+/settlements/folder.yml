@@ -4,10 +4,7 @@ info:
   seq: 5
 
 request:
-  auth: inherit
-  headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
+  auth: none
 
 docs: |
   # Settlements API
@@ -15,7 +12,7 @@ docs: |
   Endpoints for recording and managing settlements (payments between users).
 
   ## Authentication
-  All settlement endpoints require the `X-User-ID` header with a valid user UUID.
+  All settlement endpoints require Bearer token in Authorization header.
 
   ## Available Endpoints
   - **Create Settlement**: Record a payment between two users
@@ -40,4 +37,4 @@ docs: |
   - Settlements are records of payments between users
   - Payer and payee must both be group members
   - Settlements can be marked as completed to track payment status
-  - Currently, settlements don't affect balance calculations (they're separate records)
+  - Settlements are tracked separately from expenses

@@ -17,7 +17,7 @@ type GroupInvitationRepository interface {
 	GetInvitationByToken(ctx context.Context, token string) (sqlc.GetInvitationByTokenRow, error)
 	GetInvitationByID(ctx context.Context, id pgtype.UUID) (sqlc.GroupInvitation, error)
 	UpdateInvitationStatus(ctx context.Context, params sqlc.UpdateInvitationStatusParams) (sqlc.GroupInvitation, error)
-	ListInvitationsByGroup(ctx context.Context, groupID pgtype.UUID) ([]sqlc.GroupInvitation, error)
+	ListInvitationsByGroup(ctx context.Context, groupID pgtype.UUID) ([]sqlc.ListInvitationsByGroupRow, error)
 	GetPendingInvitationsByEmail(ctx context.Context, email string) ([]sqlc.GetPendingInvitationsByEmailRow, error)
 }
 
@@ -57,7 +57,7 @@ func (r *groupInvitationRepository) UpdateInvitationStatus(ctx context.Context, 
 	return r.queries.UpdateInvitationStatus(ctx, params)
 }
 
-func (r *groupInvitationRepository) ListInvitationsByGroup(ctx context.Context, groupID pgtype.UUID) ([]sqlc.GroupInvitation, error) {
+func (r *groupInvitationRepository) ListInvitationsByGroup(ctx context.Context, groupID pgtype.UUID) ([]sqlc.ListInvitationsByGroupRow, error) {
 	return r.queries.ListInvitationsByGroup(ctx, groupID)
 }
 

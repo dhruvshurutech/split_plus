@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 
@@ -81,18 +82,18 @@ type UpdateExpenseInput struct {
 }
 
 type SearchExpensesInput struct {
-	GroupID     pgtype.UUID
-	Query       *string
-	StartDate   *time.Time
-	EndDate     *time.Time
-	CategoryID  *pgtype.UUID
-	CreatedBy   *pgtype.UUID
-	MinAmount   *string
-	MaxAmount   *string
-	PayerID     *pgtype.UUID
-	OwerID      *pgtype.UUID
-	Limit       int32
-	Offset      int32
+	GroupID    pgtype.UUID
+	Query      *string
+	StartDate  *time.Time
+	EndDate    *time.Time
+	CategoryID *pgtype.UUID
+	CreatedBy  *pgtype.UUID
+	MinAmount  *string
+	MaxAmount  *string
+	PayerID    *pgtype.UUID
+	OwerID     *pgtype.UUID
+	Limit      int32
+	Offset     int32
 }
 
 type CreateExpenseResult struct {
@@ -116,18 +117,53 @@ type expenseService struct {
 	repo            repository.ExpenseRepository
 	categoryRepo    repository.ExpenseCategoryRepository
 	activityService GroupActivityService
+	userRepo        repository.UserRepository
+	pendingUserRepo repository.PendingUserRepository
 }
 
 func NewExpenseService(
 	repo repository.ExpenseRepository,
 	categoryRepo repository.ExpenseCategoryRepository,
 	activityService GroupActivityService,
+	userRepo repository.UserRepository,
+	pendingUserRepo repository.PendingUserRepository,
 ) ExpenseService {
 	return &expenseService{
 		repo:            repo,
 		categoryRepo:    categoryRepo,
 		activityService: activityService,
+		userRepo:        userRepo,
+		pendingUserRepo: pendingUserRepo,
 	}
+}
+
+// resolveUserOrPendingUser checks if the given ID belongs to a user or a pending user.
+// Returns (userID, pendingUserID, error). One of userID or pendingUserID will be valid, passed ID is treated as "target".
+func (s *expenseService) resolveUserOrPendingUser(ctx context.Context, targetID pgtype.UUID) (pgtype.UUID, pgtype.UUID, error) {
+	if !targetID.Valid {
+		return pgtype.UUID{}, pgtype.UUID{}, nil
+	}
+
+	// 1. Check if it's a real user
+	_, err := s.userRepo.GetUserByID(ctx, targetID)
+	if err == nil {
+		return targetID, pgtype.UUID{}, nil
+	}
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return pgtype.UUID{}, pgtype.UUID{}, err
+	}
+
+	// 2. Check if it's a pending user
+	_, err = s.pendingUserRepo.GetPendingUserByID(ctx, targetID)
+	if err == nil {
+		return pgtype.UUID{}, targetID, nil
+	}
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return pgtype.UUID{}, pgtype.UUID{}, err
+	}
+
+	// Not found in either
+	return pgtype.UUID{}, pgtype.UUID{}, ErrUserNotFound
 }
 
 // Helper functions for numeric conversion
@@ -204,7 +240,6 @@ func (s *expenseService) validatePaymentsTotal(expenseAmount string, payments []
 
 	return nil
 }
-
 
 func (s *expenseService) validateCategory(ctx context.Context, categoryID *pgtype.UUID, groupID pgtype.UUID) error {
 	if categoryID == nil || !categoryID.Valid {
@@ -417,11 +452,8 @@ func (s *expenseService) CreateExpense(ctx context.Context, input CreateExpenseI
 		return CreateExpenseResult{}, ErrInvalidAmount
 	}
 
-	// Use group currency if not provided
-	currencyCode := strings.TrimSpace(input.CurrencyCode)
-	if currencyCode == "" {
-		currencyCode = group.CurrencyCode
-	}
+	// Always use group currency for group expenses
+	currencyCode := group.CurrencyCode
 
 	// Validate payments
 	if len(input.Payments) == 0 {
@@ -503,18 +535,22 @@ func (s *expenseService) CreateExpense(ctx context.Context, input CreateExpenseI
 			return CreateExpenseResult{}, ErrInvalidAmount
 		}
 
-		var pendingUserID pgtype.UUID
-		if paymentInput.PendingUserID != nil {
+		var userID, pendingUserID pgtype.UUID
+		if paymentInput.UserID.Valid {
+			// Resolve UserID which might be a PendingUserID
+			userID, pendingUserID, err = s.resolveUserOrPendingUser(ctx, paymentInput.UserID)
+			if err != nil {
+				return CreateExpenseResult{}, err
+			}
+		} else if paymentInput.PendingUserID != nil && paymentInput.PendingUserID.Valid {
 			pendingUserID = *paymentInput.PendingUserID
-		}
-
-		if !paymentInput.UserID.Valid && !pendingUserID.Valid {
+		} else {
 			return CreateExpenseResult{}, errors.New("payment must have user_id or pending_user_id")
 		}
 
 		payment, err := txRepo.CreateExpensePayment(ctx, sqlc.CreateExpensePaymentParams{
 			ExpenseID:     expense.ID,
-			UserID:        paymentInput.UserID,
+			UserID:        userID,
 			PendingUserID: pendingUserID,
 			Amount:        paymentAmount,
 			PaymentMethod: pgtype.Text{String: paymentInput.PaymentMethod, Valid: paymentInput.PaymentMethod != ""},
@@ -533,12 +569,16 @@ func (s *expenseService) CreateExpense(ctx context.Context, input CreateExpenseI
 			return CreateExpenseResult{}, ErrInvalidAmount
 		}
 
-		var pendingUserID pgtype.UUID
-		if calcSplit.PendingUserID != nil {
+		var userID, pendingUserID pgtype.UUID
+		if calcSplit.UserID.Valid {
+			// Resolve UserID which might be a PendingUserID
+			userID, pendingUserID, err = s.resolveUserOrPendingUser(ctx, calcSplit.UserID)
+			if err != nil {
+				return CreateExpenseResult{}, err
+			}
+		} else if calcSplit.PendingUserID != nil && calcSplit.PendingUserID.Valid {
 			pendingUserID = *calcSplit.PendingUserID
-		}
-
-		if !calcSplit.UserID.Valid && !pendingUserID.Valid {
+		} else {
 			return CreateExpenseResult{}, errors.New("split must have user_id or pending_user_id")
 		}
 
@@ -552,7 +592,7 @@ func (s *expenseService) CreateExpense(ctx context.Context, input CreateExpenseI
 
 		split, err := txRepo.CreateExpenseSplit(ctx, sqlc.CreateExpenseSplitParams{
 			ExpenseID:     expense.ID,
-			UserID:        calcSplit.UserID,
+			UserID:        userID,
 			PendingUserID: pendingUserID,
 			AmountOwned:   splitAmount,
 			SplitType:     calcSplit.Type,
@@ -576,10 +616,7 @@ func (s *expenseService) CreateExpense(ctx context.Context, input CreateExpenseI
 		Action:     "expense_created",
 		EntityType: "expense",
 		EntityID:   expense.ID,
-		Metadata: map[string]interface{}{
-			"title":  expense.Title,
-			"amount": input.Amount,
-		},
+		Metadata: buildExpenseActivityMetadata(expense, input.Amount, currencyCode, payments, splits, nil),
 	})
 
 	return CreateExpenseResult{
@@ -661,15 +698,12 @@ func (s *expenseService) UpdateExpense(ctx context.Context, input UpdateExpenseI
 		return CreateExpenseResult{}, err
 	}
 
-	// Use group currency if not provided
-	currencyCode := strings.TrimSpace(input.CurrencyCode)
-	if currencyCode == "" {
-		group, err := s.repo.GetGroupByID(ctx, expense.GroupID)
-		if err != nil {
-			return CreateExpenseResult{}, ErrExpenseNotFound
-		}
-		currencyCode = group.CurrencyCode
+	// Always use group currency for group expenses
+	group, err := s.repo.GetGroupByID(ctx, expense.GroupID)
+	if err != nil {
+		return CreateExpenseResult{}, ErrExpenseNotFound
 	}
+	currencyCode := group.CurrencyCode
 
 	// Convert amount to numeric
 	amountNumeric, err := stringToNumeric(input.Amount)
@@ -733,18 +767,21 @@ func (s *expenseService) UpdateExpense(ctx context.Context, input UpdateExpenseI
 			return CreateExpenseResult{}, ErrInvalidAmount
 		}
 
-		var pendingUserID pgtype.UUID
-		if paymentInput.PendingUserID != nil {
+		var userID, pendingUserID pgtype.UUID
+		if paymentInput.UserID.Valid {
+			userID, pendingUserID, err = s.resolveUserOrPendingUser(ctx, paymentInput.UserID)
+			if err != nil {
+				return CreateExpenseResult{}, err
+			}
+		} else if paymentInput.PendingUserID != nil && paymentInput.PendingUserID.Valid {
 			pendingUserID = *paymentInput.PendingUserID
-		}
-
-		if !paymentInput.UserID.Valid && !pendingUserID.Valid {
+		} else {
 			return CreateExpenseResult{}, errors.New("payment must have user_id or pending_user_id")
 		}
 
 		payment, err := txRepo.CreateExpensePayment(ctx, sqlc.CreateExpensePaymentParams{
 			ExpenseID:     updatedExpense.ID,
-			UserID:        paymentInput.UserID,
+			UserID:        userID,
 			PendingUserID: pendingUserID,
 			Amount:        paymentAmount,
 			PaymentMethod: pgtype.Text{String: paymentInput.PaymentMethod, Valid: paymentInput.PaymentMethod != ""},
@@ -763,12 +800,15 @@ func (s *expenseService) UpdateExpense(ctx context.Context, input UpdateExpenseI
 			return CreateExpenseResult{}, ErrInvalidAmount
 		}
 
-		var pendingUserID pgtype.UUID
-		if calcSplit.PendingUserID != nil {
+		var userID, pendingUserID pgtype.UUID
+		if calcSplit.UserID.Valid {
+			userID, pendingUserID, err = s.resolveUserOrPendingUser(ctx, calcSplit.UserID)
+			if err != nil {
+				return CreateExpenseResult{}, err
+			}
+		} else if calcSplit.PendingUserID != nil && calcSplit.PendingUserID.Valid {
 			pendingUserID = *calcSplit.PendingUserID
-		}
-
-		if !calcSplit.UserID.Valid && !pendingUserID.Valid {
+		} else {
 			return CreateExpenseResult{}, errors.New("split must have user_id or pending_user_id")
 		}
 
@@ -782,7 +822,7 @@ func (s *expenseService) UpdateExpense(ctx context.Context, input UpdateExpenseI
 
 		split, err := txRepo.CreateExpenseSplit(ctx, sqlc.CreateExpenseSplitParams{
 			ExpenseID:     updatedExpense.ID,
-			UserID:        calcSplit.UserID,
+			UserID:        userID,
 			PendingUserID: pendingUserID,
 			AmountOwned:   splitAmount,
 			SplitType:     calcSplit.Type,
@@ -806,10 +846,7 @@ func (s *expenseService) UpdateExpense(ctx context.Context, input UpdateExpenseI
 		Action:     "expense_updated",
 		EntityType: "expense",
 		EntityID:   updatedExpense.ID,
-		Metadata: map[string]interface{}{
-			"title":  updatedExpense.Title,
-			"amount": input.Amount,
-		},
+		Metadata: buildExpenseActivityMetadata(updatedExpense, input.Amount, currencyCode, payments, splits, &expense),
 	})
 
 	return CreateExpenseResult{
@@ -841,9 +878,7 @@ func (s *expenseService) DeleteExpense(ctx context.Context, expenseID, requester
 		Action:     "expense_deleted",
 		EntityType: "expense",
 		EntityID:   expenseID,
-		Metadata: map[string]interface{}{
-			"title": expense.Title,
-		},
+		Metadata: buildExpenseActivityMetadata(expense, numericToStringSafe(expense.Amount), expense.CurrencyCode, nil, nil, nil),
 	})
 
 	return nil
@@ -926,11 +961,11 @@ func (s *expenseService) SearchExpenses(ctx context.Context, input SearchExpense
 			params.MaxAmount = n
 		}
 	}
-	
+
 	if input.PayerID != nil {
 		params.PayerID = *input.PayerID
 	}
-	
+
 	if input.OwerID != nil {
 		params.OwerID = *input.OwerID
 	}
@@ -943,4 +978,96 @@ func (s *expenseService) SearchExpenses(ctx context.Context, input SearchExpense
 	}
 
 	return s.repo.SearchExpenses(ctx, params)
+}
+
+func buildExpenseActivityMetadata(
+	expense sqlc.Expense,
+	amount string,
+	currencyCode string,
+	payments []sqlc.ExpensePayment,
+	splits []sqlc.ExpenseSplit,
+	before *sqlc.Expense,
+) map[string]interface{} {
+	metadata := map[string]interface{}{
+		"version": 1,
+		"summary": map[string]interface{}{
+			"title":         expense.Title,
+			"amount":        amount,
+			"currency_code": currencyCode,
+		},
+		"split_type": splitTypeFromSplits(splits),
+		"splits":     buildActivitySplits(splits),
+		"payments":   buildActivityPayments(payments),
+	}
+
+	if before != nil {
+		metadata["before"] = map[string]interface{}{
+			"title":         before.Title,
+			"amount":        numericToStringSafe(before.Amount),
+			"currency_code": before.CurrencyCode,
+		}
+		metadata["after"] = map[string]interface{}{
+			"title":         expense.Title,
+			"amount":        amount,
+			"currency_code": currencyCode,
+		}
+	}
+
+	return metadata
+}
+
+func splitTypeFromSplits(splits []sqlc.ExpenseSplit) string {
+	if len(splits) == 0 {
+		return ""
+	}
+	return splits[0].SplitType
+}
+
+func buildActivitySplits(splits []sqlc.ExpenseSplit) []map[string]interface{} {
+	out := make([]map[string]interface{}, 0, len(splits))
+	for _, split := range splits {
+		entry := map[string]interface{}{
+			"id":               uuidToString(split.ID),
+			"user_id":          uuidToString(split.UserID),
+			"pending_user_id":  uuidToString(split.PendingUserID),
+			"amount":           numericToStringSafe(split.AmountOwned),
+			"type":             split.SplitType,
+		}
+		if split.ShareValue.Valid {
+			entry["share_value"] = numericToStringSafe(split.ShareValue)
+		}
+		out = append(out, entry)
+	}
+	return out
+}
+
+func buildActivityPayments(payments []sqlc.ExpensePayment) []map[string]interface{} {
+	out := make([]map[string]interface{}, 0, len(payments))
+	for _, payment := range payments {
+		entry := map[string]interface{}{
+			"id":               uuidToString(payment.ID),
+			"user_id":          uuidToString(payment.UserID),
+			"pending_user_id":  uuidToString(payment.PendingUserID),
+			"amount":           numericToStringSafe(payment.Amount),
+		}
+		if payment.PaymentMethod.Valid {
+			entry["payment_method"] = payment.PaymentMethod.String
+		}
+		out = append(out, entry)
+	}
+	return out
+}
+
+func uuidToString(id pgtype.UUID) string {
+	if !id.Valid {
+		return ""
+	}
+	return id.String()
+}
+
+func numericToStringSafe(n pgtype.Numeric) string {
+	if s, err := numericToString(n); err == nil {
+		return s
+	}
+	return ""
 }

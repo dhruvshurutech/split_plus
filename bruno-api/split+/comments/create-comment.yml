@@ -8,15 +8,13 @@ http:
   url: "{{base_url}}/groups/{{group_id}}/expenses/{{expense_id}}/comments/"
   headers:
     - name: Authorization
-      value: "Bearer {{access_token}}"
-      enabled: true
+      value: Bearer {{access_token}}
   body:
     type: json
     data: |-
       {
-        "content": "Can you check the tax amount?"
+        "comment": "Can you check the tax amount?"
       }
-  auth: none
 
 settings:
   encodeUrl: true
@@ -37,7 +35,10 @@ docs: |
   - `expense_id`: ID of the expense
 
   ## Request Body
-  - `content` (required): Comment text
+  - `comment` (required): Comment text
+
+  ## Response Body
+  - `user`: Comment author details (email/name/avatar)
 
   ## Status Codes
   - `201 Created`: Comment created successfully

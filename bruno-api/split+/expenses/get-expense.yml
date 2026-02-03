@@ -7,9 +7,9 @@ http:
   method: GET
   url: "{{base_url}}/groups/{{group_id}}/expenses/{{expense_id}}"
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
-  auth: inherit
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+  auth: none
 
 settings:
   encodeUrl: true
@@ -20,36 +20,52 @@ settings:
 docs: |
   # Get Expense
 
-  Retrieves a specific expense by ID. The authenticated user must be a member of the expense's group.
+  Retrieves a specific expense by ID with full details including payments and splits.
 
   ## Authentication
-  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+  Requires `Authorization: Bearer {access_token}` header with a valid JWT token.
 
   ## Path Parameters
   - `group_id`: UUID of the group (use `{{group_id}}` variable)
   - `expense_id`: UUID of the expense (use `{{expense_id}}` variable)
 
   ## Response
-  Returns the expense object:
-  - `id`: Expense UUID
-  - `group_id`: Group UUID
-  - `title`: Expense title
-  - `notes`: Expense notes (optional)
-  - `amount`: Expense amount (as string)
-  - `currency_code`: Currency code
-  - `date`: Expense date (YYYY-MM-DD format)
-  - `created_at`: Creation timestamp
-  - `created_by`: Creator's UUID
-  - `updated_at`: Last update timestamp
-  - `updated_by`: Last updater's UUID
+  Returns the complete expense object:
+  - `expense`: Expense details
+    - `id`: Expense UUID
+    - `group_id`: Group UUID
+    - `title`: Expense title
+    - `notes`: Expense notes (optional)
+    - `amount`: Expense amount (as string)
+    - `currency_code`: Currency code
+    - `date`: Expense date (YYYY-MM-DD format)
+    - `category_id`: Category UUID (optional)
+    - `tags`: Array of tag strings
+    - `type`: Expense type
+    - `created_at`: Creation timestamp
+    - `created_by`: Creator's UUID
+    - `updated_at`: Last update timestamp
+    - `updated_by`: Last updater's UUID
+  - `payments`: Array of payments with user details
+    - `id`: Payment UUID
+    - `user_id`: User UUID who paid
+    - `amount`: Payment amount
+    - `payment_method`: Payment method
+    - `user`: User details object (name, email, avatar)
+  - `splits`: Array of splits with user details
+    - `id`: Split UUID
+    - `user_id`: User UUID who owes
+    - `amount_owned`: Amount owed
+    - `split_type`: Type of split
+    - `share_value`: Share value (for percentage/shares splits)
+    - `user`: User details object
 
   ## Status Codes
   - `200 OK`: Successfully retrieved expense
-  - `401 Unauthorized`: Missing or invalid user ID
+  - `401 Unauthorized`: Missing or invalid access token
   - `403 Forbidden`: User is not a group member
   - `404 Not Found`: Expense not found
 
   ## Notes
-  - Use this endpoint to get expense details
-  - To get payments and splits, you may need separate endpoints (if implemented)
+  - Returns complete expense details including payments and splits with user information
   - Only group members can view expenses

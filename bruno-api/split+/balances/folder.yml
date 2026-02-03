@@ -1,40 +1,39 @@
 info:
   name: balances
   type: folder
-  seq: 4
+  seq: 1
 
 request:
-  auth: inherit
-  headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
+  auth: none
 
-docs: |
-  # Balances API
+docs:
+  content: |
+    # Balances API
 
-  Endpoints for calculating and viewing balances in groups.
+    Endpoints for calculating and viewing balances in groups.
 
-  ## Authentication
-  All balance endpoints require the `X-User-ID` header with a valid user UUID.
+    ## Authentication
+    All balance endpoints require Bearer token in Authorization header.
 
-  ## Available Endpoints
-  - **List Group Balances**: Get balances for all users in a group
-  - **Get User Balance in Group**: Get balance for a specific user in a group
-  - **Get Overall User Balance**: Get user's balances across all groups
-  - **Get Simplified Debts**: Get "who owes whom" view for a group
+    ## Available Endpoints
+    - **List Group Balances**: Get balances for all users in a group
+    - **Get User Balance in Group**: Get balance for a specific user in a group
+    - **Get Overall User Balance**: Get user's balances across all groups
+    - **Get Simplified Debts**: Get "who owes whom" view for a group
 
-  ## Balance Calculation
-  Balance = Total Paid - Total Owed
-  - Positive balance: User is owed money
-  - Negative balance: User owes money
+    ## Balance Calculation
+    Balance = Total Paid - Total Owed
+    - Positive balance: User is owed money
+    - Negative balance: User owes money
 
-  ## Workflow
-  1. Create expenses with payments and splits
-  2. View group balances to see who owes whom
-  3. Use simplified debts to see payment recommendations
-  4. Create settlements to record payments between users
+    ## Workflow
+    1. Create expenses with payments and splits
+    2. View group balances to see who owes whom
+    3. Use simplified debts to see payment recommendations
+    4. Create settlements to record payments between users
 
-  ## Notes
-  - Balances are calculated from expenses (payments and splits)
-  - Settlements are separate records and don't affect balance calculations (for now)
-  - All users in a group can view balances
+    ## Notes
+    - Balances are calculated from expenses (payments and splits)
+    - Settlements are separate records and don't affect balance calculations (for now)
+    - All users in a group can view balances
+  type: text/markdown

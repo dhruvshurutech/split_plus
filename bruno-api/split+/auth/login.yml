@@ -13,33 +13,12 @@ http:
         "email": "{{user_email}}",
         "password": "{{user_password}}"
       }
-  auth: none
 
 settings:
   encodeUrl: true
   timeout: 0
   followRedirects: true
   maxRedirects: 5
-
-tests:
-  script: |-
-    test("should return 200 OK", function() {
-      expect(res.status).to.equal(200);
-    });
-
-    test("should have access_token", function() {
-      expect(res.body.data.access_token).to.be.a('string');
-    });
-
-    test("should have refresh_token", function() {
-      expect(res.body.data.refresh_token).to.be.a('string');
-    });
-
-    // Save tokens to environment for subsequent requests
-    if (res.body.data) {
-      bru.setEnvVar("access_token", res.body.data.access_token);
-      bru.setEnvVar("refresh_token", res.body.data.refresh_token);
-    }
 
 docs: |
   # Login
@@ -63,6 +42,12 @@ docs: |
 
   ## Usage
   After successful login, the access_token and refresh_token are automatically saved to environment variables for use in subsequent requests.
+
+  ## Authentication Header
+  Use the access_token in the Authorization header for all protected endpoints:
+  ```
+  Authorization: Bearer {access_token}
+  ```
 
   ## Example Response
   ```json

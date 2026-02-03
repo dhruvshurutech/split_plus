@@ -6,9 +6,11 @@ info:
 http:
   method: POST
   url: "{{base_url}}/groups/{{group_id}}/expenses"
+  auth: none
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+      enabled: true
   body:
     type: json
     data: |-
@@ -16,7 +18,6 @@ http:
         "title": "Grocery Shopping - Unequal Items",
         "notes": "Bought different items for different people",
         "amount": "85.50",
-        "currency_code": "USD",
         "date": "2026-01-31",
         "payments": [
           {
@@ -38,7 +39,6 @@ http:
           }
         ]
       }
-  auth: inherit
 
 settings:
   encodeUrl: true
@@ -93,7 +93,7 @@ docs: |
   - `201 Created`: Expense successfully created with validated splits
   - `422 Unprocessable Entity`: Split amounts don't sum to expense amount
   - `400 Bad Request`: Invalid request data (e.g., missing amount field)
-  - `401 Unauthorized`: Missing or invalid user ID
+  - `401 Unauthorized`: Missing or invalid access token
   - `403 Forbidden`: User is not a group member
 
   ## Difference from Fixed Split

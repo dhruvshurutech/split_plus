@@ -128,7 +128,7 @@ func TestGroupService_CreateGroup(t *testing.T) {
 			tt.mockSetup(mockRepo)
 
 			mockActivitySvc := &MockGroupActivityService{}
-			svc := NewGroupService(mockRepo, mockActivitySvc)
+			svc := NewGroupService(mockRepo, &testutil.MockGroupInvitationRepository{}, mockActivitySvc)
 			result, err := svc.CreateGroup(context.Background(), tt.input)
 
 			if tt.expectedError != nil {
@@ -165,10 +165,11 @@ func TestGroupService_ListGroupMembers(t *testing.T) {
 	membershipID := testutil.CreateTestUUID(100)
 
 	tests := []struct {
-		name          string
-		groupID       pgtype.UUID
-		requesterID   pgtype.UUID
-		mockSetup     func(*testutil.MockGroupRepository)
+		name         string
+		groupID      pgtype.UUID
+		requesterID  pgtype.UUID
+		mockSetup    func(*testutil.MockGroupRepository)
+		mockInvSetup func(*testutil.MockGroupInvitationRepository)
 		expectedError error
 		expectedLen   int
 	}{
@@ -176,17 +177,33 @@ func TestGroupService_ListGroupMembers(t *testing.T) {
 			name:        "successful list",
 			groupID:     groupID,
 			requesterID: requesterID,
-			mockSetup: func(mock *testutil.MockGroupRepository) {
-				mock.GetGroupByIDFunc = func(ctx context.Context, id pgtype.UUID) (sqlc.Group, error) {
+			mockSetup: func(mockRepo *testutil.MockGroupRepository) {
+				mockRepo.GetGroupByIDFunc = func(ctx context.Context, id pgtype.UUID) (sqlc.Group, error) {
 					return testutil.CreateTestGroup(groupID, "Test Group", ownerID), nil
 				}
-				mock.GetGroupMemberFunc = func(ctx context.Context, params sqlc.GetGroupMemberParams) (sqlc.GroupMember, error) {
+				mockRepo.GetGroupMemberFunc = func(ctx context.Context, params sqlc.GetGroupMemberParams) (sqlc.GroupMember, error) {
 					return testutil.CreateTestGroupMember(membershipID, groupID, requesterID, "member", "active"), nil
 				}
-				mock.ListGroupMembersFunc = func(ctx context.Context, gID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error) {
+				mockRepo.ListGroupMembersFunc = func(ctx context.Context, gID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error) {
 					return []sqlc.ListGroupMembersRow{
 						{ID: testutil.CreateTestUUID(100), UserEmail: "owner@example.com", Role: "owner", Status: "active"},
 						{ID: testutil.CreateTestUUID(101), UserEmail: "member@example.com", Role: "member", Status: "active"},
+					}, nil
+				}
+			},
+			mockInvSetup: func(mockInv *testutil.MockGroupInvitationRepository) {
+				mockInv.ListInvitationsByGroupFunc = func(ctx context.Context, gID pgtype.UUID) ([]sqlc.ListInvitationsByGroupRow, error) {
+					return []sqlc.ListInvitationsByGroupRow{
+						{
+							ID:              testutil.CreateTestUUID(102),
+							GroupID:         groupID,
+							Email:           "invited@example.com",
+							Status:          "pending",
+							Role:            "member",
+							CreatedAt:       pgtype.Timestamptz{Time: time.Now(), Valid: true},
+							PendingUserName: pgtype.Text{String: "Invited User", Valid: true},
+							PendingUserID:   testutil.CreateTestUUID(200),
+						},
 					}, nil
 				}
 			},
@@ -226,7 +243,8 @@ func TestGroupService_ListGroupMembers(t *testing.T) {
 			tt.mockSetup(mockRepo)
 
 			mockActivitySvc := &MockGroupActivityService{}
-			svc := NewGroupService(mockRepo, mockActivitySvc)
+			mockInvRepo := &testutil.MockGroupInvitationRepository{}
+			svc := NewGroupService(mockRepo, mockInvRepo, mockActivitySvc)
 			result, err := svc.ListGroupMembers(context.Background(), tt.groupID, tt.requesterID)
 
 			if tt.expectedError != nil {
@@ -349,7 +367,7 @@ func TestGroupService_ListUserGroups(t *testing.T) {
 			tt.mockSetup(mockRepo)
 
 			mockActivitySvc := &MockGroupActivityService{}
-			svc := NewGroupService(mockRepo, mockActivitySvc)
+			svc := NewGroupService(mockRepo, &testutil.MockGroupInvitationRepository{}, mockActivitySvc)
 			result, err := svc.ListUserGroups(context.Background(), tt.userID)
 
 			if tt.expectedError != nil {

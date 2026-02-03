@@ -7,9 +7,9 @@ http:
   method: DELETE
   url: "{{base_url}}/groups/{{group_id}}/expenses/{{expense_id}}"
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
-  auth: inherit
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+  auth: none
 
 settings:
   encodeUrl: true
@@ -23,7 +23,7 @@ docs: |
   Soft deletes an expense. The expense is not permanently removed but marked as deleted.
 
   ## Authentication
-  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+  Requires `Authorization: Bearer {access_token}` header with a valid JWT token.
 
   ## Path Parameters
   - `group_id`: UUID of the group (use `{{group_id}}` variable)
@@ -34,7 +34,7 @@ docs: |
 
   ## Status Codes
   - `204 No Content`: Expense successfully deleted
-  - `401 Unauthorized`: Missing or invalid user ID
+  - `401 Unauthorized`: Missing or invalid access token
   - `403 Forbidden`: User is not a group member
   - `404 Not Found`: Expense not found
 

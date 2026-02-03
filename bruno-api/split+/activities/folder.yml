@@ -7,3 +7,43 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |
+  # Group Activities API
+
+  Endpoints for viewing activity logs and expense history within groups.
+
+  ## Authentication
+  All activity endpoints require Bearer token in Authorization header.
+
+  ## Available Endpoints
+  - **List Group Activities**: Get activity feed for a group
+  - **Get Expense History**: View edit history for a specific expense
+
+  ## Activity Properties
+  - **id**: Activity UUID
+  - **group_id**: Group where activity occurred
+  - **user_id**: User who performed the action
+  - **action**: Type of action (created, updated, deleted)
+  - **entity_type**: What was affected (expense, settlement, member)
+  - **entity_id**: UUID of the affected entity
+  - **metadata**: Additional context about the action
+  - **created_at**: When the activity occurred
+
+  ## Activity Types
+  - **expense_created**: New expense added
+  - **expense_updated**: Expense details changed
+  - **expense_deleted**: Expense removed
+  - **settlement_created**: Settlement recorded
+  - **member_joined**: New member joined group
+  - **member_invited**: User invited to group
+
+  ## Workflow
+  1. View group activity feed to see recent changes
+  2. Check expense history to see what changed and when
+  3. Track who made specific changes
+
+  ## Notes
+  - Activities provide audit trail for group changes
+  - Only group members can view activities
+  - Expense history shows detailed field-level changes

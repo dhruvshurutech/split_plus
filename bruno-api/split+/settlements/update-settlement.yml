@@ -7,8 +7,8 @@ http:
   method: PUT
   url: "{{base_url}}/groups/{{group_id}}/settlements/{{settlement_id}}"
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
+    - name: Authorization
+      value: "Bearer {{access_token}}"
   body:
     type: json
     data: |-
@@ -20,7 +20,7 @@ http:
         "transaction_reference": "TXN123456",
         "notes": "Updated settlement with transaction reference"
       }
-  auth: inherit
+  auth: none
 
 settings:
   encodeUrl: true
@@ -34,7 +34,7 @@ docs: |
   Update settlement details.
 
   ## Authentication
-  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+  Requires Bearer token in Authorization header (user must be a group member).
 
   ## Path Parameters
   - `group_id`: UUID of the group (use `{{group_id}}` variable)

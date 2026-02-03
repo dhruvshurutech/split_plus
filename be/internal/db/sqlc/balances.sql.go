@@ -12,23 +12,43 @@ import (
 )
 
 const getGroupBalances = `-- name: GetGroupBalances :many
+WITH payments AS (
+    SELECT
+        ep.user_id,
+        SUM(ep.amount) AS total_paid
+    FROM expense_payments ep
+    JOIN expenses e ON e.id = ep.expense_id
+    WHERE e.group_id = $1
+      AND e.deleted_at IS NULL
+      AND ep.deleted_at IS NULL
+    GROUP BY ep.user_id
+),
+splits AS (
+    SELECT
+        es.user_id,
+        SUM(es.amount_owned) AS total_owed
+    FROM expense_split es
+    JOIN expenses e ON e.id = es.expense_id
+    WHERE e.group_id = $1
+      AND e.deleted_at IS NULL
+      AND es.deleted_at IS NULL
+    GROUP BY es.user_id
+)
 SELECT
     u.id AS user_id,
     u.email AS user_email,
     u.name AS user_name,
     u.avatar_url AS user_avatar_url,
-    COALESCE(SUM(ep.amount), 0::DECIMAL) AS total_paid,
-    COALESCE(SUM(es.amount_owned), 0::DECIMAL) AS total_owed
+    COALESCE(p.total_paid, 0::DECIMAL)::TEXT AS total_paid,
+    COALESCE(s.total_owed, 0::DECIMAL)::TEXT AS total_owed
 FROM group_members gm
 JOIN users u ON gm.user_id = u.id
-LEFT JOIN expenses e ON e.group_id = gm.group_id AND e.deleted_at IS NULL
-LEFT JOIN expense_payments ep ON ep.expense_id = e.id AND ep.user_id = u.id AND ep.deleted_at IS NULL
-LEFT JOIN expense_split es ON es.expense_id = e.id AND es.user_id = u.id AND es.deleted_at IS NULL
+LEFT JOIN payments p ON p.user_id = u.id
+LEFT JOIN splits s ON s.user_id = u.id
 WHERE gm.group_id = $1 
     AND gm.status = 'active' 
     AND gm.deleted_at IS NULL
     AND u.deleted_at IS NULL
-GROUP BY u.id, u.email, u.name, u.avatar_url
 ORDER BY u.email
 `
 
@@ -37,8 +57,8 @@ type GetGroupBalancesRow struct {
 	UserEmail     string      `json:"user_email"`
 	UserName      pgtype.Text `json:"user_name"`
 	UserAvatarUrl pgtype.Text `json:"user_avatar_url"`
-	TotalPaid     interface{} `json:"total_paid"`
-	TotalOwed     interface{} `json:"total_owed"`
+	TotalPaid     string      `json:"total_paid"`
+	TotalOwed     string      `json:"total_owed"`
 }
 
 // Calculate balance for each user in a group
@@ -71,23 +91,152 @@ func (q *Queries) GetGroupBalances(ctx context.Context, groupID pgtype.UUID) ([]
 	return items, nil
 }
 
+const getGroupBalancesWithPending = `-- name: GetGroupBalancesWithPending :many
+WITH payments AS (
+    SELECT
+        COALESCE(ep.user_id, ep.pending_user_id) AS entity_id,
+        CASE WHEN ep.user_id IS NOT NULL THEN 'user' ELSE 'pending' END AS entity_type,
+        SUM(ep.amount) AS total_paid
+    FROM expense_payments ep
+    JOIN expenses e ON e.id = ep.expense_id
+    WHERE e.group_id = $1
+      AND e.deleted_at IS NULL
+      AND ep.deleted_at IS NULL
+    GROUP BY COALESCE(ep.user_id, ep.pending_user_id),
+             CASE WHEN ep.user_id IS NOT NULL THEN 'user' ELSE 'pending' END
+),
+splits AS (
+    SELECT
+        COALESCE(es.user_id, es.pending_user_id) AS entity_id,
+        CASE WHEN es.user_id IS NOT NULL THEN 'user' ELSE 'pending' END AS entity_type,
+        SUM(es.amount_owned) AS total_owed
+    FROM expense_split es
+    JOIN expenses e ON e.id = es.expense_id
+    WHERE e.group_id = $1
+      AND e.deleted_at IS NULL
+      AND es.deleted_at IS NULL
+    GROUP BY COALESCE(es.user_id, es.pending_user_id),
+             CASE WHEN es.user_id IS NOT NULL THEN 'user' ELSE 'pending' END
+),
+entities AS (
+    SELECT gm.user_id AS user_id, NULL::uuid AS pending_user_id, 'user' AS entity_type
+    FROM group_members gm
+    WHERE gm.group_id = $1
+      AND gm.status = 'active'
+      AND gm.deleted_at IS NULL
+    UNION
+    SELECT NULL::uuid AS user_id, pu.id AS pending_user_id, 'pending' AS entity_type
+    FROM pending_users pu
+    JOIN expense_split es ON es.pending_user_id = pu.id AND es.deleted_at IS NULL
+    JOIN expenses e ON e.id = es.expense_id AND e.deleted_at IS NULL
+    WHERE e.group_id = $1
+    UNION
+    SELECT NULL::uuid AS user_id, pu.id AS pending_user_id, 'pending' AS entity_type
+    FROM pending_users pu
+    JOIN expense_payments ep ON ep.pending_user_id = pu.id AND ep.deleted_at IS NULL
+    JOIN expenses e ON e.id = ep.expense_id AND e.deleted_at IS NULL
+    WHERE e.group_id = $1
+)
+SELECT
+    ent.user_id AS user_id,
+    ent.pending_user_id AS pending_user_id,
+    COALESCE(u.email, pu.email) AS email,
+    COALESCE(u.name, pu.name) AS name,
+    u.avatar_url AS avatar_url,
+    COALESCE(p.total_paid, 0::DECIMAL)::TEXT AS total_paid,
+    COALESCE(s.total_owed, 0::DECIMAL)::TEXT AS total_owed
+FROM entities ent
+LEFT JOIN users u ON ent.user_id = u.id
+LEFT JOIN pending_users pu ON ent.pending_user_id = pu.id
+LEFT JOIN payments p
+  ON p.entity_id = COALESCE(ent.user_id, ent.pending_user_id)
+ AND p.entity_type = ent.entity_type
+LEFT JOIN splits s
+  ON s.entity_id = COALESCE(ent.user_id, ent.pending_user_id)
+ AND s.entity_type = ent.entity_type
+WHERE (u.id IS NULL OR u.deleted_at IS NULL)
+ORDER BY COALESCE(u.email, pu.email)
+`
+
+type GetGroupBalancesWithPendingRow struct {
+	UserID        pgtype.UUID `json:"user_id"`
+	PendingUserID pgtype.UUID `json:"pending_user_id"`
+	Email         string      `json:"email"`
+	Name          pgtype.Text `json:"name"`
+	AvatarUrl     pgtype.Text `json:"avatar_url"`
+	TotalPaid     string      `json:"total_paid"`
+	TotalOwed     string      `json:"total_owed"`
+}
+
+// Calculate balance for each user or pending user in a group
+// Balance = total_paid - total_owed
+// Positive balance means entity is owed money, negative means entity owes money
+func (q *Queries) GetGroupBalancesWithPending(ctx context.Context, groupID pgtype.UUID) ([]GetGroupBalancesWithPendingRow, error) {
+	rows, err := q.db.Query(ctx, getGroupBalancesWithPending, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetGroupBalancesWithPendingRow{}
+	for rows.Next() {
+		var i GetGroupBalancesWithPendingRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.PendingUserID,
+			&i.Email,
+			&i.Name,
+			&i.AvatarUrl,
+			&i.TotalPaid,
+			&i.TotalOwed,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOverallUserBalance = `-- name: GetOverallUserBalance :many
+WITH payments AS (
+    SELECT
+        e.group_id,
+        ep.user_id,
+        SUM(ep.amount) AS total_paid
+    FROM expense_payments ep
+    JOIN expenses e ON e.id = ep.expense_id
+    WHERE e.deleted_at IS NULL
+      AND ep.deleted_at IS NULL
+    GROUP BY e.group_id, ep.user_id
+),
+splits AS (
+    SELECT
+        e.group_id,
+        es.user_id,
+        SUM(es.amount_owned) AS total_owed
+    FROM expense_split es
+    JOIN expenses e ON e.id = es.expense_id
+    WHERE e.deleted_at IS NULL
+      AND es.deleted_at IS NULL
+    GROUP BY e.group_id, es.user_id
+)
 SELECT
     g.id AS group_id,
     g.name AS group_name,
     g.currency_code AS currency_code,
-    COALESCE(SUM(ep.amount), 0::DECIMAL) AS total_paid,
-    COALESCE(SUM(es.amount_owned), 0::DECIMAL) AS total_owed
+    COALESCE(p.total_paid, 0::DECIMAL)::TEXT AS total_paid,
+    COALESCE(s.total_owed, 0::DECIMAL)::TEXT AS total_owed
 FROM group_members gm
 JOIN groups g ON gm.group_id = g.id
-LEFT JOIN expenses e ON e.group_id = gm.group_id AND e.deleted_at IS NULL
-LEFT JOIN expense_payments ep ON ep.expense_id = e.id AND ep.user_id = gm.user_id AND ep.deleted_at IS NULL
-LEFT JOIN expense_split es ON es.expense_id = e.id AND es.user_id = gm.user_id AND es.deleted_at IS NULL
+LEFT JOIN payments p ON p.group_id = gm.group_id AND p.user_id = gm.user_id
+LEFT JOIN splits s ON s.group_id = gm.group_id AND s.user_id = gm.user_id
 WHERE gm.user_id = $1
     AND gm.status = 'active'
     AND gm.deleted_at IS NULL
     AND g.deleted_at IS NULL
-GROUP BY g.id, g.name, g.currency_code
+GROUP BY g.id, g.name, g.currency_code, p.total_paid, s.total_owed
 ORDER BY g.name
 `
 
@@ -95,8 +244,8 @@ type GetOverallUserBalanceRow struct {
 	GroupID      pgtype.UUID `json:"group_id"`
 	GroupName    string      `json:"group_name"`
 	CurrencyCode string      `json:"currency_code"`
-	TotalPaid    interface{} `json:"total_paid"`
-	TotalOwed    interface{} `json:"total_owed"`
+	TotalPaid    string      `json:"total_paid"`
+	TotalOwed    string      `json:"total_owed"`
 }
 
 // Get user's balance across all groups
@@ -127,25 +276,45 @@ func (q *Queries) GetOverallUserBalance(ctx context.Context, userID pgtype.UUID)
 }
 
 const getUserBalanceInGroup = `-- name: GetUserBalanceInGroup :one
+WITH payments AS (
+    SELECT
+        ep.user_id,
+        SUM(ep.amount) AS total_paid
+    FROM expense_payments ep
+    JOIN expenses e ON e.id = ep.expense_id
+    WHERE e.group_id = $1
+      AND e.deleted_at IS NULL
+      AND ep.deleted_at IS NULL
+    GROUP BY ep.user_id
+),
+splits AS (
+    SELECT
+        es.user_id,
+        SUM(es.amount_owned) AS total_owed
+    FROM expense_split es
+    JOIN expenses e ON e.id = es.expense_id
+    WHERE e.group_id = $1
+      AND e.deleted_at IS NULL
+      AND es.deleted_at IS NULL
+    GROUP BY es.user_id
+)
 SELECT
     u.id AS user_id,
     u.email AS user_email,
     u.name AS user_name,
     u.avatar_url AS user_avatar_url,
-    COALESCE(SUM(ep.amount), 0::DECIMAL) AS total_paid,
-    COALESCE(SUM(es.amount_owned), 0::DECIMAL) AS total_owed,
-    COALESCE(SUM(ep.amount), 0::DECIMAL) - COALESCE(SUM(es.amount_owned), 0::DECIMAL) AS balance
+    COALESCE(p.total_paid, 0::DECIMAL)::TEXT AS total_paid,
+    COALESCE(s.total_owed, 0::DECIMAL)::TEXT AS total_owed,
+    (COALESCE(p.total_paid, 0::DECIMAL) - COALESCE(s.total_owed, 0::DECIMAL))::TEXT AS balance
 FROM group_members gm
 JOIN users u ON gm.user_id = u.id
-LEFT JOIN expenses e ON e.group_id = gm.group_id AND e.deleted_at IS NULL
-LEFT JOIN expense_payments ep ON ep.expense_id = e.id AND ep.user_id = u.id AND ep.deleted_at IS NULL
-LEFT JOIN expense_split es ON es.expense_id = e.id AND es.user_id = u.id AND es.deleted_at IS NULL
+LEFT JOIN payments p ON p.user_id = u.id
+LEFT JOIN splits s ON s.user_id = u.id
 WHERE gm.group_id = $1 
     AND gm.user_id = $2
     AND gm.status = 'active' 
     AND gm.deleted_at IS NULL
     AND u.deleted_at IS NULL
-GROUP BY u.id, u.email, u.name, u.avatar_url
 `
 
 type GetUserBalanceInGroupParams struct {
@@ -158,9 +327,9 @@ type GetUserBalanceInGroupRow struct {
 	UserEmail     string      `json:"user_email"`
 	UserName      pgtype.Text `json:"user_name"`
 	UserAvatarUrl pgtype.Text `json:"user_avatar_url"`
-	TotalPaid     interface{} `json:"total_paid"`
-	TotalOwed     interface{} `json:"total_owed"`
-	Balance       int32       `json:"balance"`
+	TotalPaid     string      `json:"total_paid"`
+	TotalOwed     string      `json:"total_owed"`
+	Balance       string      `json:"balance"`
 }
 
 // Get balance for a specific user in a group

@@ -6,11 +6,11 @@ info:
 http:
   method: GET
   url: "{{base_url}}/groups"
-  auth: inherit
+  auth: none
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
-      type: text
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+      enabled: true
 
 settings:
   encodeUrl: true
@@ -20,12 +20,12 @@ settings:
 
 docs: |
   # List User Groups
-  
+
   Retrieves all groups that the authenticated user is a member of.
-  
+
   ## Authentication
-  Requires `X-User-ID` header with a valid user UUID.
-  
+  Requires Bearer token in Authorization header.
+
   ## Response
   Returns an array of groups with membership information:
   - `id`: Group UUID
@@ -37,10 +37,10 @@ docs: |
   - `member_role`: User's role in the group ("owner" or "member")
   - `member_status`: Membership status ("active" or "pending")
   - `member_joined_at`: When user joined the group (optional)
-  
+
   ## Status Codes
   - `200 OK`: Successfully retrieved groups
   - `401 Unauthorized`: Missing or invalid user ID
-  
+
   ## Notes
   Only returns groups where the user has an active or pending membership.

@@ -14,7 +14,7 @@ http:
     type: json
     data: |-
       {
-        "content": "Updated: Tax looks correct."
+        "comment": "Updated: Tax looks correct."
       }
   auth: none
 
@@ -38,7 +38,7 @@ docs: |
   - `comment_id`: ID of the comment
 
   ## Request Body
-  - `content` (required): New comment text
+  - `comment` (required): New comment text
 
   ## Status Codes
   - `200 OK`: Comment updated successfully

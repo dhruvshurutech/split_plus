@@ -19,8 +19,6 @@ type CreateGroupRequest struct {
 	CurrencyCode string `json:"currency_code" validate:"omitempty,len=3"`
 }
 
-
-
 // Response structs
 
 type CreateGroupResponse struct {
@@ -116,8 +114,6 @@ func CreateGroupHandler(groupService service.GroupService) http.HandlerFunc {
 	}
 }
 
-
-
 func ListGroupMembersHandler(groupService service.GroupService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		groupID, err := parseUUID(chi.URLParam(r, "group_id"))
@@ -145,8 +141,28 @@ func ListGroupMembersHandler(groupService service.GroupService) http.HandlerFunc
 			return
 		}
 
+		// Merge results
 		resp := make([]GroupMemberWithUserResponse, len(members))
 		for i, m := range members {
+			// Map user details
+			user := UserInfo{
+				Email:     m.UserEmail,
+				Name:      m.UserName.String,
+				AvatarURL: m.UserAvatarUrl.String,
+			}
+
+			if m.IsPending {
+				// If we have a pending user ID, merge it with UserId
+				if m.PendingUserID.Valid {
+					m.UserID = m.PendingUserID
+				}
+
+				// If we have a name for the pending user (from invitation input), use it
+				if m.UserName.Valid {
+					user.Name = m.UserName.String
+				}
+			}
+
 			resp[i] = GroupMemberWithUserResponse{
 				ID:        m.ID,
 				GroupID:   m.GroupID,
@@ -155,11 +171,7 @@ func ListGroupMembersHandler(groupService service.GroupService) http.HandlerFunc
 				Status:    m.Status,
 				InvitedAt: formatTimestamp(m.InvitedAt),
 				JoinedAt:  formatTimestamp(m.JoinedAt),
-				User: UserInfo{
-					Email:     m.UserEmail,
-					Name:      m.UserName.String,
-					AvatarURL: m.UserAvatarUrl.String,
-				},
+				User:      user,
 			}
 		}
 
@@ -198,6 +210,47 @@ func ListUserGroupsHandler(groupService service.GroupService) http.HandlerFunc {
 
 		response.SendSuccess(w, http.StatusOK, resp)
 	}
+}
+
+// Helper to convert UUID to string
+func uuidToString(uuid pgtype.UUID) string {
+	if !uuid.Valid {
+		return ""
+	}
+	return formatUUID(uuid.Bytes)
+}
+
+func formatUUID(b [16]byte) string {
+	return string([]byte{
+		hexDigit(b[0] >> 4), hexDigit(b[0]),
+		hexDigit(b[1] >> 4), hexDigit(b[1]),
+		hexDigit(b[2] >> 4), hexDigit(b[2]),
+		hexDigit(b[3] >> 4), hexDigit(b[3]),
+		'-',
+		hexDigit(b[4] >> 4), hexDigit(b[4]),
+		hexDigit(b[5] >> 4), hexDigit(b[5]),
+		'-',
+		hexDigit(b[6] >> 4), hexDigit(b[6]),
+		hexDigit(b[7] >> 4), hexDigit(b[7]),
+		'-',
+		hexDigit(b[8] >> 4), hexDigit(b[8]),
+		hexDigit(b[9] >> 4), hexDigit(b[9]),
+		'-',
+		hexDigit(b[10] >> 4), hexDigit(b[10]),
+		hexDigit(b[11] >> 4), hexDigit(b[11]),
+		hexDigit(b[12] >> 4), hexDigit(b[12]),
+		hexDigit(b[13] >> 4), hexDigit(b[13]),
+		hexDigit(b[14] >> 4), hexDigit(b[14]),
+		hexDigit(b[15] >> 4), hexDigit(b[15]),
+	})
+}
+
+func hexDigit(b byte) byte {
+	b = b & 0x0f
+	if b < 10 {
+		return '0' + b
+	}
+	return 'a' + b - 10
 }
 
 // Helper functions

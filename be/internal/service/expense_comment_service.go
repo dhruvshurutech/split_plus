@@ -16,7 +16,7 @@ var (
 )
 
 type ExpenseCommentService interface {
-	CreateComment(ctx context.Context, expenseID, userID pgtype.UUID, comment string) (sqlc.ExpenseComment, error)
+	CreateComment(ctx context.Context, expenseID, userID pgtype.UUID, comment string) (sqlc.GetExpenseCommentByIDRow, error)
 	ListComments(ctx context.Context, expenseID pgtype.UUID) ([]sqlc.ListExpenseCommentsRow, error)
 	UpdateComment(ctx context.Context, commentID, userID pgtype.UUID, comment string) (sqlc.ExpenseComment, error)
 	DeleteComment(ctx context.Context, commentID, userID pgtype.UUID) error
@@ -40,15 +40,15 @@ func NewExpenseCommentService(
 	}
 }
 
-func (s *expenseCommentService) CreateComment(ctx context.Context, expenseID, userID pgtype.UUID, comment string) (sqlc.ExpenseComment, error) {
+func (s *expenseCommentService) CreateComment(ctx context.Context, expenseID, userID pgtype.UUID, comment string) (sqlc.GetExpenseCommentByIDRow, error) {
 	if comment == "" {
-		return sqlc.ExpenseComment{}, ErrCommentEmpty
+		return sqlc.GetExpenseCommentByIDRow{}, ErrCommentEmpty
 	}
 
 	// Verify expense exists and get group ID (using GetExpenseByID which likely checks permissions too, or just existence)
 	expense, err := s.expenseService.GetExpenseByID(ctx, expenseID, userID)
 	if err != nil {
-		return sqlc.ExpenseComment{}, err
+		return sqlc.GetExpenseCommentByIDRow{}, err
 	}
 
 	result, err := s.repo.CreateComment(ctx, sqlc.CreateExpenseCommentParams{
@@ -57,7 +57,7 @@ func (s *expenseCommentService) CreateComment(ctx context.Context, expenseID, us
 		Comment:   comment,
 	})
 	if err != nil {
-		return sqlc.ExpenseComment{}, err
+		return sqlc.GetExpenseCommentByIDRow{}, err
 	}
 
 	// Log activity
@@ -68,12 +68,15 @@ func (s *expenseCommentService) CreateComment(ctx context.Context, expenseID, us
 		EntityType: "expense",
 		EntityID:   expenseID,
 		Metadata: map[string]interface{}{
-			"comment_id":      result.ID,
-			"comment_snippet": truncateString(comment, 50),
+			"version": 1,
+			"comment": map[string]interface{}{
+				"id":      result.ID,
+				"snippet": truncateString(comment, 50),
+			},
 		},
 	})
 
-	return result, nil
+	return s.repo.GetCommentByID(ctx, result.ID)
 }
 
 func (s *expenseCommentService) ListComments(ctx context.Context, expenseID pgtype.UUID) ([]sqlc.ListExpenseCommentsRow, error) {

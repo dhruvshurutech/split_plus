@@ -28,11 +28,12 @@ func TestCreateUserHandler(t *testing.T) {
 		{
 			name: "successful user creation",
 			requestBody: CreateUserRequest{
+				Name:     "Test User",
 				Email:    "test@example.com",
 				Password: "password123",
 			},
 			mockSetup: func(mock *testutil.MockUserService) {
-				mock.CreateUserFunc = func(ctx context.Context, email string, password string) (sqlc.User, error) {
+				mock.CreateUserFunc = func(ctx context.Context, name, email string, password string) (sqlc.User, error) {
 					return testutil.CreateTestUser(testutil.CreateTestUUID(1), email), nil
 				}
 			},
@@ -60,11 +61,12 @@ func TestCreateUserHandler(t *testing.T) {
 		{
 			name: "duplicate email",
 			requestBody: CreateUserRequest{
+				Name:     "Test User",
 				Email:    "existing@example.com",
 				Password: "password123",
 			},
 			mockSetup: func(mock *testutil.MockUserService) {
-				mock.CreateUserFunc = func(ctx context.Context, email string, password string) (sqlc.User, error) {
+				mock.CreateUserFunc = func(ctx context.Context, name, email string, password string) (sqlc.User, error) {
 					return sqlc.User{}, service.ErrUserAlreadyExists
 				}
 			},
@@ -86,11 +88,12 @@ func TestCreateUserHandler(t *testing.T) {
 		{
 			name: "service error",
 			requestBody: CreateUserRequest{
+				Name:     "Test User",
 				Email:    "test@example.com",
 				Password: "password123",
 			},
 			mockSetup: func(mock *testutil.MockUserService) {
-				mock.CreateUserFunc = func(ctx context.Context, email string, password string) (sqlc.User, error) {
+				mock.CreateUserFunc = func(ctx context.Context, name, email string, password string) (sqlc.User, error) {
 					return sqlc.User{}, errors.New("database error")
 				}
 			},

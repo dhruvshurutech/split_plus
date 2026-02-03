@@ -6,9 +6,11 @@ info:
 http:
   method: POST
   url: "{{base_url}}/groups/{{group_id}}/expenses"
+  auth: none
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+      enabled: true
   body:
     type: json
     data: |-
@@ -16,7 +18,6 @@ http:
         "title": "Apartment Rent - Roommate Split",
         "notes": "Rent split based on room sizes (2 shares for master bedroom, 1 share for small room)",
         "amount": "1500.00",
-        "currency_code": "USD",
         "date": "2026-01-31",
         "payments": [
           {
@@ -38,7 +39,6 @@ http:
           }
         ]
       }
-  auth: inherit
 
 settings:
   encodeUrl: true
@@ -102,7 +102,7 @@ docs: |
   - `201 Created`: Expense successfully created with calculated splits
   - `422 Unprocessable Entity`: Invalid shares or split configuration
   - `400 Bad Request`: Invalid request data (e.g., missing shares field)
-  - `401 Unauthorized`: Missing or invalid user ID
+  - `401 Unauthorized`: Missing or invalid access token
   - `403 Forbidden`: User is not a group member
 
   ## Difference from Percentage Split

@@ -35,20 +35,42 @@ type CreateGroupResult struct {
 
 
 
+type GroupMemberDetail struct {
+	ID            pgtype.UUID        `json:"id"`
+	GroupID       pgtype.UUID        `json:"group_id"`
+	UserID        pgtype.UUID        `json:"user_id"`
+	Role          string             `json:"role"`
+	Status        string             `json:"status"`
+	InvitedBy     pgtype.UUID        `json:"invited_by"`
+	InvitedAt     pgtype.Timestamptz `json:"invited_at"`
+	JoinedAt      pgtype.Timestamptz `json:"joined_at"`
+	UserEmail     string             `json:"user_email"`
+	UserName      pgtype.Text        `json:"user_name"`
+	UserAvatarUrl pgtype.Text        `json:"user_avatar_url"`
+	IsPending     bool               `json:"is_pending"`
+	PendingUserID pgtype.UUID        `json:"pending_user_id"`
+}
+
 type GroupService interface {
 	CreateGroup(ctx context.Context, input CreateGroupInput) (CreateGroupResult, error)
-	ListGroupMembers(ctx context.Context, groupID, requesterID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error)
+	ListGroupMembers(ctx context.Context, groupID, requesterID pgtype.UUID) ([]GroupMemberDetail, error)
 	ListUserGroups(ctx context.Context, userID pgtype.UUID) ([]sqlc.GetGroupsByUserIDRow, error)
 }
 
 type groupService struct {
 	repo            repository.GroupRepository
+	invRepo         repository.GroupInvitationRepository
 	activityService GroupActivityService
 }
 
-func NewGroupService(repo repository.GroupRepository, activityService GroupActivityService) GroupService {
+func NewGroupService(
+	repo repository.GroupRepository,
+	invRepo repository.GroupInvitationRepository,
+	activityService GroupActivityService,
+) GroupService {
 	return &groupService{
 		repo:            repo,
+		invRepo:         invRepo,
 		activityService: activityService,
 	}
 }
@@ -105,8 +127,6 @@ func (s *groupService) CreateGroup(ctx context.Context, input CreateGroupInput) 
 	}
 
 	// Log activity - group created
-	// (Optional: maybe not needed for feed inside group, but good for completeness)
-	// Actually, feed is PER group, so logging "group created" inside the group feed is logical as first event.
 	_ = s.activityService.LogActivity(ctx, LogActivityInput{
 		GroupID:    group.ID,
 		UserID:     input.CreatedBy,
@@ -124,9 +144,7 @@ func (s *groupService) CreateGroup(ctx context.Context, input CreateGroupInput) 
 	}, nil
 }
 
-
-
-func (s *groupService) ListGroupMembers(ctx context.Context, groupID, requesterID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error) {
+func (s *groupService) ListGroupMembers(ctx context.Context, groupID, requesterID pgtype.UUID) ([]GroupMemberDetail, error) {
 	// Verify group exists
 	_, err := s.repo.GetGroupByID(ctx, groupID)
 	if err != nil {
@@ -142,8 +160,64 @@ func (s *groupService) ListGroupMembers(ctx context.Context, groupID, requesterI
 		return nil, ErrNotGroupMember
 	}
 
-	// Fetch members with user details
-	return s.repo.ListGroupMembers(ctx, groupID)
+	// Fetch actual members
+	members, err := s.repo.ListGroupMembers(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Fetch pending invitations
+	invitations, err := s.invRepo.ListInvitationsByGroup(ctx, groupID)
+	if err != nil {
+		// Just log error or ignore? Safer to return partial data?
+		// But for now let's return error if DB fails
+		return nil, err
+	}
+
+	// Merge results
+	result := make([]GroupMemberDetail, 0, len(members)+len(invitations))
+
+	// Add members
+	for _, m := range members {
+		result = append(result, GroupMemberDetail{
+			ID:            m.ID,
+			GroupID:       m.GroupID,
+			UserID:        m.UserID,
+			Role:          m.Role,
+			Status:        m.Status,
+			InvitedBy:     m.InvitedBy,
+			InvitedAt:     m.InvitedAt,
+			JoinedAt:      m.JoinedAt,
+			UserEmail:     m.UserEmail,
+			UserName:      m.UserName,
+			UserAvatarUrl: m.UserAvatarUrl,
+			IsPending:     false,
+		})
+	}
+
+	// Add pending invitations
+	// Only those with status 'pending'
+	for _, inv := range invitations {
+		if inv.Status == "pending" {
+			// Note: UserID is empty/null for invitations
+			result = append(result, GroupMemberDetail{
+				ID:        inv.ID, // Invitation ID used as member ID for display
+				GroupID:   inv.GroupID,
+				UserID:    pgtype.UUID{}, // No user ID yet
+				Role:      inv.Role,
+				Status:    "pending",
+				InvitedBy: inv.InvitedBy,
+				InvitedAt: inv.CreatedAt, // Use creation time as invited_at
+				// JoinedAt is null
+				UserEmail: inv.Email,
+				UserName:  inv.PendingUserName, // Use populated PendingUserName
+				IsPending:     true,
+				PendingUserID: inv.PendingUserID,
+			})
+		}
+	}
+
+	return result, nil
 }
 
 func (s *groupService) ListUserGroups(ctx context.Context, userID pgtype.UUID) ([]sqlc.GetGroupsByUserIDRow, error) {

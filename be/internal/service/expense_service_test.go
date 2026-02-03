@@ -169,6 +169,7 @@ func TestExpenseService_CreateExpense(t *testing.T) {
 		name          string
 		input         CreateExpenseInput
 		mockSetup     func(*MockExpenseRepository)
+		mockUserSetup func(*testutil.MockUserRepository, *testutil.MockPendingUserRepository)
 		expectedError error
 	}{
 		{
@@ -649,7 +650,12 @@ func TestExpenseService_CreateExpense(t *testing.T) {
 
 			mockCategoryRepo := &MockExpenseCategoryRepository{}
 			mockActivitySvc := &MockGroupActivityService{}
-			service := NewExpenseService(mock, mockCategoryRepo, mockActivitySvc)
+			mockUserRepo := &testutil.MockUserRepository{}
+			mockPendingUserRepo := &testutil.MockPendingUserRepository{}
+			if tt.mockUserSetup != nil {
+				tt.mockUserSetup(mockUserRepo, mockPendingUserRepo)
+			}
+			service := NewExpenseService(mock, mockCategoryRepo, mockActivitySvc, mockUserRepo, mockPendingUserRepo)
 			tt.input.GroupID = groupID
 
 			_, err := service.CreateExpense(context.Background(), tt.input)
@@ -734,7 +740,9 @@ func TestExpenseService_GetExpenseByID(t *testing.T) {
 
 			mockCategoryRepo := &MockExpenseCategoryRepository{}
 			mockActivitySvc := &MockGroupActivityService{}
-			svc := NewExpenseService(mock, mockCategoryRepo, mockActivitySvc)
+			mockUserRepo := &testutil.MockUserRepository{}
+			mockPendingUserRepo := &testutil.MockPendingUserRepository{}
+			svc := NewExpenseService(mock, mockCategoryRepo, mockActivitySvc, mockUserRepo, mockPendingUserRepo)
 			_, err := svc.GetExpenseByID(context.Background(), tt.expenseID, tt.requesterID)
 
 			if tt.expectedError != nil {
@@ -813,7 +821,9 @@ func TestExpenseService_ListExpensesByGroup(t *testing.T) {
 
 			mockCategoryRepo := &MockExpenseCategoryRepository{}
 			mockActivitySvc := &MockGroupActivityService{}
-			svc := NewExpenseService(mock, mockCategoryRepo, mockActivitySvc)
+			mockUserRepo := &testutil.MockUserRepository{}
+			mockPendingUserRepo := &testutil.MockPendingUserRepository{}
+			svc := NewExpenseService(mock, mockCategoryRepo, mockActivitySvc, mockUserRepo, mockPendingUserRepo)
 			_, err := svc.ListExpensesByGroup(context.Background(), tt.groupID, tt.requesterID)
 
 			if tt.expectedError != nil {
@@ -1240,7 +1250,9 @@ func TestExpenseService_UpdateExpense(t *testing.T) {
 
 			mockCategoryRepo := &MockExpenseCategoryRepository{}
 			mockActivitySvc := &MockGroupActivityService{}
-			service := NewExpenseService(mock, mockCategoryRepo, mockActivitySvc)
+			mockUserRepo := &testutil.MockUserRepository{}
+			mockPendingUserRepo := &testutil.MockPendingUserRepository{}
+			service := NewExpenseService(mock, mockCategoryRepo, mockActivitySvc, mockUserRepo, mockPendingUserRepo)
 			_, err := service.UpdateExpense(context.Background(), tt.input)
 
 			if tt.expectedError != nil {
@@ -1327,7 +1339,9 @@ func TestExpenseService_DeleteExpense(t *testing.T) {
 
 			mockCategoryRepo := &MockExpenseCategoryRepository{}
 			mockActivitySvc := &MockGroupActivityService{}
-			svc := NewExpenseService(mock, mockCategoryRepo, mockActivitySvc)
+			mockUserRepo := &testutil.MockUserRepository{}
+			mockPendingUserRepo := &testutil.MockPendingUserRepository{}
+			svc := NewExpenseService(mock, mockCategoryRepo, mockActivitySvc, mockUserRepo, mockPendingUserRepo)
 			err := svc.DeleteExpense(context.Background(), tt.expenseID, tt.requesterID)
 
 			if tt.expectedError != nil {
@@ -1467,7 +1481,9 @@ func TestExpenseService_GetExpensePaymentsAndSplits(t *testing.T) {
 
 			mockCategoryRepo := &MockExpenseCategoryRepository{}
 			mockActivitySvc := &MockGroupActivityService{}
-			svc := NewExpenseService(mock, mockCategoryRepo, mockActivitySvc)
+			mockUserRepo := &testutil.MockUserRepository{}
+			mockPendingUserRepo := &testutil.MockPendingUserRepository{}
+			svc := NewExpenseService(mock, mockCategoryRepo, mockActivitySvc, mockUserRepo, mockPendingUserRepo)
 
 			if tt.expectPaymentsOK || tt.expectedError != nil {
 				_, err := svc.GetExpensePayments(context.Background(), tt.expenseID, tt.requesterID)

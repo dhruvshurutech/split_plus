@@ -7,9 +7,9 @@ http:
   method: GET
   url: "{{base_url}}/groups/{{group_id}}/debts"
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
-  auth: inherit
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+  auth: none
 
 settings:
   encodeUrl: true
@@ -23,7 +23,7 @@ docs: |
   Get "who owes whom" view for a group. Shows debt relationships between users.
 
   ## Authentication
-  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+  Requires Bearer token in Authorization header (user must be a group member).
 
   ## Path Parameters
   - `group_id`: UUID of the group (use `{{group_id}}` variable)
@@ -31,9 +31,11 @@ docs: |
   ## Response
   Returns an array of debt objects, each containing:
   - `debtor_id`: UUID of the user who owes money
+  - `debtor_pending_user_id`: UUID of the pending user who owes money (if applicable)
   - `debtor_email`: Email of the debtor
   - `debtor_name`: Name of the debtor
   - `creditor_id`: UUID of the user who is owed money
+  - `creditor_pending_user_id`: UUID of the pending user who is owed money (if applicable)
   - `creditor_email`: Email of the creditor
   - `creditor_name`: Name of the creditor
   - `amount`: Amount owed

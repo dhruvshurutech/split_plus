@@ -6,10 +6,11 @@ info:
 http:
   method: GET
   url: "{{base_url}}/users/me/balances"
+  auth: none
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
-  auth: inherit
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+      enabled: true
 
 settings:
   encodeUrl: true
@@ -23,7 +24,7 @@ docs: |
   Get user's balances across all groups they belong to.
 
   ## Authentication
-  Requires `X-User-ID` header with a valid user UUID.
+  Requires Bearer token in Authorization header.
 
   ## Response
   Returns an array of group balance objects, each containing:

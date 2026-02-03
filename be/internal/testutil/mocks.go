@@ -50,13 +50,21 @@ var _ repository.UserRepository = (*MockUserRepository)(nil)
 // ============================================================================
 
 type MockUserService struct {
-	CreateUserFunc       func(ctx context.Context, email, password string) (sqlc.User, error)
+	CreateUserFunc       func(ctx context.Context, name, email, password string) (sqlc.User, error)
 	AuthenticateUserFunc func(ctx context.Context, email, password string) (sqlc.User, error)
+	GetUserFunc          func(ctx context.Context, id pgtype.UUID) (sqlc.User, error)
 }
 
-func (m *MockUserService) CreateUser(ctx context.Context, email, password string) (sqlc.User, error) {
+func (m *MockUserService) CreateUser(ctx context.Context, name, email, password string) (sqlc.User, error) {
 	if m.CreateUserFunc != nil {
-		return m.CreateUserFunc(ctx, email, password)
+		return m.CreateUserFunc(ctx, name, email, password)
+	}
+	return sqlc.User{}, nil
+}
+
+func (m *MockUserService) GetUser(ctx context.Context, id pgtype.UUID) (sqlc.User, error) {
+	if m.GetUserFunc != nil {
+		return m.GetUserFunc(ctx, id)
 	}
 	return sqlc.User{}, nil
 }
@@ -227,7 +235,7 @@ type MockGroupInvitationRepository struct {
 	GetInvitationByTokenFunc     func(ctx context.Context, token string) (sqlc.GetInvitationByTokenRow, error)
 	GetInvitationByIDFunc        func(ctx context.Context, id pgtype.UUID) (sqlc.GroupInvitation, error)
 	UpdateInvitationStatusFunc   func(ctx context.Context, params sqlc.UpdateInvitationStatusParams) (sqlc.GroupInvitation, error)
-	ListInvitationsByGroupFunc   func(ctx context.Context, groupID pgtype.UUID) ([]sqlc.GroupInvitation, error)
+	ListInvitationsByGroupFunc   func(ctx context.Context, groupID pgtype.UUID) ([]sqlc.ListInvitationsByGroupRow, error)
 	GetPendingInvitationsByEmailFunc func(ctx context.Context, email string) ([]sqlc.GetPendingInvitationsByEmailRow, error)
 }
 
@@ -273,11 +281,11 @@ func (m *MockGroupInvitationRepository) UpdateInvitationStatus(ctx context.Conte
 	return sqlc.GroupInvitation{}, nil
 }
 
-func (m *MockGroupInvitationRepository) ListInvitationsByGroup(ctx context.Context, groupID pgtype.UUID) ([]sqlc.GroupInvitation, error) {
+func (m *MockGroupInvitationRepository) ListInvitationsByGroup(ctx context.Context, groupID pgtype.UUID) ([]sqlc.ListInvitationsByGroupRow, error) {
 	if m.ListInvitationsByGroupFunc != nil {
 		return m.ListInvitationsByGroupFunc(ctx, groupID)
 	}
-	return []sqlc.GroupInvitation{}, nil
+	return []sqlc.ListInvitationsByGroupRow{}, nil
 }
 
 func (m *MockGroupInvitationRepository) GetPendingInvitationsByEmail(ctx context.Context, email string) ([]sqlc.GetPendingInvitationsByEmailRow, error) {

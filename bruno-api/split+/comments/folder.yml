@@ -7,3 +7,36 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |
+  # Expense Comments API
+
+  Endpoints for adding, viewing, and managing comments on expenses.
+
+  ## Authentication
+  All comment endpoints require Bearer token in Authorization header.
+
+  ## Available Endpoints
+  - **List Comments**: Get all comments for an expense
+  - **Create Comment**: Add a new comment to an expense
+  - **Update Comment**: Edit an existing comment (author only)
+  - **Delete Comment**: Remove a comment (author only)
+
+  ## Comment Properties
+  - **id**: Comment UUID
+  - **expense_id**: Expense this comment belongs to
+  - **user_id**: User who wrote the comment
+  - **comment**: Comment text content
+  - **created_at**: When comment was created
+  - **updated_at**: When comment was last updated
+
+  ## Workflow
+  1. View an expense's comments to see discussion
+  2. Add comments to discuss expense details
+  3. Edit or delete your own comments if needed
+
+  ## Notes
+  - Only group members can view and add comments
+  - Users can only edit/delete their own comments
+  - Comments are displayed in chronological order
+  - Useful for clarifying expense details or discussing splits

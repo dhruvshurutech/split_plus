@@ -15,8 +15,9 @@ This folder contains Bruno API requests for JWT-based authentication.
    - You're now authenticated for all protected endpoints!
 
 3. **Use protected endpoints**:
-   - All other API requests will automatically use the saved `access_token`
-   - No manual token management needed
+   - All protected endpoints require the `Authorization` header with Bearer token
+   - Format: `Authorization: Bearer {access_token}`
+   - Tokens are automatically included in requests
 
 ## Endpoints
 
@@ -105,18 +106,50 @@ The following variables are used by auth endpoints:
 ## Authentication Flow
 
 ```
-1. Login
+1. Create User (POST /users)
    ↓
-2. Get access_token + refresh_token (auto-saved)
+2. Login (POST /auth/login)
    ↓
-3. Use access_token for API requests (automatic)
+3. Get access_token + refresh_token (auto-saved)
    ↓
-4. When access_token expires (7 days):
-   → Refresh token to get new access_token
+4. Use access_token for API requests (via Authorization header)
    ↓
-5. When done:
+5. When access_token expires (7 days):
+   → Refresh token (POST /auth/refresh) to get new access_token
+   ↓
+6. When done:
    → Logout (single device) or Logout All (all devices)
 ```
+
+## Using Authentication in Requests
+
+All protected endpoints require the Authorization header:
+
+```yaml
+http:
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+  auth: none
+```
+
+### Public Endpoints (No Auth Required)
+- `POST /users` - Create user
+- `POST /auth/login` - Login
+- `POST /auth/refresh` - Refresh token
+- `GET /categories/presets` - Get category presets
+- `GET /invitations/{token}` - View invitation details
+
+### Protected Endpoints (Auth Required)
+- All `/groups/*` endpoints
+- All `/friends/*` endpoints
+- All `/expenses/*` endpoints
+- All `/settlements/*` endpoints
+- All `/balances/*` endpoints
+- All `/categories/*` endpoints (except presets)
+- All `/recurring-expenses/*` endpoints
+- All `/comments/*` endpoints
+- All `/activities/*` endpoints
 
 ## Testing Tips
 
@@ -126,23 +159,25 @@ The following variables are used by auth endpoints:
    1. Create user (users/create-user.yml)
    2. Update user_email and user_password in environment
    3. Run login
+   4. Now all protected endpoints will work
    ```
 
 2. **Daily usage**:
 
    ```
    1. Run login once
-   2. All other requests work automatically
+   2. All other requests work automatically with Bearer token
    ```
 
 3. **Token expiration testing**:
 
    ```
    1. Login
-   2. Wait 7 days (or manually expire token in DB)
-   3. Try protected endpoint → should fail
-   4. Run refresh-token
-   5. Try protected endpoint → should work
+   2. Try protected endpoint → works
+   3. Wait 7 days (or manually expire token in DB)
+   4. Try protected endpoint → fails (401)
+   5. Run refresh-token
+   6. Try protected endpoint → works again
    ```
 
 4. **Logout testing**:
@@ -150,7 +185,7 @@ The following variables are used by auth endpoints:
    1. Login
    2. Try protected endpoint → works
    3. Logout
-   4. Try protected endpoint → fails (401)
+   4. Try protected endpoint → fails (401 Unauthorized)
    ```
 
 ## Response Format
@@ -183,11 +218,15 @@ All auth endpoints return:
 
 - `200 OK` - Success
 - `400 Bad Request` - Invalid request data
-- `401 Unauthorized` - Invalid credentials or token
+- `401 Unauthorized` - Invalid credentials or missing/invalid token
+- `403 Forbidden` - Valid token but insufficient permissions
+- `404 Not Found` - Resource not found
+- `422 Unprocessable Entity` - Validation error
 - `500 Internal Server Error` - Server error
 
 ## Notes
 
+- All protected endpoints use `Authorization: Bearer {token}` header
 - Tokens are automatically managed by Bruno scripts
 - Access tokens expire in 7 days
 - Refresh tokens expire in 30 days

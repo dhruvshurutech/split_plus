@@ -33,21 +33,22 @@ func main() {
 	expenseCategoryRepo := repository.NewExpenseCategoryRepository(pool)
 	groupActivityRepo := repository.NewGroupActivityRepository(pool)
 
-	groupActivityService := service.NewGroupActivityService(groupActivityRepo)
-	expenseService := service.NewExpenseService(expenseRepo, expenseCategoryRepo, groupActivityService)
-	recurringExpenseService := service.NewRecurringExpenseService(recurringExpenseRepo, expenseService)
-
 	// Initialize dependencies for auth cleanup
 	userRepo := repository.NewUserRepository(queries)
 	sessionRepo := repository.NewSessionRepository(queries)
+	pendingUserRepo := repository.NewPendingUserRepository(pool, queries)
+
+	groupActivityService := service.NewGroupActivityService(groupActivityRepo)
+	expenseService := service.NewExpenseService(expenseRepo, expenseCategoryRepo, groupActivityService, userRepo, pendingUserRepo)
+	recurringExpenseService := service.NewRecurringExpenseService(recurringExpenseRepo, expenseService)
 	userService := service.NewUserService(userRepo)
-	
+
 	// Load JWT config from environment
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
 		log.Fatal("JWT_SECRET environment variable is required")
 	}
-	
+
 	jwtService := service.NewJWTService(jwtSecret, 168*3600*1e9, 720*3600*1e9) // 7 days, 30 days
 	authService := service.NewAuthService(userService, sessionRepo, jwtService, 168*3600*1e9, 720*3600*1e9)
 

@@ -249,7 +249,7 @@ func TestGroupInvitationService_JoinGroup(t *testing.T) {
 				}
 				
 				// Create user
-				mockSvc.CreateUserFunc = func(ctx context.Context, e, p string) (sqlc.User, error) {
+				mockSvc.CreateUserFunc = func(ctx context.Context, name, e, p string) (sqlc.User, error) {
 					return testutil.CreateTestUser(userID, e), nil
 				}
 				

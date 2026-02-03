@@ -25,7 +25,7 @@ import (
 type MockGroupService struct {
 	CreateGroupFunc      func(ctx context.Context, input service.CreateGroupInput) (service.CreateGroupResult, error)
 
-	ListGroupMembersFunc func(ctx context.Context, groupID, requesterID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error)
+	ListGroupMembersFunc func(ctx context.Context, groupID, requesterID pgtype.UUID) ([]service.GroupMemberDetail, error)
 	ListUserGroupsFunc   func(ctx context.Context, userID pgtype.UUID) ([]sqlc.GetGroupsByUserIDRow, error)
 }
 
@@ -38,11 +38,11 @@ func (m *MockGroupService) CreateGroup(ctx context.Context, input service.Create
 
 
 
-func (m *MockGroupService) ListGroupMembers(ctx context.Context, groupID, requesterID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error) {
+func (m *MockGroupService) ListGroupMembers(ctx context.Context, groupID, requesterID pgtype.UUID) ([]service.GroupMemberDetail, error) {
 	if m.ListGroupMembersFunc != nil {
 		return m.ListGroupMembersFunc(ctx, groupID, requesterID)
 	}
-	return []sqlc.ListGroupMembersRow{}, nil
+	return []service.GroupMemberDetail{}, nil
 }
 
 func (m *MockGroupService) ListUserGroups(ctx context.Context, userID pgtype.UUID) ([]sqlc.GetGroupsByUserIDRow, error) {
@@ -190,8 +190,8 @@ func TestListGroupMembersHandler(t *testing.T) {
 			groupID: uuidToString(groupID),
 			userID:  userID,
 			mockSetup: func(mock *MockGroupService) {
-				mock.ListGroupMembersFunc = func(ctx context.Context, gID, rID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error) {
-					return []sqlc.ListGroupMembersRow{
+				mock.ListGroupMembersFunc = func(ctx context.Context, gID, rID pgtype.UUID) ([]service.GroupMemberDetail, error) {
+					return []service.GroupMemberDetail{
 						{ID: testutil.CreateTestUUID(100), UserEmail: "owner@example.com", Role: "owner", Status: "active"},
 						{ID: testutil.CreateTestUUID(101), UserEmail: "member@example.com", Role: "member", Status: "active"},
 					}, nil
@@ -216,7 +216,7 @@ func TestListGroupMembersHandler(t *testing.T) {
 			groupID: uuidToString(groupID),
 			userID:  userID,
 			mockSetup: func(mock *MockGroupService) {
-				mock.ListGroupMembersFunc = func(ctx context.Context, gID, rID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error) {
+				mock.ListGroupMembersFunc = func(ctx context.Context, gID, rID pgtype.UUID) ([]service.GroupMemberDetail, error) {
 					return nil, service.ErrGroupNotFound
 				}
 			},
@@ -227,7 +227,7 @@ func TestListGroupMembersHandler(t *testing.T) {
 			groupID: uuidToString(groupID),
 			userID:  userID,
 			mockSetup: func(mock *MockGroupService) {
-				mock.ListGroupMembersFunc = func(ctx context.Context, gID, rID pgtype.UUID) ([]sqlc.ListGroupMembersRow, error) {
+				mock.ListGroupMembersFunc = func(ctx context.Context, gID, rID pgtype.UUID) ([]service.GroupMemberDetail, error) {
 					return nil, service.ErrNotGroupMember
 				}
 			},
@@ -420,45 +420,7 @@ func TestListUserGroupsHandler(t *testing.T) {
 }
 
 // Helper to convert UUID to string
-func uuidToString(uuid pgtype.UUID) string {
-	if !uuid.Valid {
-		return ""
-	}
-	return formatUUID(uuid.Bytes)
-}
 
-func formatUUID(b [16]byte) string {
-	return string([]byte{
-		hexDigit(b[0] >> 4), hexDigit(b[0]),
-		hexDigit(b[1] >> 4), hexDigit(b[1]),
-		hexDigit(b[2] >> 4), hexDigit(b[2]),
-		hexDigit(b[3] >> 4), hexDigit(b[3]),
-		'-',
-		hexDigit(b[4] >> 4), hexDigit(b[4]),
-		hexDigit(b[5] >> 4), hexDigit(b[5]),
-		'-',
-		hexDigit(b[6] >> 4), hexDigit(b[6]),
-		hexDigit(b[7] >> 4), hexDigit(b[7]),
-		'-',
-		hexDigit(b[8] >> 4), hexDigit(b[8]),
-		hexDigit(b[9] >> 4), hexDigit(b[9]),
-		'-',
-		hexDigit(b[10] >> 4), hexDigit(b[10]),
-		hexDigit(b[11] >> 4), hexDigit(b[11]),
-		hexDigit(b[12] >> 4), hexDigit(b[12]),
-		hexDigit(b[13] >> 4), hexDigit(b[13]),
-		hexDigit(b[14] >> 4), hexDigit(b[14]),
-		hexDigit(b[15] >> 4), hexDigit(b[15]),
-	})
-}
-
-func hexDigit(b byte) byte {
-	b = b & 0x0f
-	if b < 10 {
-		return '0' + b
-	}
-	return 'a' + b - 10
-}
 
 func parseTestTime(timeStr string) time.Time {
 	t, _ := time.Parse(time.RFC3339, timeStr)

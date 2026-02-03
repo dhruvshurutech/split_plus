@@ -7,38 +7,36 @@ http:
   method: PUT
   url: "{{base_url}}/groups/{{group_id}}/expenses/{{expense_id}}"
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
+    - name: Authorization
+      value: Bearer {{access_token}}
   body:
     type: json
     data: |-
       {
-        "title": "Updated Dinner at Restaurant",
-        "notes": "Updated notes",
-        "amount": "1600.00",
-        "currency_code": "INR",
-        "date": "2026-01-19",
+        "title": "Apartment Rent - Roommate Split",
+        "notes": "Rent split based on room sizes (4 shares for master bedroom, 1 share for small room)",
+        "amount": "1500.00",
+        "date": "2026-01-31",
         "payments": [
           {
             "user_id": "{{user_id}}",
-            "amount": "1600.00",
-            "payment_method": "card"
+            "amount": "1500.00",
+            "payment_method": "bank_transfer"
           }
         ],
         "splits": [
           {
             "user_id": "{{user_id}}",
-            "amount_owned": "800.00",
-            "split_type": "equal"
+            "type": "shares",
+            "shares": 4
           },
           {
             "user_id": "{{invite_user_id}}",
-            "amount_owned": "800.00",
-            "split_type": "equal"
+            "type": "shares",
+            "shares": 1
           }
         ]
       }
-  auth: inherit
 
 settings:
   encodeUrl: true
@@ -52,7 +50,7 @@ docs: |
   Updates an existing expense. This replaces all payments and splits with the new ones provided.
 
   ## Authentication
-  Requires `X-User-ID` header with a valid user UUID (must be a group member).
+  Requires `Authorization: Bearer {access_token}` header with a valid JWT token.
 
   ## Path Parameters
   - `group_id`: UUID of the group (use `{{group_id}}` variable)
@@ -62,28 +60,46 @@ docs: |
   - `title` (required): Expense title (1-200 characters)
   - `notes` (optional): Additional notes about the expense (max 1000 characters)
   - `amount` (required): Total expense amount (must be positive)
-  - `currency_code` (optional): 3-letter currency code (defaults to group currency)
+  - `currency_code`: Ignored for group expenses (uses group currency_code)
   - `date` (required): Expense date in YYYY-MM-DD format
+  - `category_id` (optional): UUID of the expense category
+  - `tags` (optional): Array of tag strings
   - `payments` (required): Array of payment objects (replaces all existing payments)
+    - `user_id` (required): UUID of the user who paid
+    - `amount` (required): Payment amount
+    - `payment_method` (optional): Payment method
   - `splits` (required): Array of split objects (replaces all existing splits)
+    - `user_id` (required): UUID of the user who owes
+    - `type` (required): Split type ("equal", "percentage", "shares", "fixed", "custom")
+    - `amount` (conditional): Amount for "fixed" and "custom" types
+    - `percentage` (conditional): Percentage for "percentage" type
+    - `shares` (conditional): Share count for "shares" type
+
+  ## Split Types
+  - **equal**: Equal split among all members
+  - **fixed**: Fixed amount per person
+  - **percentage**: Percentage-based split (percentages must sum to 100)
+  - **shares**: Share-based split
+  - **custom**: Custom amount per person
 
   ## Validation Rules
   - Payment amounts must total to expense amount
   - Split amounts must total to expense amount
   - All payment and split user_ids must be group members
+  - For percentage splits: percentages must sum to 100
 
   ## Response
   Returns the updated expense with:
-  - `expense`: Updated expense object
-  - `payments`: Array of new payment objects
-  - `splits`: Array of new split objects
+  - `expense`: Updated expense object with category_id, tags, etc.
+  - `payments`: Array of new payment objects with user details
+  - `splits`: Array of new split objects with user details
 
   ## Status Codes
   - `200 OK`: Expense successfully updated
-  - `401 Unauthorized`: Missing or invalid user ID
+  - `401 Unauthorized`: Missing or invalid access token
   - `403 Forbidden`: User is not a group member
   - `404 Not Found`: Expense not found
-  - `422 Unprocessable Entity`: Validation errors (amount mismatch, etc.)
+  - `422 Unprocessable Entity`: Validation errors (amount mismatch, percentage error, etc.)
   - `400 Bad Request`: Invalid request data
 
   ## Notes

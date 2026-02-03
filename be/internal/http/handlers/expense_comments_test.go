@@ -20,17 +20,17 @@ import (
 
 // MockExpenseCommentService for testing
 type MockExpenseCommentService struct {
-	CreateCommentFunc func(ctx context.Context, expenseID, userID pgtype.UUID, comment string) (sqlc.ExpenseComment, error)
+	CreateCommentFunc func(ctx context.Context, expenseID, userID pgtype.UUID, comment string) (sqlc.GetExpenseCommentByIDRow, error)
 	ListCommentsFunc  func(ctx context.Context, expenseID pgtype.UUID) ([]sqlc.ListExpenseCommentsRow, error)
 	UpdateCommentFunc func(ctx context.Context, commentID, userID pgtype.UUID, comment string) (sqlc.ExpenseComment, error)
 	DeleteCommentFunc func(ctx context.Context, commentID, userID pgtype.UUID) error
 }
 
-func (m *MockExpenseCommentService) CreateComment(ctx context.Context, expenseID, userID pgtype.UUID, comment string) (sqlc.ExpenseComment, error) {
+func (m *MockExpenseCommentService) CreateComment(ctx context.Context, expenseID, userID pgtype.UUID, comment string) (sqlc.GetExpenseCommentByIDRow, error) {
 	if m.CreateCommentFunc != nil {
 		return m.CreateCommentFunc(ctx, expenseID, userID, comment)
 	}
-	return sqlc.ExpenseComment{}, nil
+	return sqlc.GetExpenseCommentByIDRow{}, nil
 }
 
 func (m *MockExpenseCommentService) ListComments(ctx context.Context, expenseID pgtype.UUID) ([]sqlc.ListExpenseCommentsRow, error) {
@@ -76,12 +76,13 @@ func TestCreateCommentHandler(t *testing.T) {
 			expenseID:   expenseID.String(),
 			userID:      userID,
 			mockSetup: func(mock *MockExpenseCommentService) {
-				mock.CreateCommentFunc = func(ctx context.Context, eID, uID pgtype.UUID, comment string) (sqlc.ExpenseComment, error) {
-					return sqlc.ExpenseComment{
+				mock.CreateCommentFunc = func(ctx context.Context, eID, uID pgtype.UUID, comment string) (sqlc.GetExpenseCommentByIDRow, error) {
+					return sqlc.GetExpenseCommentByIDRow{
 						ID:        testutil.CreateTestUUID(200),
 						ExpenseID: eID,
 						UserID:    uID,
 						Comment:   comment,
+						UserEmail: "user@example.com",
 					}, nil
 				}
 			},
@@ -116,8 +117,8 @@ func TestCreateCommentHandler(t *testing.T) {
 			expenseID:   expenseID.String(),
 			userID:      userID,
 			mockSetup: func(mock *MockExpenseCommentService) {
-				mock.CreateCommentFunc = func(ctx context.Context, eID, uID pgtype.UUID, comment string) (sqlc.ExpenseComment, error) {
-					return sqlc.ExpenseComment{}, service.ErrExpenseNotFound
+				mock.CreateCommentFunc = func(ctx context.Context, eID, uID pgtype.UUID, comment string) (sqlc.GetExpenseCommentByIDRow, error) {
+					return sqlc.GetExpenseCommentByIDRow{}, service.ErrExpenseNotFound
 				}
 			},
 			expectedStatus: http.StatusNotFound,
@@ -128,8 +129,8 @@ func TestCreateCommentHandler(t *testing.T) {
 			expenseID:   expenseID.String(),
 			userID:      userID,
 			mockSetup: func(mock *MockExpenseCommentService) {
-				mock.CreateCommentFunc = func(ctx context.Context, eID, uID pgtype.UUID, comment string) (sqlc.ExpenseComment, error) {
-					return sqlc.ExpenseComment{}, service.ErrNotGroupMember
+				mock.CreateCommentFunc = func(ctx context.Context, eID, uID pgtype.UUID, comment string) (sqlc.GetExpenseCommentByIDRow, error) {
+					return sqlc.GetExpenseCommentByIDRow{}, service.ErrNotGroupMember
 				}
 			},
 			expectedStatus: http.StatusForbidden,

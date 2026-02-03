@@ -42,9 +42,11 @@ type GroupBalanceResponse struct {
 // DebtResponse represents who owes whom
 type DebtResponse struct {
 	DebtorID      pgtype.UUID `json:"debtor_id"`
+	DebtorPendingUserID *pgtype.UUID `json:"debtor_pending_user_id,omitempty"`
 	DebtorEmail   string      `json:"debtor_email"`
 	DebtorName    string      `json:"debtor_name"`
 	CreditorID    pgtype.UUID `json:"creditor_id"`
+	CreditorPendingUserID *pgtype.UUID `json:"creditor_pending_user_id,omitempty"`
 	CreditorEmail string      `json:"creditor_email"`
 	CreditorName  string      `json:"creditor_name"`
 	Amount        string      `json:"amount"`
@@ -260,18 +262,19 @@ func (s *balanceService) GetSimplifiedDebts(ctx context.Context, groupID, reques
 		return nil, err
 	}
 
-	// Get per-user balances for the group
-	rows, err := s.repo.GetGroupBalances(ctx, groupID)
+	// Get per-user balances for the group (including pending users)
+	rows, err := s.repo.GetGroupBalancesWithPending(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Build debtor / creditor lists from balances
 	type node struct {
-		ID      pgtype.UUID
-		Email   string
-		Name    string
-		Balance decimal.Decimal
+		ID            pgtype.UUID
+		PendingUserID pgtype.UUID
+		Email         string
+		Name          string
+		Balance       decimal.Decimal
 	}
 
 	var debtors, creditors []node
@@ -285,15 +288,16 @@ func (s *balanceService) GetSimplifiedDebts(ctx context.Context, groupID, reques
 		}
 
 		name := ""
-		if row.UserName.Valid {
-			name = row.UserName.String
+		if row.Name.Valid {
+			name = row.Name.String
 		}
 
 		n := node{
-			ID:      row.UserID,
-			Email:   row.UserEmail,
-			Name:    name,
-			Balance: balance,
+			ID:            row.UserID,
+			PendingUserID: row.PendingUserID,
+			Email:         row.Email,
+			Name:          name,
+			Balance:       balance,
 		}
 
 		if balance.GreaterThan(decimal.Zero) {
@@ -345,13 +349,15 @@ func (s *balanceService) GetSimplifiedDebts(ctx context.Context, groupID, reques
 		}
 
 		debts = append(debts, DebtResponse{
-			DebtorID:      d.ID,
-			DebtorEmail:   d.Email,
-			DebtorName:    d.Name,
-			CreditorID:    c.ID,
-			CreditorEmail: c.Email,
-			CreditorName:  c.Name,
-			Amount:        amount.String(),
+			DebtorID:              d.ID,
+			DebtorPendingUserID:   pendingIDPtr(d.PendingUserID),
+			DebtorEmail:           d.Email,
+			DebtorName:            d.Name,
+			CreditorID:            c.ID,
+			CreditorPendingUserID: pendingIDPtr(c.PendingUserID),
+			CreditorEmail:         c.Email,
+			CreditorName:          c.Name,
+			Amount:                amount.String(),
 		})
 
 		// Update balances
@@ -368,4 +374,11 @@ func (s *balanceService) GetSimplifiedDebts(ctx context.Context, groupID, reques
 	}
 
 	return debts, nil
+}
+
+func pendingIDPtr(id pgtype.UUID) *pgtype.UUID {
+	if !id.Valid {
+		return nil
+	}
+	return &id
 }

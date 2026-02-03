@@ -384,7 +384,9 @@ func TestRecurringExpenseService_CreateRecurringExpense(t *testing.T) {
 
 			mockCategoryRepo := &MockExpenseCategoryRepository{}
 			mockActivitySvc := &MockGroupActivityService{}
-			expenseService := NewExpenseService(mockExpenseRepo, mockCategoryRepo, mockActivitySvc)
+			mockUserRepo := &testutil.MockUserRepository{}
+			mockPendingUserRepo := &testutil.MockPendingUserRepository{}
+			expenseService := NewExpenseService(mockExpenseRepo, mockCategoryRepo, mockActivitySvc, mockUserRepo, mockPendingUserRepo)
 			service := NewRecurringExpenseService(mockRepo, expenseService)
 			ctx := context.Background()
 

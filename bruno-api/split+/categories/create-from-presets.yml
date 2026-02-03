@@ -8,15 +8,13 @@ http:
   url: "{{base_url}}/groups/{{group_id}}/categories/from-presets"
   headers:
     - name: Authorization
-      value: "Bearer {{access_token}}"
-      enabled: true
+      value: Bearer {{access_token}}
   body:
     type: json
     data: |-
       {
-        "preset_slugs": ["food", "transport", "entertainment", "utilities"]
+        "preset_slugs": ["food-and-drink", "transportation", "entertainment", "utilities"]
       }
-  auth: none
 
 settings:
   encodeUrl: true

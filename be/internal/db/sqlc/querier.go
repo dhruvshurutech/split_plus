@@ -54,6 +54,10 @@ type Querier interface {
 	// Balance = total_paid - total_owed
 	// Positive balance means user is owed money, negative means user owes money
 	GetGroupBalances(ctx context.Context, groupID pgtype.UUID) ([]GetGroupBalancesRow, error)
+	// Calculate balance for each user or pending user in a group
+	// Balance = total_paid - total_owed
+	// Positive balance means entity is owed money, negative means entity owes money
+	GetGroupBalancesWithPending(ctx context.Context, groupID pgtype.UUID) ([]GetGroupBalancesWithPendingRow, error)
 	GetGroupByID(ctx context.Context, id pgtype.UUID) (Group, error)
 	GetGroupMember(ctx context.Context, arg GetGroupMemberParams) (GroupMember, error)
 	GetGroupsByUserID(ctx context.Context, userID pgtype.UUID) ([]GetGroupsByUserIDRow, error)
@@ -84,7 +88,7 @@ type Querier interface {
 	ListGroupActivities(ctx context.Context, arg ListGroupActivitiesParams) ([]ListGroupActivitiesRow, error)
 	ListGroupMembers(ctx context.Context, groupID pgtype.UUID) ([]ListGroupMembersRow, error)
 	ListIncomingFriendRequests(ctx context.Context, friendUserID pgtype.UUID) ([]Friendship, error)
-	ListInvitationsByGroup(ctx context.Context, groupID pgtype.UUID) ([]GroupInvitation, error)
+	ListInvitationsByGroup(ctx context.Context, groupID pgtype.UUID) ([]ListInvitationsByGroupRow, error)
 	ListOutgoingFriendRequests(ctx context.Context, userID pgtype.UUID) ([]Friendship, error)
 	ListRecurringExpensePayments(ctx context.Context, recurringExpenseID pgtype.UUID) ([]ListRecurringExpensePaymentsRow, error)
 	ListRecurringExpenseSplits(ctx context.Context, recurringExpenseID pgtype.UUID) ([]ListRecurringExpenseSplitsRow, error)

@@ -4,10 +4,7 @@ info:
   seq: 3
 
 request:
-  auth: inherit
-  headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
+  auth: none
 
 docs: |
   # Expenses API
@@ -15,7 +12,7 @@ docs: |
   Endpoints for expense management, payments, and splits.
 
   ## Authentication
-  All expense endpoints require the `X-User-ID` header with a valid user UUID.
+  All expense endpoints require Bearer token in Authorization header.
 
   ## Available Endpoints
   - **Create Expense (Equal Split)**: Team lunches, shared activities

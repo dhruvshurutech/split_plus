@@ -274,7 +274,7 @@ func (s *groupInvitationService) JoinGroup(ctx context.Context, input JoinGroupI
 			if name == "" {
 				name = strings.Split(inv.Email, "@")[0]
 			}
-			user, err = s.userService.CreateUser(ctx, inv.Email, input.Password)
+			user, err = s.userService.CreateUser(ctx, name, inv.Email, input.Password)
 			if err != nil {
 				return sqlc.User{}, sqlc.GroupMember{}, err
 			}

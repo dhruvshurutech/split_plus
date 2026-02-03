@@ -1,16 +1,14 @@
 info:
   name: list-group-members
   type: http
-  seq: 5
+  seq: 4
 
 http:
   method: GET
   url: "{{base_url}}/groups/{{group_id}}/members"
-  auth: inherit
   headers:
-    - name: X-User-ID
-      value: "{{user_id}}"
-      type: text
+    - name: Authorization
+      value: Bearer {{access_token}}
 
 settings:
   encodeUrl: true
@@ -20,15 +18,15 @@ settings:
 
 docs: |
   # List Group Members
-  
+
   Retrieves all members of a specific group. The authenticated user must be a member of the group.
-  
+
   ## Authentication
-  Requires `X-User-ID` header with a valid user UUID (must be a group member).
-  
+  Requires Bearer token in Authorization header (user must be a group member).
+
   ## Path Parameters
   - `group_id`: UUID of the group (use `{{group_id}}` variable)
-  
+
   ## Response
   Returns an array of group members with user information:
   - `id`: Membership UUID
@@ -42,13 +40,13 @@ docs: |
     - `email`: User's email address
     - `name`: User's name (optional)
     - `avatar_url`: User's avatar URL (optional)
-  
+
   ## Status Codes
   - `200 OK`: Successfully retrieved members
   - `401 Unauthorized`: Missing or invalid user ID
   - `403 Forbidden`: User is not a group member
   - `404 Not Found`: Group not found
-  
+
   ## Notes
   - Only group members can view the member list
   - Returns both active and pending members

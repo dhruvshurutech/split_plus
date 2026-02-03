@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/dhruvsaxena1998/splitplus/internal/db/sqlc"
@@ -19,8 +20,9 @@ var (
 )
 
 type UserService interface {
-	CreateUser(ctx context.Context, email string, password string) (sqlc.User, error)
+	CreateUser(ctx context.Context, name string, email string, password string) (sqlc.User, error)
 	AuthenticateUser(ctx context.Context, email string, password string) (sqlc.User, error)
+	GetUser(ctx context.Context, id pgtype.UUID) (sqlc.User, error)
 }
 
 type userService struct {
@@ -33,6 +35,7 @@ func NewUserService(repo repository.UserRepository) UserService {
 
 func (s *userService) CreateUser(
 	ctx context.Context,
+	name string,
 	email string,
 	password string,
 ) (sqlc.User, error) {
@@ -47,12 +50,17 @@ func (s *userService) CreateUser(
 	}
 
 	user, err := s.repo.CreateUser(ctx, sqlc.CreateUserParams{
-		Email:        email,
+		Name:        pgtype.Text{String: name, Valid: true},
+		Email:       email,
 		PasswordHash: string(hashedPassword),
 	})
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return sqlc.User{}, ErrUserAlreadyExists
+		}
+		// Fallback for when errors.As fails (e.g. if error is wrapped differently)
+		if strings.Contains(err.Error(), "23505") || strings.Contains(err.Error(), "duplicate key value") {
 			return sqlc.User{}, ErrUserAlreadyExists
 		}
 		return sqlc.User{}, err
@@ -73,5 +81,13 @@ func (s *userService) AuthenticateUser(ctx context.Context, email string, passwo
 		return sqlc.User{}, ErrInvalidPassword
 	}
 
+	return user, nil
+}
+
+func (s *userService) GetUser(ctx context.Context, id pgtype.UUID) (sqlc.User, error) {
+	user, err := s.repo.GetUserByID(ctx, id)
+	if err != nil {
+		return sqlc.User{}, ErrUserNotFound
+	}
 	return user, nil
 }
