@@ -1,0 +1,33 @@
+meta {
+  name: Join Group
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/invitations/{{invitationToken}}/join
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "New User",
+    "password": "password123"
+  }
+}
+
+docs {
+  # Join Group
+  - Method: POST
+  - Path: `/invitations/{{invitationToken}}/join`
+  - Auth: Optional bearer token (used if provided)
+  - Path params: token: invitation token
+  - Query params: none
+  - Body contract: JoinGroupRequest optional fields: name, password.
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

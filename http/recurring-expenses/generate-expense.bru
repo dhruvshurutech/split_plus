@@ -1,0 +1,30 @@
+meta {
+  name: Generate Expense From Recurring
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/groups/{{groupId}}/recurring-expenses/{{recurringExpenseId}}/generate
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # Generate Expense From Recurring
+  - Method: POST
+  - Path: `/groups/{{groupId}}/recurring-expenses/{{recurringExpenseId}}/generate`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID, recurring_expense_id: UUID
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

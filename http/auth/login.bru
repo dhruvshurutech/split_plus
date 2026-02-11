@@ -1,0 +1,33 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "dhruv@splitwise.com",
+    "password": "password123"
+  }
+}
+
+docs {
+  # Login
+  - Method: POST
+  - Path: `/auth/login`
+  - Auth: Public
+  - Path params: none
+  - Query params: none
+  - Body contract: { email(required,email), password(required) }
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

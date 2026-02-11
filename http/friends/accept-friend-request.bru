@@ -1,0 +1,30 @@
+meta {
+  name: Accept Friend Request
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/friends/requests/{{friendRequestId}}/accept
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # Accept Friend Request
+  - Method: POST
+  - Path: `/friends/requests/{{friendRequestId}}/accept`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: id: UUID (friend request id)
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

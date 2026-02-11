@@ -33,22 +33,21 @@ type CreateGroupResult struct {
 	Membership sqlc.GroupMember
 }
 
-
-
 type GroupMemberDetail struct {
-	ID            pgtype.UUID        `json:"id"`
-	GroupID       pgtype.UUID        `json:"group_id"`
-	UserID        pgtype.UUID        `json:"user_id"`
-	Role          string             `json:"role"`
-	Status        string             `json:"status"`
-	InvitedBy     pgtype.UUID        `json:"invited_by"`
-	InvitedAt     pgtype.Timestamptz `json:"invited_at"`
-	JoinedAt      pgtype.Timestamptz `json:"joined_at"`
-	UserEmail     string             `json:"user_email"`
-	UserName      pgtype.Text        `json:"user_name"`
-	UserAvatarUrl pgtype.Text        `json:"user_avatar_url"`
-	IsPending     bool               `json:"is_pending"`
-	PendingUserID pgtype.UUID        `json:"pending_user_id"`
+	ID              pgtype.UUID        `json:"id"`
+	GroupID         pgtype.UUID        `json:"group_id"`
+	UserID          pgtype.UUID        `json:"user_id"`
+	InvitationToken string             `json:"invitation_token,omitempty"`
+	Role            string             `json:"role"`
+	Status          string             `json:"status"`
+	InvitedBy       pgtype.UUID        `json:"invited_by"`
+	InvitedAt       pgtype.Timestamptz `json:"invited_at"`
+	JoinedAt        pgtype.Timestamptz `json:"joined_at"`
+	UserEmail       string             `json:"user_email"`
+	UserName        pgtype.Text        `json:"user_name"`
+	UserAvatarUrl   pgtype.Text        `json:"user_avatar_url"`
+	IsPending       bool               `json:"is_pending"`
+	PendingUserID   pgtype.UUID        `json:"pending_user_id"`
 }
 
 type GroupService interface {
@@ -201,16 +200,17 @@ func (s *groupService) ListGroupMembers(ctx context.Context, groupID, requesterI
 		if inv.Status == "pending" {
 			// Note: UserID is empty/null for invitations
 			result = append(result, GroupMemberDetail{
-				ID:        inv.ID, // Invitation ID used as member ID for display
-				GroupID:   inv.GroupID,
-				UserID:    pgtype.UUID{}, // No user ID yet
-				Role:      inv.Role,
-				Status:    "pending",
-				InvitedBy: inv.InvitedBy,
-				InvitedAt: inv.CreatedAt, // Use creation time as invited_at
+				ID:              inv.ID, // Invitation ID used as member ID for display
+				GroupID:         inv.GroupID,
+				UserID:          pgtype.UUID{}, // No user ID yet
+				InvitationToken: inv.Token,
+				Role:            inv.Role,
+				Status:          "pending",
+				InvitedBy:       inv.InvitedBy,
+				InvitedAt:       inv.CreatedAt, // Use creation time as invited_at
 				// JoinedAt is null
-				UserEmail: inv.Email,
-				UserName:  inv.PendingUserName, // Use populated PendingUserName
+				UserEmail:     inv.Email,
+				UserName:      inv.PendingUserName, // Use populated PendingUserName
 				IsPending:     true,
 				PendingUserID: inv.PendingUserID,
 			})

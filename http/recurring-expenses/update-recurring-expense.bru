@@ -1,0 +1,61 @@
+meta {
+  name: Update Recurring Expense
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/groups/{{groupId}}/recurring-expenses/{{recurringExpenseId}}/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Office Rent",
+    "notes": "Monthly recurring",
+    "amount": "50000.00",
+    "currency_code": "INR",
+    "repeat_interval": "monthly",
+    "day_of_month": 1,
+    "start_date": "2026-02-01",
+    "end_date": "2026-12-01",
+    "is_active": true,
+    "payments": [
+      {
+        "user_id": "{{userId}}",
+        "amount": "50000.00",
+        "payment_method": "bank"
+      }
+    ],
+    "splits": [
+      {
+        "user_id": "{{userId}}",
+        "type": "equal"
+      },
+      {
+        "user_id": "{{friendId}}",
+        "type": "equal"
+      }
+    ]
+  }
+}
+
+docs {
+  # Update Recurring Expense
+  - Method: PUT
+  - Path: `/groups/{{groupId}}/recurring-expenses/{{recurringExpenseId}}/`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID, recurring_expense_id: UUID
+  - Query params: none
+  - Body contract: UpdateRecurringExpenseRequest: create shape + is_active(boolean).
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

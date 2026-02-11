@@ -1,0 +1,37 @@
+meta {
+  name: List Group Activity
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/groups/{{groupId}}/activity
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+params:query {
+  limit: 20
+  offset: 0
+}
+
+docs {
+  # List Group Activity
+  - Method: GET
+  - Path: `/groups/{{groupId}}/activity`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID
+  - Query params:
+    - `limit: 20`
+    - `offset: 0`
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

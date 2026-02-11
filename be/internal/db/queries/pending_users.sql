@@ -22,3 +22,17 @@ UPDATE expense_split
 SET user_id = $1, pending_user_id = NULL
 WHERE pending_user_id = $2;
 
+-- name: UpdatePendingSettlementPayerUserID :exec
+UPDATE settlements
+SET payer_id = $1,
+    payer_pending_user_id = NULL
+WHERE payer_pending_user_id = $2;
+
+-- name: UpdatePendingSettlementPayeeUserID :exec
+UPDATE settlements
+SET payee_id = $1,
+    payee_pending_user_id = NULL
+WHERE payee_pending_user_id = $2;
+
+-- name: DeletePendingUserByID :exec
+DELETE FROM pending_users WHERE id = $1;

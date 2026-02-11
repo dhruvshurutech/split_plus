@@ -17,6 +17,7 @@ var (
 	ErrUserAlreadyExists = errors.New("user already exists")
 	ErrUserNotFound      = errors.New("user not found")
 	ErrInvalidPassword   = errors.New("invalid password")
+	ErrUserEmailRequired = errors.New("email is required")
 )
 
 type UserService interface {
@@ -41,7 +42,7 @@ func (s *userService) CreateUser(
 ) (sqlc.User, error) {
 	email = strings.ToLower(strings.TrimSpace(email))
 	if email == "" {
-		return sqlc.User{}, errors.New("email is required")
+		return sqlc.User{}, ErrUserEmailRequired
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -50,8 +51,8 @@ func (s *userService) CreateUser(
 	}
 
 	user, err := s.repo.CreateUser(ctx, sqlc.CreateUserParams{
-		Name:        pgtype.Text{String: name, Valid: true},
-		Email:       email,
+		Name:         pgtype.Text{String: name, Valid: true},
+		Email:        email,
 		PasswordHash: string(hashedPassword),
 	})
 	if err != nil {

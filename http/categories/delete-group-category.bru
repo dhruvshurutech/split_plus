@@ -1,0 +1,30 @@
+meta {
+  name: Delete Group Category
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/groups/{{groupId}}/categories/{{categoryId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # Delete Group Category
+  - Method: DELETE
+  - Path: `/groups/{{groupId}}/categories/{{categoryId}}`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID, id/category_id: UUID
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

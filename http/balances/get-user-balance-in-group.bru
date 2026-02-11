@@ -1,0 +1,30 @@
+meta {
+  name: Get User Balance In Group
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/groups/{{groupId}}/balances/{{userId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # Get User Balance In Group
+  - Method: GET
+  - Path: `/groups/{{groupId}}/balances/{{userId}}`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID, user_id: UUID
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

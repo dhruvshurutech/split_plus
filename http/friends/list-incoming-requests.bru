@@ -1,0 +1,30 @@
+meta {
+  name: List Incoming Requests
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/friends/requests/incoming
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # List Incoming Requests
+  - Method: GET
+  - Path: `/friends/requests/incoming`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: none
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

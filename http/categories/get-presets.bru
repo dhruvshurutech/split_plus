@@ -1,0 +1,26 @@
+meta {
+  name: Get Category Presets
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/categories/presets
+  body: none
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # Get Category Presets
+  - Method: GET
+  - Path: `/categories/presets`
+  - Auth: Public
+  - Path params: none
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

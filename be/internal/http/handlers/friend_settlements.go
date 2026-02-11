@@ -127,22 +127,30 @@ func ListFriendSettlementsHandler(friendSettlementService service.FriendSettleme
 				}
 			}
 
-			payer := UserInfo{
-				Email:     row.PayerEmail,
-				Name:      row.PayerName.String,
-				AvatarURL: row.PayerAvatarUrl.String,
+			payer := SettlementParticipantInfo{
+				UserID:        row.PayerID,
+				PendingUserID: pgtype.UUID{Valid: false},
+				Email:         row.PayerEmail,
+				Name:          row.PayerName.String,
+				AvatarURL:     row.PayerAvatarUrl.String,
+				IsPending:     false,
 			}
-			payee := UserInfo{
-				Email:     row.PayeeEmail,
-				Name:      row.PayeeName.String,
-				AvatarURL: row.PayeeAvatarUrl.String,
+			payee := SettlementParticipantInfo{
+				UserID:        row.PayeeID,
+				PendingUserID: pgtype.UUID{Valid: false},
+				Email:         row.PayeeEmail,
+				Name:          row.PayeeName.String,
+				AvatarURL:     row.PayeeAvatarUrl.String,
+				IsPending:     false,
 			}
 
 			resp[i] = SettlementWithUsersResponse{
 				ID:                   row.ID,
 				GroupID:              row.GroupID,
 				PayerID:              row.PayerID,
+				PayerPendingUserID:   pgtype.UUID{Valid: false},
 				PayeeID:              row.PayeeID,
+				PayeePendingUserID:   pgtype.UUID{Valid: false},
 				Amount:               amount,
 				CurrencyCode:         row.CurrencyCode,
 				Status:               row.Status,

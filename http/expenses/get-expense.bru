@@ -1,0 +1,30 @@
+meta {
+  name: Get Expense
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/groups/{{groupId}}/expenses/{{expenseId}}/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # Get Expense
+  - Method: GET
+  - Path: `/groups/{{groupId}}/expenses/{{expenseId}}/`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID, expense_id: UUID
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

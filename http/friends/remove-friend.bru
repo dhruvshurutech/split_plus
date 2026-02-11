@@ -1,0 +1,30 @@
+meta {
+  name: Remove Friend
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/friends/{{friendId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # Remove Friend
+  - Method: DELETE
+  - Path: `/friends/{{friendId}}`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: friend_id: UUID
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

@@ -1,0 +1,30 @@
+meta {
+  name: List Group Categories
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/groups/{{groupId}}/categories
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # List Group Categories
+  - Method: GET
+  - Path: `/groups/{{groupId}}/categories`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

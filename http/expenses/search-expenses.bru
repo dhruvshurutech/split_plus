@@ -1,0 +1,55 @@
+meta {
+  name: Search Expenses
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/groups/{{groupId}}/expenses/search
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+params:query {
+  q:
+  start_date: 2026-01-01
+  end_date: 2026-12-31
+  category_id: {{categoryId}}
+  created_by: {{userId}}
+  min_amount: 100
+  max_amount: 5000
+  payer_id: {{userId}}
+  ower_id: {{friendId}}
+  limit: 20
+  offset: 0
+}
+
+docs {
+  # Search Expenses
+  - Method: GET
+  - Path: `/groups/{{groupId}}/expenses/search`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID
+  - Query params:
+    - `q:`
+    - `start_date: 2026-01-01`
+    - `end_date: 2026-12-31`
+    - `category_id: {{categoryId}}`
+    - `created_by: {{userId}}`
+    - `min_amount: 100`
+    - `max_amount: 5000`
+    - `payer_id: {{userId}}`
+    - `ower_id: {{friendId}}`
+    - `limit: 20`
+    - `offset: 0`
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

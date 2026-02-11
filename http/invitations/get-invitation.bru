@@ -1,0 +1,26 @@
+meta {
+  name: Get Invitation
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/invitations/{{invitationToken}}
+  body: none
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # Get Invitation
+  - Method: GET
+  - Path: `/invitations/{{invitationToken}}`
+  - Auth: Public
+  - Path params: token: invitation token
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

@@ -1,0 +1,60 @@
+meta {
+  name: Create Recurring Expense
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/groups/{{groupId}}/recurring-expenses/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Office Rent",
+    "notes": "Monthly recurring",
+    "amount": "50000.00",
+    "currency_code": "INR",
+    "repeat_interval": "monthly",
+    "day_of_month": 1,
+    "start_date": "2026-02-01",
+    "end_date": "2026-12-01",
+    "payments": [
+      {
+        "user_id": "{{userId}}",
+        "amount": "50000.00",
+        "payment_method": "bank"
+      }
+    ],
+    "splits": [
+      {
+        "user_id": "{{userId}}",
+        "type": "equal"
+      },
+      {
+        "user_id": "{{friendId}}",
+        "type": "equal"
+      }
+    ]
+  }
+}
+
+docs {
+  # Create Recurring Expense
+  - Method: POST
+  - Path: `/groups/{{groupId}}/recurring-expenses/`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID
+  - Query params: none
+  - Body contract: CreateRecurringExpenseRequest with repeat_interval, date boundaries, payments, and splits.
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

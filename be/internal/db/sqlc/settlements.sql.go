@@ -13,18 +13,23 @@ import (
 
 const createSettlement = `-- name: CreateSettlement :one
 INSERT INTO settlements (
-    group_id, type, payer_id, payee_id, amount, currency_code, status,
+    group_id, type,
+    payer_id, payer_pending_user_id,
+    payee_id, payee_pending_user_id,
+    amount, currency_code, status,
     payment_method, transaction_reference, notes, created_by, updated_by
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $11)
-RETURNING id, group_id, payer_id, payee_id, amount, currency_code, status, payment_method, transaction_reference, paid_at, notes, created_at, created_by, updated_at, updated_by, deleted_at, type
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13)
+RETURNING id, group_id, payer_id, payee_id, amount, currency_code, status, payment_method, transaction_reference, paid_at, notes, created_at, created_by, updated_at, updated_by, deleted_at, type, payer_pending_user_id, payee_pending_user_id
 `
 
 type CreateSettlementParams struct {
 	GroupID              pgtype.UUID    `json:"group_id"`
 	Type                 string         `json:"type"`
 	PayerID              pgtype.UUID    `json:"payer_id"`
+	PayerPendingUserID   pgtype.UUID    `json:"payer_pending_user_id"`
 	PayeeID              pgtype.UUID    `json:"payee_id"`
+	PayeePendingUserID   pgtype.UUID    `json:"payee_pending_user_id"`
 	Amount               pgtype.Numeric `json:"amount"`
 	CurrencyCode         string         `json:"currency_code"`
 	Status               string         `json:"status"`
@@ -39,7 +44,9 @@ func (q *Queries) CreateSettlement(ctx context.Context, arg CreateSettlementPara
 		arg.GroupID,
 		arg.Type,
 		arg.PayerID,
+		arg.PayerPendingUserID,
 		arg.PayeeID,
+		arg.PayeePendingUserID,
 		arg.Amount,
 		arg.CurrencyCode,
 		arg.Status,
@@ -67,6 +74,8 @@ func (q *Queries) CreateSettlement(ctx context.Context, arg CreateSettlementPara
 		&i.UpdatedBy,
 		&i.DeletedAt,
 		&i.Type,
+		&i.PayerPendingUserID,
+		&i.PayeePendingUserID,
 	)
 	return i, err
 }
@@ -83,7 +92,7 @@ func (q *Queries) DeleteSettlement(ctx context.Context, id pgtype.UUID) error {
 }
 
 const getSettlementByID = `-- name: GetSettlementByID :one
-SELECT id, group_id, payer_id, payee_id, amount, currency_code, status, payment_method, transaction_reference, paid_at, notes, created_at, created_by, updated_at, updated_by, deleted_at, type FROM settlements
+SELECT id, group_id, payer_id, payee_id, amount, currency_code, status, payment_method, transaction_reference, paid_at, notes, created_at, created_by, updated_at, updated_by, deleted_at, type, payer_pending_user_id, payee_pending_user_id FROM settlements
 WHERE id = $1 AND deleted_at IS NULL
 `
 
@@ -108,8 +117,34 @@ func (q *Queries) GetSettlementByID(ctx context.Context, id pgtype.UUID) (Settle
 		&i.UpdatedBy,
 		&i.DeletedAt,
 		&i.Type,
+		&i.PayerPendingUserID,
+		&i.PayeePendingUserID,
 	)
 	return i, err
+}
+
+const hasPendingMemberInvitation = `-- name: HasPendingMemberInvitation :one
+SELECT EXISTS (
+    SELECT 1
+    FROM group_invitations gi
+    JOIN pending_users pu ON pu.email = gi.email
+    WHERE gi.group_id = $1
+      AND pu.id = $2
+      AND gi.status = 'pending'
+      AND gi.expires_at > NOW()
+)
+`
+
+type HasPendingMemberInvitationParams struct {
+	GroupID pgtype.UUID `json:"group_id"`
+	ID      pgtype.UUID `json:"id"`
+}
+
+func (q *Queries) HasPendingMemberInvitation(ctx context.Context, arg HasPendingMemberInvitationParams) (bool, error) {
+	row := q.db.QueryRow(ctx, hasPendingMemberInvitation, arg.GroupID, arg.ID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const listFriendSettlements = `-- name: ListFriendSettlements :many
@@ -221,7 +256,9 @@ SELECT
     s.id,
     s.group_id,
     s.payer_id,
+    s.payer_pending_user_id,
     s.payee_id,
+    s.payee_pending_user_id,
     s.amount,
     s.currency_code,
     s.status,
@@ -233,15 +270,19 @@ SELECT
     s.created_by,
     s.updated_at,
     s.updated_by,
-    payer.email AS payer_email,
-    payer.name AS payer_name,
-    payer.avatar_url AS payer_avatar_url,
-    payee.email AS payee_email,
-    payee.name AS payee_name,
-    payee.avatar_url AS payee_avatar_url
+    COALESCE(payer_user.email, payer_pending.email) AS payer_email,
+    COALESCE(payer_user.name, payer_pending.name) AS payer_name,
+    payer_user.avatar_url AS payer_avatar_url,
+    (s.payer_pending_user_id IS NOT NULL) AS payer_is_pending,
+    COALESCE(payee_user.email, payee_pending.email) AS payee_email,
+    COALESCE(payee_user.name, payee_pending.name) AS payee_name,
+    payee_user.avatar_url AS payee_avatar_url,
+    (s.payee_pending_user_id IS NOT NULL) AS payee_is_pending
 FROM settlements s
-JOIN users payer ON s.payer_id = payer.id
-JOIN users payee ON s.payee_id = payee.id
+LEFT JOIN users payer_user ON s.payer_id = payer_user.id
+LEFT JOIN pending_users payer_pending ON s.payer_pending_user_id = payer_pending.id
+LEFT JOIN users payee_user ON s.payee_id = payee_user.id
+LEFT JOIN pending_users payee_pending ON s.payee_pending_user_id = payee_pending.id
 WHERE s.group_id = $1 AND s.deleted_at IS NULL
 ORDER BY s.created_at DESC
 `
@@ -250,7 +291,9 @@ type ListSettlementsByGroupRow struct {
 	ID                   pgtype.UUID        `json:"id"`
 	GroupID              pgtype.UUID        `json:"group_id"`
 	PayerID              pgtype.UUID        `json:"payer_id"`
+	PayerPendingUserID   pgtype.UUID        `json:"payer_pending_user_id"`
 	PayeeID              pgtype.UUID        `json:"payee_id"`
+	PayeePendingUserID   pgtype.UUID        `json:"payee_pending_user_id"`
 	Amount               pgtype.Numeric     `json:"amount"`
 	CurrencyCode         string             `json:"currency_code"`
 	Status               string             `json:"status"`
@@ -265,9 +308,11 @@ type ListSettlementsByGroupRow struct {
 	PayerEmail           string             `json:"payer_email"`
 	PayerName            pgtype.Text        `json:"payer_name"`
 	PayerAvatarUrl       pgtype.Text        `json:"payer_avatar_url"`
+	PayerIsPending       interface{}        `json:"payer_is_pending"`
 	PayeeEmail           string             `json:"payee_email"`
 	PayeeName            pgtype.Text        `json:"payee_name"`
 	PayeeAvatarUrl       pgtype.Text        `json:"payee_avatar_url"`
+	PayeeIsPending       interface{}        `json:"payee_is_pending"`
 }
 
 func (q *Queries) ListSettlementsByGroup(ctx context.Context, groupID pgtype.UUID) ([]ListSettlementsByGroupRow, error) {
@@ -283,7 +328,9 @@ func (q *Queries) ListSettlementsByGroup(ctx context.Context, groupID pgtype.UUI
 			&i.ID,
 			&i.GroupID,
 			&i.PayerID,
+			&i.PayerPendingUserID,
 			&i.PayeeID,
+			&i.PayeePendingUserID,
 			&i.Amount,
 			&i.CurrencyCode,
 			&i.Status,
@@ -298,9 +345,11 @@ func (q *Queries) ListSettlementsByGroup(ctx context.Context, groupID pgtype.UUI
 			&i.PayerEmail,
 			&i.PayerName,
 			&i.PayerAvatarUrl,
+			&i.PayerIsPending,
 			&i.PayeeEmail,
 			&i.PayeeName,
 			&i.PayeeAvatarUrl,
+			&i.PayeeIsPending,
 		); err != nil {
 			return nil, err
 		}
@@ -317,7 +366,9 @@ SELECT
     s.id,
     s.group_id,
     s.payer_id,
+    s.payer_pending_user_id,
     s.payee_id,
+    s.payee_pending_user_id,
     s.amount,
     s.currency_code,
     s.status,
@@ -330,17 +381,26 @@ SELECT
     s.updated_at,
     s.updated_by,
     g.name AS group_name,
-    payer.email AS payer_email,
-    payer.name AS payer_name,
-    payer.avatar_url AS payer_avatar_url,
-    payee.email AS payee_email,
-    payee.name AS payee_name,
-    payee.avatar_url AS payee_avatar_url
+    COALESCE(payer_user.email, payer_pending.email) AS payer_email,
+    COALESCE(payer_user.name, payer_pending.name) AS payer_name,
+    payer_user.avatar_url AS payer_avatar_url,
+    (s.payer_pending_user_id IS NOT NULL) AS payer_is_pending,
+    COALESCE(payee_user.email, payee_pending.email) AS payee_email,
+    COALESCE(payee_user.name, payee_pending.name) AS payee_name,
+    payee_user.avatar_url AS payee_avatar_url,
+    (s.payee_pending_user_id IS NOT NULL) AS payee_is_pending
 FROM settlements s
 JOIN groups g ON s.group_id = g.id
-JOIN users payer ON s.payer_id = payer.id
-JOIN users payee ON s.payee_id = payee.id
-WHERE (s.payer_id = $1 OR s.payee_id = $1) AND s.deleted_at IS NULL
+LEFT JOIN users payer_user ON s.payer_id = payer_user.id
+LEFT JOIN pending_users payer_pending ON s.payer_pending_user_id = payer_pending.id
+LEFT JOIN users payee_user ON s.payee_id = payee_user.id
+LEFT JOIN pending_users payee_pending ON s.payee_pending_user_id = payee_pending.id
+WHERE (
+    s.payer_id = $1 OR
+    s.payee_id = $1 OR
+    s.payer_pending_user_id = $1 OR
+    s.payee_pending_user_id = $1
+) AND s.deleted_at IS NULL
 ORDER BY s.created_at DESC
 `
 
@@ -348,7 +408,9 @@ type ListSettlementsByUserRow struct {
 	ID                   pgtype.UUID        `json:"id"`
 	GroupID              pgtype.UUID        `json:"group_id"`
 	PayerID              pgtype.UUID        `json:"payer_id"`
+	PayerPendingUserID   pgtype.UUID        `json:"payer_pending_user_id"`
 	PayeeID              pgtype.UUID        `json:"payee_id"`
+	PayeePendingUserID   pgtype.UUID        `json:"payee_pending_user_id"`
 	Amount               pgtype.Numeric     `json:"amount"`
 	CurrencyCode         string             `json:"currency_code"`
 	Status               string             `json:"status"`
@@ -364,9 +426,11 @@ type ListSettlementsByUserRow struct {
 	PayerEmail           string             `json:"payer_email"`
 	PayerName            pgtype.Text        `json:"payer_name"`
 	PayerAvatarUrl       pgtype.Text        `json:"payer_avatar_url"`
+	PayerIsPending       interface{}        `json:"payer_is_pending"`
 	PayeeEmail           string             `json:"payee_email"`
 	PayeeName            pgtype.Text        `json:"payee_name"`
 	PayeeAvatarUrl       pgtype.Text        `json:"payee_avatar_url"`
+	PayeeIsPending       interface{}        `json:"payee_is_pending"`
 }
 
 func (q *Queries) ListSettlementsByUser(ctx context.Context, payerID pgtype.UUID) ([]ListSettlementsByUserRow, error) {
@@ -382,7 +446,9 @@ func (q *Queries) ListSettlementsByUser(ctx context.Context, payerID pgtype.UUID
 			&i.ID,
 			&i.GroupID,
 			&i.PayerID,
+			&i.PayerPendingUserID,
 			&i.PayeeID,
+			&i.PayeePendingUserID,
 			&i.Amount,
 			&i.CurrencyCode,
 			&i.Status,
@@ -398,9 +464,11 @@ func (q *Queries) ListSettlementsByUser(ctx context.Context, payerID pgtype.UUID
 			&i.PayerEmail,
 			&i.PayerName,
 			&i.PayerAvatarUrl,
+			&i.PayerIsPending,
 			&i.PayeeEmail,
 			&i.PayeeName,
 			&i.PayeeAvatarUrl,
+			&i.PayeeIsPending,
 		); err != nil {
 			return nil, err
 		}
@@ -424,7 +492,7 @@ SET amount = $2,
     updated_at = CURRENT_TIMESTAMP,
     updated_by = $8
 WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, group_id, payer_id, payee_id, amount, currency_code, status, payment_method, transaction_reference, paid_at, notes, created_at, created_by, updated_at, updated_by, deleted_at, type
+RETURNING id, group_id, payer_id, payee_id, amount, currency_code, status, payment_method, transaction_reference, paid_at, notes, created_at, created_by, updated_at, updated_by, deleted_at, type, payer_pending_user_id, payee_pending_user_id
 `
 
 type UpdateSettlementParams struct {
@@ -468,6 +536,8 @@ func (q *Queries) UpdateSettlement(ctx context.Context, arg UpdateSettlementPara
 		&i.UpdatedBy,
 		&i.DeletedAt,
 		&i.Type,
+		&i.PayerPendingUserID,
+		&i.PayeePendingUserID,
 	)
 	return i, err
 }
@@ -479,7 +549,7 @@ SET status = $2,
     updated_at = CURRENT_TIMESTAMP,
     updated_by = $3
 WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, group_id, payer_id, payee_id, amount, currency_code, status, payment_method, transaction_reference, paid_at, notes, created_at, created_by, updated_at, updated_by, deleted_at, type
+RETURNING id, group_id, payer_id, payee_id, amount, currency_code, status, payment_method, transaction_reference, paid_at, notes, created_at, created_by, updated_at, updated_by, deleted_at, type, payer_pending_user_id, payee_pending_user_id
 `
 
 type UpdateSettlementStatusParams struct {
@@ -509,6 +579,8 @@ func (q *Queries) UpdateSettlementStatus(ctx context.Context, arg UpdateSettleme
 		&i.UpdatedBy,
 		&i.DeletedAt,
 		&i.Type,
+		&i.PayerPendingUserID,
+		&i.PayeePendingUserID,
 	)
 	return i, err
 }

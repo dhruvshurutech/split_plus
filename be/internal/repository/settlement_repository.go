@@ -22,6 +22,7 @@ type SettlementRepository interface {
 	// Group lookup (for validation)
 	GetGroupByID(ctx context.Context, id pgtype.UUID) (sqlc.Group, error)
 	GetGroupMember(ctx context.Context, params sqlc.GetGroupMemberParams) (sqlc.GroupMember, error)
+	HasPendingMemberInvitation(ctx context.Context, params sqlc.HasPendingMemberInvitationParams) (bool, error)
 }
 
 type settlementRepository struct {
@@ -70,4 +71,8 @@ func (r *settlementRepository) GetGroupByID(ctx context.Context, id pgtype.UUID)
 
 func (r *settlementRepository) GetGroupMember(ctx context.Context, params sqlc.GetGroupMemberParams) (sqlc.GroupMember, error) {
 	return r.queries.GetGroupMember(ctx, params)
+}
+
+func (r *settlementRepository) HasPendingMemberInvitation(ctx context.Context, params sqlc.HasPendingMemberInvitationParams) (bool, error) {
+	return r.queries.HasPendingMemberInvitation(ctx, params)
 }

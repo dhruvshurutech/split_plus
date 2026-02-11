@@ -18,6 +18,9 @@ type PendingUserRepository interface {
 	GetPendingUserByID(ctx context.Context, id pgtype.UUID) (sqlc.PendingUser, error)
 	UpdatePendingPaymentUserID(ctx context.Context, params sqlc.UpdatePendingPaymentUserIDParams) error
 	UpdatePendingSplitUserID(ctx context.Context, params sqlc.UpdatePendingSplitUserIDParams) error
+	UpdatePendingSettlementPayerUserID(ctx context.Context, params sqlc.UpdatePendingSettlementPayerUserIDParams) error
+	UpdatePendingSettlementPayeeUserID(ctx context.Context, params sqlc.UpdatePendingSettlementPayeeUserIDParams) error
+	DeletePendingUserByID(ctx context.Context, id pgtype.UUID) error
 }
 
 type pendingUserRepository struct {
@@ -58,4 +61,16 @@ func (r *pendingUserRepository) UpdatePendingPaymentUserID(ctx context.Context, 
 
 func (r *pendingUserRepository) UpdatePendingSplitUserID(ctx context.Context, params sqlc.UpdatePendingSplitUserIDParams) error {
 	return r.queries.UpdatePendingSplitUserID(ctx, params)
+}
+
+func (r *pendingUserRepository) UpdatePendingSettlementPayerUserID(ctx context.Context, params sqlc.UpdatePendingSettlementPayerUserIDParams) error {
+	return r.queries.UpdatePendingSettlementPayerUserID(ctx, params)
+}
+
+func (r *pendingUserRepository) UpdatePendingSettlementPayeeUserID(ctx context.Context, params sqlc.UpdatePendingSettlementPayeeUserIDParams) error {
+	return r.queries.UpdatePendingSettlementPayeeUserID(ctx, params)
+}
+
+func (r *pendingUserRepository) DeletePendingUserByID(ctx context.Context, id pgtype.UUID) error {
+	return r.queries.DeletePendingUserByID(ctx, id)
 }

@@ -31,6 +31,7 @@ type App struct {
 	recurringExpenseRepository repository.RecurringExpenseRepository
 	pendingUserRepository      repository.PendingUserRepository
 	groupInvitationRepository  repository.GroupInvitationRepository
+	themeRepository            repository.ThemeRepository
 
 	// services
 	userService             service.UserService
@@ -48,6 +49,7 @@ type App struct {
 	settlementService       service.SettlementService
 	recurringExpenseService service.RecurringExpenseService
 	groupInvitationService  service.GroupInvitationService
+	themeService            service.ThemeService
 }
 
 func New(pool *pgxpool.Pool, queries *sqlc.Queries, jwtSecret string, accessTokenExpiry, refreshTokenExpiry time.Duration) *App {
@@ -67,6 +69,7 @@ func New(pool *pgxpool.Pool, queries *sqlc.Queries, jwtSecret string, accessToke
 	app.recurringExpenseRepository = repository.NewRecurringExpenseRepository(pool, queries)
 	app.pendingUserRepository = repository.NewPendingUserRepository(pool, queries)
 	app.groupInvitationRepository = repository.NewGroupInvitationRepository(pool, queries)
+	app.themeRepository = repository.NewThemeRepository(queries)
 
 	// initialize services
 	app.groupActivityService = service.NewGroupActivityService(app.groupActivityRepository) // Initialize early for dependencies
@@ -85,11 +88,13 @@ func New(pool *pgxpool.Pool, queries *sqlc.Queries, jwtSecret string, accessToke
 	app.settlementService = service.NewSettlementService(app.settlementRepository, app.groupActivityService)
 	app.recurringExpenseService = service.NewRecurringExpenseService(app.recurringExpenseRepository, app.expenseService)
 	app.groupInvitationService = service.NewGroupInvitationService(app.groupInvitationRepository, app.pendingUserRepository, app.groupRepository, app.userRepository, app.userService)
+	app.themeService = service.NewThemeService(app.themeRepository)
 
 	// initialize router
 	app.Router = router.New(
 		router.WithAuthRoutes(app.authService, app.jwtService, app.sessionRepository),
-		router.WithUserRoutes(app.userService),
+		router.WithUserRoutes(app.userService, app.themeService, app.jwtService, app.sessionRepository),
+		router.WithThemeRoutes(app.themeService, app.jwtService, app.sessionRepository),
 		router.WithFriendRoutes(app.friendService, app.friendExpenseService, app.friendSettlementService, app.jwtService, app.sessionRepository),
 		router.WithGroupRoutes(app.groupService, app.groupInvitationService, app.jwtService, app.sessionRepository),
 		router.WithExpenseRoutes(app.expenseService, app.jwtService, app.sessionRepository),

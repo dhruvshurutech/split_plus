@@ -23,7 +23,7 @@ func WithGroupRoutes(groupService service.GroupService, invitationService servic
 
 			// POST /groups - Create a new group
 			r.Post("/",
-				middleware.ValidateBody[handlers.CreateGroupRequest](v)(
+				middleware.ValidateBodyWithScope[handlers.CreateGroupRequest](v, "group")(
 					handlers.CreateGroupHandler(groupService),
 				).ServeHTTP,
 			)
@@ -32,7 +32,7 @@ func WithGroupRoutes(groupService service.GroupService, invitationService servic
 			r.Route("/{group_id}", func(r chi.Router) {
 				// POST /groups/{group_id}/invitations - Invite user (email-based)
 				r.Post("/invitations",
-					middleware.ValidateBody[handlers.CreateInvitationRequest](v)(
+					middleware.ValidateBodyWithScope[handlers.CreateInvitationRequest](v, "invitation")(
 						handlers.CreateInvitationHandler(invitationService),
 					).ServeHTTP,
 				)

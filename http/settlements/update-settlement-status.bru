@@ -1,0 +1,36 @@
+meta {
+  name: Update Settlement Status
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/groups/{{groupId}}/settlements/{{settlementId}}/status
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "status": "completed"
+  }
+}
+
+docs {
+  # Update Settlement Status
+  - Method: PATCH
+  - Path: `/groups/{{groupId}}/settlements/{{settlementId}}/status`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID, settlement_id: UUID
+  - Query params: none
+  - Body contract: UpdateSettlementStatusRequest: status(required oneof pending|completed|cancelled).
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

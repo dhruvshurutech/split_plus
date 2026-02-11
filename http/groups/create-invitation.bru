@@ -1,0 +1,38 @@
+meta {
+  name: Create Invitation
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/groups/{{groupId}}/invitations
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "friend@example.com",
+    "name": "Friend",
+    "role": "member"
+  }
+}
+
+docs {
+  # Create Invitation
+  - Method: POST
+  - Path: `/groups/{{groupId}}/invitations`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID
+  - Query params: none
+  - Body contract: CreateInvitationRequest: email(required,email), name(optional), role(optional member|admin).
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

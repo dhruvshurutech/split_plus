@@ -38,6 +38,15 @@ func (q *Queries) CreatePendingUser(ctx context.Context, arg CreatePendingUserPa
 	return i, err
 }
 
+const deletePendingUserByID = `-- name: DeletePendingUserByID :exec
+DELETE FROM pending_users WHERE id = $1
+`
+
+func (q *Queries) DeletePendingUserByID(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deletePendingUserByID, id)
+	return err
+}
+
 const getPendingUserByEmail = `-- name: GetPendingUserByEmail :one
 SELECT id, email, name, created_at, updated_at FROM pending_users WHERE email = $1
 `
@@ -85,6 +94,40 @@ type UpdatePendingPaymentUserIDParams struct {
 
 func (q *Queries) UpdatePendingPaymentUserID(ctx context.Context, arg UpdatePendingPaymentUserIDParams) error {
 	_, err := q.db.Exec(ctx, updatePendingPaymentUserID, arg.UserID, arg.PendingUserID)
+	return err
+}
+
+const updatePendingSettlementPayeeUserID = `-- name: UpdatePendingSettlementPayeeUserID :exec
+UPDATE settlements
+SET payee_id = $1,
+    payee_pending_user_id = NULL
+WHERE payee_pending_user_id = $2
+`
+
+type UpdatePendingSettlementPayeeUserIDParams struct {
+	PayeeID            pgtype.UUID `json:"payee_id"`
+	PayeePendingUserID pgtype.UUID `json:"payee_pending_user_id"`
+}
+
+func (q *Queries) UpdatePendingSettlementPayeeUserID(ctx context.Context, arg UpdatePendingSettlementPayeeUserIDParams) error {
+	_, err := q.db.Exec(ctx, updatePendingSettlementPayeeUserID, arg.PayeeID, arg.PayeePendingUserID)
+	return err
+}
+
+const updatePendingSettlementPayerUserID = `-- name: UpdatePendingSettlementPayerUserID :exec
+UPDATE settlements
+SET payer_id = $1,
+    payer_pending_user_id = NULL
+WHERE payer_pending_user_id = $2
+`
+
+type UpdatePendingSettlementPayerUserIDParams struct {
+	PayerID            pgtype.UUID `json:"payer_id"`
+	PayerPendingUserID pgtype.UUID `json:"payer_pending_user_id"`
+}
+
+func (q *Queries) UpdatePendingSettlementPayerUserID(ctx context.Context, arg UpdatePendingSettlementPayerUserIDParams) error {
+	_, err := q.db.Exec(ctx, updatePendingSettlementPayerUserID, arg.PayerID, arg.PayerPendingUserID)
 	return err
 }
 

@@ -21,7 +21,9 @@ var (
 type CreateSettlementInput struct {
 	GroupID              pgtype.UUID
 	PayerID              pgtype.UUID
+	PayerPendingUserID   pgtype.UUID
 	PayeeID              pgtype.UUID
+	PayeePendingUserID   pgtype.UUID
 	Amount               string
 	CurrencyCode         string
 	Status               string
@@ -93,6 +95,35 @@ func (s *settlementService) validateStatus(status string) error {
 	return nil
 }
 
+func hasExactlyOneParticipant(userID, pendingUserID pgtype.UUID) bool {
+	return userID.Valid != pendingUserID.Valid
+}
+
+func (s *settlementService) validateParticipantInGroup(
+	ctx context.Context,
+	groupID pgtype.UUID,
+	userID pgtype.UUID,
+	pendingUserID pgtype.UUID,
+) error {
+	if !hasExactlyOneParticipant(userID, pendingUserID) {
+		return ErrInvalidSettlement
+	}
+
+	if userID.Valid {
+		return s.validateGroupMembership(ctx, groupID, userID)
+	}
+
+	isPendingMember, err := s.repo.HasPendingMemberInvitation(ctx, sqlc.HasPendingMemberInvitationParams{
+		GroupID: groupID,
+		ID:      pendingUserID,
+	})
+	if err != nil || !isPendingMember {
+		return ErrNotGroupMember
+	}
+
+	return nil
+}
+
 func (s *settlementService) CreateSettlement(ctx context.Context, input CreateSettlementInput) (sqlc.Settlement, error) {
 	// Validate group exists
 	group, err := s.repo.GetGroupByID(ctx, input.GroupID)
@@ -105,17 +136,28 @@ func (s *settlementService) CreateSettlement(ctx context.Context, input CreateSe
 		return sqlc.Settlement{}, err
 	}
 
-	// Validate payer and payee are group members
-	if err := s.validateGroupMembership(ctx, input.GroupID, input.PayerID); err != nil {
+	// Validate payer and payee are group participants.
+	if err := s.validateParticipantInGroup(ctx, input.GroupID, input.PayerID, input.PayerPendingUserID); err != nil {
+		if errors.Is(err, ErrInvalidSettlement) {
+			return sqlc.Settlement{}, ErrInvalidSettlement
+		}
 		return sqlc.Settlement{}, errors.New("payer is not a member of this group")
 	}
-	if err := s.validateGroupMembership(ctx, input.GroupID, input.PayeeID); err != nil {
+	if err := s.validateParticipantInGroup(ctx, input.GroupID, input.PayeeID, input.PayeePendingUserID); err != nil {
+		if errors.Is(err, ErrInvalidSettlement) {
+			return sqlc.Settlement{}, ErrInvalidSettlement
+		}
 		return sqlc.Settlement{}, errors.New("payee is not a member of this group")
 	}
 
-	// Validate payer != payee
-	if input.PayerID == input.PayeeID {
+	// Validate payer and payee are different participants.
+	if input.PayerID.Valid && input.PayeeID.Valid && input.PayerID == input.PayeeID {
 		return sqlc.Settlement{}, errors.New("payer and payee cannot be the same user")
+	}
+	if input.PayerPendingUserID.Valid &&
+		input.PayeePendingUserID.Valid &&
+		input.PayerPendingUserID == input.PayeePendingUserID {
+		return sqlc.Settlement{}, errors.New("payer and payee cannot be the same pending member")
 	}
 
 	// Validate amount
@@ -150,7 +192,9 @@ func (s *settlementService) CreateSettlement(ctx context.Context, input CreateSe
 		GroupID:              input.GroupID,
 		Type:                 "group",
 		PayerID:              input.PayerID,
+		PayerPendingUserID:   input.PayerPendingUserID,
 		PayeeID:              input.PayeeID,
+		PayeePendingUserID:   input.PayeePendingUserID,
 		Amount:               amountNumeric,
 		CurrencyCode:         currencyCode,
 		Status:               status,
@@ -171,9 +215,11 @@ func (s *settlementService) CreateSettlement(ctx context.Context, input CreateSe
 		EntityType: "settlement",
 		EntityID:   settlement.ID,
 		Metadata: map[string]interface{}{
-			"amount":   input.Amount,
-			"payer_id": input.PayerID,
-			"payee_id": input.PayeeID,
+			"amount":                input.Amount,
+			"payer_id":              input.PayerID,
+			"payer_pending_user_id": input.PayerPendingUserID,
+			"payee_id":              input.PayeeID,
+			"payee_pending_user_id": input.PayeePendingUserID,
 		},
 	})
 

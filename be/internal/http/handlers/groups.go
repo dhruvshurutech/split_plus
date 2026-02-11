@@ -41,14 +41,15 @@ type GroupMemberResponse struct {
 }
 
 type GroupMemberWithUserResponse struct {
-	ID        pgtype.UUID `json:"id"`
-	GroupID   pgtype.UUID `json:"group_id"`
-	UserID    pgtype.UUID `json:"user_id"`
-	Role      string      `json:"role"`
-	Status    string      `json:"status"`
-	InvitedAt string      `json:"invited_at,omitempty"`
-	JoinedAt  string      `json:"joined_at,omitempty"`
-	User      UserInfo    `json:"user"`
+	ID              pgtype.UUID `json:"id"`
+	GroupID         pgtype.UUID `json:"group_id"`
+	UserID          pgtype.UUID `json:"user_id"`
+	InvitationToken string      `json:"invitation_token,omitempty"`
+	Role            string      `json:"role"`
+	Status          string      `json:"status"`
+	InvitedAt       string      `json:"invited_at,omitempty"`
+	JoinedAt        string      `json:"joined_at,omitempty"`
+	User            UserInfo    `json:"user"`
 }
 
 type UserInfo struct {
@@ -75,13 +76,13 @@ func CreateGroupHandler(groupService service.GroupService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req, ok := middleware.GetBody[CreateGroupRequest](r)
 		if !ok {
-			response.SendError(w, http.StatusInternalServerError, "invalid request context")
+			response.SendErrorWithCode(w, http.StatusInternalServerError, "system.request.context_invalid", "Invalid request context.")
 			return
 		}
 
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			response.SendError(w, http.StatusUnauthorized, "unauthorized")
+			response.SendErrorWithCode(w, http.StatusUnauthorized, "auth.authorization.unauthorized", "Unauthorized.")
 			return
 		}
 
@@ -93,11 +94,15 @@ func CreateGroupHandler(groupService service.GroupService) http.HandlerFunc {
 		})
 		if err != nil {
 			statusCode := http.StatusBadRequest
+			code := "system.group.create_failed"
+			message := "Unable to create group."
 			switch err {
 			case service.ErrInvalidGroupName:
 				statusCode = http.StatusUnprocessableEntity
+				code = "validation.group.name.invalid"
+				message = "Group name is required."
 			}
-			response.SendError(w, statusCode, err.Error())
+			response.SendErrorWithCode(w, statusCode, code, message)
 			return
 		}
 
@@ -118,26 +123,32 @@ func ListGroupMembersHandler(groupService service.GroupService) http.HandlerFunc
 	return func(w http.ResponseWriter, r *http.Request) {
 		groupID, err := parseUUID(chi.URLParam(r, "group_id"))
 		if err != nil {
-			response.SendError(w, http.StatusBadRequest, "invalid group_id")
+			response.SendErrorWithCode(w, http.StatusBadRequest, "validation.group.group_id.invalid", "Invalid group id.")
 			return
 		}
 
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			response.SendError(w, http.StatusUnauthorized, "unauthorized")
+			response.SendErrorWithCode(w, http.StatusUnauthorized, "auth.authorization.unauthorized", "Unauthorized.")
 			return
 		}
 
 		members, err := groupService.ListGroupMembers(r.Context(), groupID, userID)
 		if err != nil {
 			statusCode := http.StatusBadRequest
+			code := "system.group.members.list_failed"
+			message := "Unable to load group members."
 			switch err {
 			case service.ErrGroupNotFound:
 				statusCode = http.StatusNotFound
+				code = "resource.group.not_found"
+				message = "Group not found."
 			case service.ErrNotGroupMember:
 				statusCode = http.StatusForbidden
+				code = "permission.group.member_required"
+				message = "You are not a member of this group."
 			}
-			response.SendError(w, statusCode, err.Error())
+			response.SendErrorWithCode(w, statusCode, code, message)
 			return
 		}
 
@@ -164,14 +175,15 @@ func ListGroupMembersHandler(groupService service.GroupService) http.HandlerFunc
 			}
 
 			resp[i] = GroupMemberWithUserResponse{
-				ID:        m.ID,
-				GroupID:   m.GroupID,
-				UserID:    m.UserID,
-				Role:      m.Role,
-				Status:    m.Status,
-				InvitedAt: formatTimestamp(m.InvitedAt),
-				JoinedAt:  formatTimestamp(m.JoinedAt),
-				User:      user,
+				ID:              m.ID,
+				GroupID:         m.GroupID,
+				UserID:          m.UserID,
+				InvitationToken: m.InvitationToken,
+				Role:            m.Role,
+				Status:          m.Status,
+				InvitedAt:       formatTimestamp(m.InvitedAt),
+				JoinedAt:        formatTimestamp(m.JoinedAt),
+				User:            user,
 			}
 		}
 
@@ -183,13 +195,13 @@ func ListUserGroupsHandler(groupService service.GroupService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			response.SendError(w, http.StatusUnauthorized, "unauthorized")
+			response.SendErrorWithCode(w, http.StatusUnauthorized, "auth.authorization.unauthorized", "Unauthorized.")
 			return
 		}
 
 		groups, err := groupService.ListUserGroups(r.Context(), userID)
 		if err != nil {
-			response.SendError(w, http.StatusInternalServerError, err.Error())
+			response.SendErrorWithCode(w, http.StatusInternalServerError, "system.group.list_failed", "Unable to load groups.")
 			return
 		}
 

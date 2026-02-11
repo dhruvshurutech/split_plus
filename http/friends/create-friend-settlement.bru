@@ -1,0 +1,43 @@
+meta {
+  name: Create Friend Settlement
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/friends/{{friendId}}/settlements
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "payer_id": "{{userId}}",
+    "payee_id": "{{friendId}}",
+    "amount": "600.00",
+    "currency_code": "INR",
+    "status": "pending",
+    "payment_method": "upi",
+    "transaction_reference": "TXN-123",
+    "notes": "Partial settlement"
+  }
+}
+
+docs {
+  # Create Friend Settlement
+  - Method: POST
+  - Path: `/friends/{{friendId}}/settlements`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: friend_id: UUID
+  - Query params: none
+  - Body contract: CreateFriendSettlementRequest (payer_id, payee_id, amount, optional currency/status/payment details).
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

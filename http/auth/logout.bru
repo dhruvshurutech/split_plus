@@ -1,0 +1,36 @@
+meta {
+  name: Logout
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/logout
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "refresh_token": "{{refreshToken}}"
+  }
+}
+
+docs {
+  # Logout
+  - Method: POST
+  - Path: `/auth/logout`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: none
+  - Query params: none
+  - Body contract: { refresh_token(required) }
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

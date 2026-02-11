@@ -30,6 +30,7 @@ type Querier interface {
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateSettlement(ctx context.Context, arg CreateSettlementParams) (Settlement, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	CreateUserTheme(ctx context.Context, arg CreateUserThemeParams) (UserTheme, error)
 	DeleteAllUserSessions(ctx context.Context, userID pgtype.UUID) error
 	DeleteExpense(ctx context.Context, id pgtype.UUID) error
 	DeleteExpenseComment(ctx context.Context, id pgtype.UUID) error
@@ -39,9 +40,11 @@ type Querier interface {
 	DeleteExpiredSessions(ctx context.Context) error
 	DeleteFriendship(ctx context.Context, id pgtype.UUID) error
 	DeleteGroupCategory(ctx context.Context, arg DeleteGroupCategoryParams) error
+	DeletePendingUserByID(ctx context.Context, id pgtype.UUID) error
 	DeleteRecurringExpense(ctx context.Context, id pgtype.UUID) error
 	DeleteSession(ctx context.Context, refreshTokenHash string) error
 	DeleteSettlement(ctx context.Context, id pgtype.UUID) error
+	DeleteUserTheme(ctx context.Context, id pgtype.UUID) error
 	GetActiveSessionsByUserID(ctx context.Context, userID pgtype.UUID) ([]Session, error)
 	GetCategoryByID(ctx context.Context, id pgtype.UUID) (ExpenseCategory, error)
 	GetCategoryBySlug(ctx context.Context, arg GetCategoryBySlugParams) (ExpenseCategory, error)
@@ -72,10 +75,14 @@ type Querier interface {
 	GetRecurringExpensesDue(ctx context.Context) ([]RecurringExpense, error)
 	GetSessionByRefreshTokenHash(ctx context.Context, refreshTokenHash string) (Session, error)
 	GetSettlementByID(ctx context.Context, id pgtype.UUID) (Settlement, error)
+	GetThemePresetBySlug(ctx context.Context, slug string) (ThemePreset, error)
 	// Get balance for a specific user in a group
 	GetUserBalanceInGroup(ctx context.Context, arg GetUserBalanceInGroupParams) (GetUserBalanceInGroupRow, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
+	GetUserThemeByID(ctx context.Context, id pgtype.UUID) (UserTheme, error)
+	GetUserThemePreferences(ctx context.Context, userID pgtype.UUID) (UserThemePreference, error)
+	HasPendingMemberInvitation(ctx context.Context, arg HasPendingMemberInvitationParams) (bool, error)
 	IsTokenBlacklisted(ctx context.Context, tokenJti string) (bool, error)
 	ListCategoriesForGroup(ctx context.Context, groupID pgtype.UUID) ([]ExpenseCategory, error)
 	ListExpenseComments(ctx context.Context, expenseID pgtype.UUID) ([]ListExpenseCommentsRow, error)
@@ -95,6 +102,8 @@ type Querier interface {
 	ListRecurringExpensesByGroup(ctx context.Context, groupID pgtype.UUID) ([]RecurringExpense, error)
 	ListSettlementsByGroup(ctx context.Context, groupID pgtype.UUID) ([]ListSettlementsByGroupRow, error)
 	ListSettlementsByUser(ctx context.Context, payerID pgtype.UUID) ([]ListSettlementsByUserRow, error)
+	ListThemePresets(ctx context.Context) ([]ThemePreset, error)
+	ListUserThemes(ctx context.Context, userID pgtype.UUID) ([]UserTheme, error)
 	SearchExpenses(ctx context.Context, arg SearchExpensesParams) ([]Expense, error)
 	UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (Expense, error)
 	UpdateExpenseComment(ctx context.Context, arg UpdateExpenseCommentParams) (ExpenseComment, error)
@@ -105,12 +114,16 @@ type Querier interface {
 	UpdateInvitationStatus(ctx context.Context, arg UpdateInvitationStatusParams) (GroupInvitation, error)
 	UpdateNextOccurrenceDate(ctx context.Context, arg UpdateNextOccurrenceDateParams) (RecurringExpense, error)
 	UpdatePendingPaymentUserID(ctx context.Context, arg UpdatePendingPaymentUserIDParams) error
+	UpdatePendingSettlementPayeeUserID(ctx context.Context, arg UpdatePendingSettlementPayeeUserIDParams) error
+	UpdatePendingSettlementPayerUserID(ctx context.Context, arg UpdatePendingSettlementPayerUserIDParams) error
 	UpdatePendingSplitUserID(ctx context.Context, arg UpdatePendingSplitUserIDParams) error
 	UpdateRecurringExpense(ctx context.Context, arg UpdateRecurringExpenseParams) (RecurringExpense, error)
 	UpdateRecurringExpenseActiveStatus(ctx context.Context, arg UpdateRecurringExpenseActiveStatusParams) (RecurringExpense, error)
 	UpdateSessionLastUsed(ctx context.Context, id pgtype.UUID) error
 	UpdateSettlement(ctx context.Context, arg UpdateSettlementParams) (Settlement, error)
 	UpdateSettlementStatus(ctx context.Context, arg UpdateSettlementStatusParams) (Settlement, error)
+	UpdateUserTheme(ctx context.Context, arg UpdateUserThemeParams) (UserTheme, error)
+	UpsertUserThemePreferences(ctx context.Context, arg UpsertUserThemePreferencesParams) (UserThemePreference, error)
 }
 
 var _ Querier = (*Queries)(nil)

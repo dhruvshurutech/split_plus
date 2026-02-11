@@ -1,0 +1,30 @@
+meta {
+  name: List Friends
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/friends/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # List Friends
+  - Method: GET
+  - Path: `/friends/`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: none
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

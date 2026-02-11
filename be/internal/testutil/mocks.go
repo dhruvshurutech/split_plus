@@ -229,13 +229,13 @@ func (m *MockTx) Conn() *pgx.Conn {
 // ============================================================================
 
 type MockGroupInvitationRepository struct {
-	BeginTxFunc                  func(ctx context.Context) (pgx.Tx, error)
-	WithTxFunc                   func(tx pgx.Tx) repository.GroupInvitationRepository
-	CreateInvitationFunc         func(ctx context.Context, params sqlc.CreateInvitationParams) (sqlc.GroupInvitation, error)
-	GetInvitationByTokenFunc     func(ctx context.Context, token string) (sqlc.GetInvitationByTokenRow, error)
-	GetInvitationByIDFunc        func(ctx context.Context, id pgtype.UUID) (sqlc.GroupInvitation, error)
-	UpdateInvitationStatusFunc   func(ctx context.Context, params sqlc.UpdateInvitationStatusParams) (sqlc.GroupInvitation, error)
-	ListInvitationsByGroupFunc   func(ctx context.Context, groupID pgtype.UUID) ([]sqlc.ListInvitationsByGroupRow, error)
+	BeginTxFunc                      func(ctx context.Context) (pgx.Tx, error)
+	WithTxFunc                       func(tx pgx.Tx) repository.GroupInvitationRepository
+	CreateInvitationFunc             func(ctx context.Context, params sqlc.CreateInvitationParams) (sqlc.GroupInvitation, error)
+	GetInvitationByTokenFunc         func(ctx context.Context, token string) (sqlc.GetInvitationByTokenRow, error)
+	GetInvitationByIDFunc            func(ctx context.Context, id pgtype.UUID) (sqlc.GroupInvitation, error)
+	UpdateInvitationStatusFunc       func(ctx context.Context, params sqlc.UpdateInvitationStatusParams) (sqlc.GroupInvitation, error)
+	ListInvitationsByGroupFunc       func(ctx context.Context, groupID pgtype.UUID) ([]sqlc.ListInvitationsByGroupRow, error)
 	GetPendingInvitationsByEmailFunc func(ctx context.Context, email string) ([]sqlc.GetPendingInvitationsByEmailRow, error)
 }
 
@@ -302,13 +302,16 @@ var _ repository.GroupInvitationRepository = (*MockGroupInvitationRepository)(ni
 // ============================================================================
 
 type MockPendingUserRepository struct {
-	BeginTxFunc                func(ctx context.Context) (pgx.Tx, error)
-	WithTxFunc                 func(tx pgx.Tx) repository.PendingUserRepository
-	CreatePendingUserFunc      func(ctx context.Context, params sqlc.CreatePendingUserParams) (sqlc.PendingUser, error)
-	GetPendingUserByEmailFunc  func(ctx context.Context, email string) (sqlc.PendingUser, error)
-	GetPendingUserByIDFunc     func(ctx context.Context, id pgtype.UUID) (sqlc.PendingUser, error)
-	UpdatePendingPaymentUserIDFunc func(ctx context.Context, params sqlc.UpdatePendingPaymentUserIDParams) error
-	UpdatePendingSplitUserIDFunc   func(ctx context.Context, params sqlc.UpdatePendingSplitUserIDParams) error
+	BeginTxFunc                            func(ctx context.Context) (pgx.Tx, error)
+	WithTxFunc                             func(tx pgx.Tx) repository.PendingUserRepository
+	CreatePendingUserFunc                  func(ctx context.Context, params sqlc.CreatePendingUserParams) (sqlc.PendingUser, error)
+	GetPendingUserByEmailFunc              func(ctx context.Context, email string) (sqlc.PendingUser, error)
+	GetPendingUserByIDFunc                 func(ctx context.Context, id pgtype.UUID) (sqlc.PendingUser, error)
+	UpdatePendingPaymentUserIDFunc         func(ctx context.Context, params sqlc.UpdatePendingPaymentUserIDParams) error
+	UpdatePendingSplitUserIDFunc           func(ctx context.Context, params sqlc.UpdatePendingSplitUserIDParams) error
+	UpdatePendingSettlementPayerUserIDFunc func(ctx context.Context, params sqlc.UpdatePendingSettlementPayerUserIDParams) error
+	UpdatePendingSettlementPayeeUserIDFunc func(ctx context.Context, params sqlc.UpdatePendingSettlementPayeeUserIDParams) error
+	DeletePendingUserByIDFunc              func(ctx context.Context, id pgtype.UUID) error
 }
 
 func (m *MockPendingUserRepository) BeginTx(ctx context.Context) (pgx.Tx, error) {
@@ -356,6 +359,27 @@ func (m *MockPendingUserRepository) UpdatePendingPaymentUserID(ctx context.Conte
 func (m *MockPendingUserRepository) UpdatePendingSplitUserID(ctx context.Context, params sqlc.UpdatePendingSplitUserIDParams) error {
 	if m.UpdatePendingSplitUserIDFunc != nil {
 		return m.UpdatePendingSplitUserIDFunc(ctx, params)
+	}
+	return nil
+}
+
+func (m *MockPendingUserRepository) UpdatePendingSettlementPayerUserID(ctx context.Context, params sqlc.UpdatePendingSettlementPayerUserIDParams) error {
+	if m.UpdatePendingSettlementPayerUserIDFunc != nil {
+		return m.UpdatePendingSettlementPayerUserIDFunc(ctx, params)
+	}
+	return nil
+}
+
+func (m *MockPendingUserRepository) UpdatePendingSettlementPayeeUserID(ctx context.Context, params sqlc.UpdatePendingSettlementPayeeUserIDParams) error {
+	if m.UpdatePendingSettlementPayeeUserIDFunc != nil {
+		return m.UpdatePendingSettlementPayeeUserIDFunc(ctx, params)
+	}
+	return nil
+}
+
+func (m *MockPendingUserRepository) DeletePendingUserByID(ctx context.Context, id pgtype.UUID) error {
+	if m.DeletePendingUserByIDFunc != nil {
+		return m.DeletePendingUserByIDFunc(ctx, id)
 	}
 	return nil
 }

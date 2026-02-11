@@ -1,0 +1,38 @@
+meta {
+  name: Update Group Category
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/groups/{{groupId}}/categories/{{categoryId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Food",
+    "icon": "utensils",
+    "color": "#EF4444"
+  }
+}
+
+docs {
+  # Update Group Category
+  - Method: PUT
+  - Path: `/groups/{{groupId}}/categories/{{categoryId}}`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID, id/category_id: UUID
+  - Query params: none
+  - Body contract: UpdateCategoryRequest: name(required), icon(optional), color(optional).
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

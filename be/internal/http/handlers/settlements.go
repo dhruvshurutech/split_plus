@@ -16,8 +16,10 @@ import (
 // Request structs
 
 type CreateSettlementRequest struct {
-	PayerID              string `json:"payer_id" validate:"required,uuid"`
-	PayeeID              string `json:"payee_id" validate:"required,uuid"`
+	PayerID              string `json:"payer_id" validate:"omitempty,uuid"`
+	PayerPendingUserID   string `json:"payer_pending_user_id" validate:"omitempty,uuid"`
+	PayeeID              string `json:"payee_id" validate:"omitempty,uuid"`
+	PayeePendingUserID   string `json:"payee_pending_user_id" validate:"omitempty,uuid"`
 	Amount               string `json:"amount" validate:"required"`
 	CurrencyCode         string `json:"currency_code" validate:"omitempty,len=3"`
 	Status               string `json:"status" validate:"omitempty,oneof=pending completed cancelled"`
@@ -45,7 +47,9 @@ type SettlementResponse struct {
 	ID                   pgtype.UUID `json:"id"`
 	GroupID              pgtype.UUID `json:"group_id"`
 	PayerID              pgtype.UUID `json:"payer_id"`
+	PayerPendingUserID   pgtype.UUID `json:"payer_pending_user_id"`
 	PayeeID              pgtype.UUID `json:"payee_id"`
+	PayeePendingUserID   pgtype.UUID `json:"payee_pending_user_id"`
 	Amount               string      `json:"amount"`
 	CurrencyCode         string      `json:"currency_code"`
 	Status               string      `json:"status"`
@@ -60,23 +64,34 @@ type SettlementResponse struct {
 }
 
 type SettlementWithUsersResponse struct {
-	ID                   pgtype.UUID `json:"id"`
-	GroupID              pgtype.UUID `json:"group_id"`
-	PayerID              pgtype.UUID `json:"payer_id"`
-	PayeeID              pgtype.UUID `json:"payee_id"`
-	Amount               string      `json:"amount"`
-	CurrencyCode         string      `json:"currency_code"`
-	Status               string      `json:"status"`
-	PaymentMethod        string      `json:"payment_method,omitempty"`
-	TransactionReference string      `json:"transaction_reference,omitempty"`
-	PaidAt               string      `json:"paid_at,omitempty"`
-	Notes                string      `json:"notes,omitempty"`
-	CreatedAt            string      `json:"created_at"`
-	CreatedBy            pgtype.UUID `json:"created_by"`
-	UpdatedAt            string      `json:"updated_at"`
-	UpdatedBy            pgtype.UUID `json:"updated_by"`
-	Payer                UserInfo    `json:"payer"`
-	Payee                UserInfo    `json:"payee"`
+	ID                   pgtype.UUID               `json:"id"`
+	GroupID              pgtype.UUID               `json:"group_id"`
+	PayerID              pgtype.UUID               `json:"payer_id"`
+	PayerPendingUserID   pgtype.UUID               `json:"payer_pending_user_id"`
+	PayeeID              pgtype.UUID               `json:"payee_id"`
+	PayeePendingUserID   pgtype.UUID               `json:"payee_pending_user_id"`
+	Amount               string                    `json:"amount"`
+	CurrencyCode         string                    `json:"currency_code"`
+	Status               string                    `json:"status"`
+	PaymentMethod        string                    `json:"payment_method,omitempty"`
+	TransactionReference string                    `json:"transaction_reference,omitempty"`
+	PaidAt               string                    `json:"paid_at,omitempty"`
+	Notes                string                    `json:"notes,omitempty"`
+	CreatedAt            string                    `json:"created_at"`
+	CreatedBy            pgtype.UUID               `json:"created_by"`
+	UpdatedAt            string                    `json:"updated_at"`
+	UpdatedBy            pgtype.UUID               `json:"updated_by"`
+	Payer                SettlementParticipantInfo `json:"payer"`
+	Payee                SettlementParticipantInfo `json:"payee"`
+}
+
+type SettlementParticipantInfo struct {
+	UserID        pgtype.UUID `json:"user_id"`
+	PendingUserID pgtype.UUID `json:"pending_user_id"`
+	Email         string      `json:"email"`
+	Name          string      `json:"name,omitempty"`
+	AvatarURL     string      `json:"avatar_url,omitempty"`
+	IsPending     bool        `json:"is_pending"`
 }
 
 // Helper to convert settlement to response
@@ -114,7 +129,9 @@ func settlementToResponse(s sqlc.Settlement) SettlementResponse {
 		ID:                   s.ID,
 		GroupID:              s.GroupID,
 		PayerID:              s.PayerID,
+		PayerPendingUserID:   s.PayerPendingUserID,
 		PayeeID:              s.PayeeID,
+		PayeePendingUserID:   s.PayeePendingUserID,
 		Amount:               amount,
 		CurrencyCode:         s.CurrencyCode,
 		Status:               s.Status,
@@ -152,14 +169,36 @@ func CreateSettlementHandler(settlementService service.SettlementService) http.H
 			return
 		}
 
-		var payerID, payeeID pgtype.UUID
-		if err := payerID.Scan(req.PayerID); err != nil {
-			response.SendError(w, http.StatusBadRequest, "invalid payer id")
-			return
+		var payerID pgtype.UUID
+		if req.PayerID != "" {
+			if err := payerID.Scan(req.PayerID); err != nil {
+				response.SendError(w, http.StatusBadRequest, "invalid payer id")
+				return
+			}
 		}
-		if err := payeeID.Scan(req.PayeeID); err != nil {
-			response.SendError(w, http.StatusBadRequest, "invalid payee id")
-			return
+
+		var payerPendingUserID pgtype.UUID
+		if req.PayerPendingUserID != "" {
+			if err := payerPendingUserID.Scan(req.PayerPendingUserID); err != nil {
+				response.SendError(w, http.StatusBadRequest, "invalid payer pending user id")
+				return
+			}
+		}
+
+		var payeeID pgtype.UUID
+		if req.PayeeID != "" {
+			if err := payeeID.Scan(req.PayeeID); err != nil {
+				response.SendError(w, http.StatusBadRequest, "invalid payee id")
+				return
+			}
+		}
+
+		var payeePendingUserID pgtype.UUID
+		if req.PayeePendingUserID != "" {
+			if err := payeePendingUserID.Scan(req.PayeePendingUserID); err != nil {
+				response.SendError(w, http.StatusBadRequest, "invalid payee pending user id")
+				return
+			}
 		}
 
 		status := req.Status
@@ -170,7 +209,9 @@ func CreateSettlementHandler(settlementService service.SettlementService) http.H
 		settlement, err := settlementService.CreateSettlement(r.Context(), service.CreateSettlementInput{
 			GroupID:              groupID,
 			PayerID:              payerID,
+			PayerPendingUserID:   payerPendingUserID,
 			PayeeID:              payeeID,
+			PayeePendingUserID:   payeePendingUserID,
 			Amount:               req.Amount,
 			CurrencyCode:         req.CurrencyCode,
 			Status:               status,
@@ -299,7 +340,9 @@ func ListSettlementsByGroupHandler(settlementService service.SettlementService) 
 				ID:                   row.ID,
 				GroupID:              row.GroupID,
 				PayerID:              row.PayerID,
+				PayerPendingUserID:   row.PayerPendingUserID,
 				PayeeID:              row.PayeeID,
+				PayeePendingUserID:   row.PayeePendingUserID,
 				Amount:               amount,
 				CurrencyCode:         row.CurrencyCode,
 				Status:               row.Status,
@@ -311,15 +354,21 @@ func ListSettlementsByGroupHandler(settlementService service.SettlementService) 
 				CreatedBy:            row.CreatedBy,
 				UpdatedAt:            row.UpdatedAt.Time.Format(time.RFC3339),
 				UpdatedBy:            row.UpdatedBy,
-				Payer: UserInfo{
-					Email:     row.PayerEmail,
-					Name:      row.PayerName.String,
-					AvatarURL: row.PayerAvatarUrl.String,
+				Payer: SettlementParticipantInfo{
+					UserID:        row.PayerID,
+					PendingUserID: row.PayerPendingUserID,
+					Email:         row.PayerEmail,
+					Name:          row.PayerName.String,
+					AvatarURL:     row.PayerAvatarUrl.String,
+					IsPending:     row.PayerPendingUserID.Valid,
 				},
-				Payee: UserInfo{
-					Email:     row.PayeeEmail,
-					Name:      row.PayeeName.String,
-					AvatarURL: row.PayeeAvatarUrl.String,
+				Payee: SettlementParticipantInfo{
+					UserID:        row.PayeeID,
+					PendingUserID: row.PayeePendingUserID,
+					Email:         row.PayeeEmail,
+					Name:          row.PayeeName.String,
+					AvatarURL:     row.PayeeAvatarUrl.String,
+					IsPending:     row.PayeePendingUserID.Valid,
 				},
 			})
 		}

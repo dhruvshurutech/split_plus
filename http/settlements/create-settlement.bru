@@ -1,0 +1,43 @@
+meta {
+  name: Create Group Settlement
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/groups/{{groupId}}/settlements/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "payer_id": "{{userId}}",
+    "payee_id": "{{friendId}}",
+    "amount": "600.00",
+    "currency_code": "INR",
+    "status": "pending",
+    "payment_method": "upi",
+    "transaction_reference": "TXN-123",
+    "notes": "Partial settlement"
+  }
+}
+
+docs {
+  # Create Group Settlement
+  - Method: POST
+  - Path: `/groups/{{groupId}}/settlements/`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID
+  - Query params: none
+  - Body contract: CreateSettlementRequest with payer_id, payee_id, amount and optional payment/status metadata.
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

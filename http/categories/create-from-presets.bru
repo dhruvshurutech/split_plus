@@ -1,0 +1,36 @@
+meta {
+  name: Create Categories From Presets
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/groups/{{groupId}}/categories/from-presets
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "preset_slugs": ["food", "transport"]
+  }
+}
+
+docs {
+  # Create Categories From Presets
+  - Method: POST
+  - Path: `/groups/{{groupId}}/categories/from-presets`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID
+  - Query params: none
+  - Body contract: CreateFromPresetsRequest: preset_slugs(required,min=1).
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

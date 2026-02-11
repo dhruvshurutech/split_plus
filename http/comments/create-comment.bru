@@ -1,0 +1,36 @@
+meta {
+  name: Create Expense Comment
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/groups/{{groupId}}/expenses/{{expenseId}}/comments
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "comment": "Updated amount after receipt"
+  }
+}
+
+docs {
+  # Create Expense Comment
+  - Method: POST
+  - Path: `/groups/{{groupId}}/expenses/{{expenseId}}/comments`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID, expense_id: UUID
+  - Query params: none
+  - Body contract: CommentRequest: comment(required,min=1,max=1000).
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

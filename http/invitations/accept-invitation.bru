@@ -1,0 +1,30 @@
+meta {
+  name: Accept Invitation
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/invitations/{{invitationToken}}/accept
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # Accept Invitation
+  - Method: POST
+  - Path: `/invitations/{{invitationToken}}/accept`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: token: invitation token
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

@@ -43,14 +43,14 @@ func RequireAuth(jwtService service.JWTService, sessionRepo repository.SessionRe
 			// Extract token from Authorization header
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
-				response.SendError(w, http.StatusUnauthorized, "missing authorization header")
+				response.SendErrorWithCode(w, http.StatusUnauthorized, "auth.authorization.missing_header", "Authorization header is required.")
 				return
 			}
 
 			// Check if it's a Bearer token
 			parts := strings.SplitN(authHeader, " ", 2)
 			if len(parts) != 2 || parts[0] != "Bearer" {
-				response.SendError(w, http.StatusUnauthorized, "invalid authorization header format")
+				response.SendErrorWithCode(w, http.StatusUnauthorized, "auth.authorization.invalid_format", "Authorization header must use Bearer token format.")
 				return
 			}
 
@@ -59,35 +59,39 @@ func RequireAuth(jwtService service.JWTService, sessionRepo repository.SessionRe
 			// Validate JWT token
 			claims, err := jwtService.ValidateAccessToken(tokenString)
 			if err != nil {
+				var code string
 				var message string
 				switch err {
 				case service.ErrExpiredToken:
+					code = "auth.token.expired"
 					message = "token has expired"
 				case service.ErrInvalidToken:
+					code = "auth.token.invalid"
 					message = "invalid token"
 				default:
+					code = "auth.authorization.unauthorized"
 					message = "unauthorized"
 				}
-				response.SendError(w, http.StatusUnauthorized, message)
+				response.SendErrorWithCode(w, http.StatusUnauthorized, code, message)
 				return
 			}
 
 			// Check if token is blacklisted
 			isBlacklisted, err := sessionRepo.IsTokenBlacklisted(r.Context(), claims.ID)
 			if err != nil {
-				response.SendError(w, http.StatusInternalServerError, "authentication error")
+				response.SendErrorWithCode(w, http.StatusInternalServerError, "auth.internal.check_failed", "Authentication check failed.")
 				return
 			}
 
 			if isBlacklisted {
-				response.SendError(w, http.StatusUnauthorized, "token has been revoked")
+				response.SendErrorWithCode(w, http.StatusUnauthorized, "auth.token.revoked", "Token has been revoked.")
 				return
 			}
 
 			// Parse user ID from claims
 			var userID pgtype.UUID
 			if err := userID.Scan(claims.UserID); err != nil {
-				response.SendError(w, http.StatusUnauthorized, "invalid user id in token")
+				response.SendErrorWithCode(w, http.StatusUnauthorized, "auth.token.user_invalid", "Invalid user in token.")
 				return
 			}
 

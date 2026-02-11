@@ -1,9 +1,12 @@
 -- name: CreateSettlement :one
 INSERT INTO settlements (
-    group_id, type, payer_id, payee_id, amount, currency_code, status,
+    group_id, type,
+    payer_id, payer_pending_user_id,
+    payee_id, payee_pending_user_id,
+    amount, currency_code, status,
     payment_method, transaction_reference, notes, created_by, updated_by
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $11)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13)
 RETURNING *;
 
 -- name: GetSettlementByID :one
@@ -15,7 +18,9 @@ SELECT
     s.id,
     s.group_id,
     s.payer_id,
+    s.payer_pending_user_id,
     s.payee_id,
+    s.payee_pending_user_id,
     s.amount,
     s.currency_code,
     s.status,
@@ -27,15 +32,19 @@ SELECT
     s.created_by,
     s.updated_at,
     s.updated_by,
-    payer.email AS payer_email,
-    payer.name AS payer_name,
-    payer.avatar_url AS payer_avatar_url,
-    payee.email AS payee_email,
-    payee.name AS payee_name,
-    payee.avatar_url AS payee_avatar_url
+    COALESCE(payer_user.email, payer_pending.email) AS payer_email,
+    COALESCE(payer_user.name, payer_pending.name) AS payer_name,
+    payer_user.avatar_url AS payer_avatar_url,
+    (s.payer_pending_user_id IS NOT NULL) AS payer_is_pending,
+    COALESCE(payee_user.email, payee_pending.email) AS payee_email,
+    COALESCE(payee_user.name, payee_pending.name) AS payee_name,
+    payee_user.avatar_url AS payee_avatar_url,
+    (s.payee_pending_user_id IS NOT NULL) AS payee_is_pending
 FROM settlements s
-JOIN users payer ON s.payer_id = payer.id
-JOIN users payee ON s.payee_id = payee.id
+LEFT JOIN users payer_user ON s.payer_id = payer_user.id
+LEFT JOIN pending_users payer_pending ON s.payer_pending_user_id = payer_pending.id
+LEFT JOIN users payee_user ON s.payee_id = payee_user.id
+LEFT JOIN pending_users payee_pending ON s.payee_pending_user_id = payee_pending.id
 WHERE s.group_id = $1 AND s.deleted_at IS NULL
 ORDER BY s.created_at DESC;
 
@@ -44,7 +53,9 @@ SELECT
     s.id,
     s.group_id,
     s.payer_id,
+    s.payer_pending_user_id,
     s.payee_id,
+    s.payee_pending_user_id,
     s.amount,
     s.currency_code,
     s.status,
@@ -57,18 +68,38 @@ SELECT
     s.updated_at,
     s.updated_by,
     g.name AS group_name,
-    payer.email AS payer_email,
-    payer.name AS payer_name,
-    payer.avatar_url AS payer_avatar_url,
-    payee.email AS payee_email,
-    payee.name AS payee_name,
-    payee.avatar_url AS payee_avatar_url
+    COALESCE(payer_user.email, payer_pending.email) AS payer_email,
+    COALESCE(payer_user.name, payer_pending.name) AS payer_name,
+    payer_user.avatar_url AS payer_avatar_url,
+    (s.payer_pending_user_id IS NOT NULL) AS payer_is_pending,
+    COALESCE(payee_user.email, payee_pending.email) AS payee_email,
+    COALESCE(payee_user.name, payee_pending.name) AS payee_name,
+    payee_user.avatar_url AS payee_avatar_url,
+    (s.payee_pending_user_id IS NOT NULL) AS payee_is_pending
 FROM settlements s
 JOIN groups g ON s.group_id = g.id
-JOIN users payer ON s.payer_id = payer.id
-JOIN users payee ON s.payee_id = payee.id
-WHERE (s.payer_id = $1 OR s.payee_id = $1) AND s.deleted_at IS NULL
+LEFT JOIN users payer_user ON s.payer_id = payer_user.id
+LEFT JOIN pending_users payer_pending ON s.payer_pending_user_id = payer_pending.id
+LEFT JOIN users payee_user ON s.payee_id = payee_user.id
+LEFT JOIN pending_users payee_pending ON s.payee_pending_user_id = payee_pending.id
+WHERE (
+    s.payer_id = $1 OR
+    s.payee_id = $1 OR
+    s.payer_pending_user_id = $1 OR
+    s.payee_pending_user_id = $1
+) AND s.deleted_at IS NULL
 ORDER BY s.created_at DESC;
+
+-- name: HasPendingMemberInvitation :one
+SELECT EXISTS (
+    SELECT 1
+    FROM group_invitations gi
+    JOIN pending_users pu ON pu.email = gi.email
+    WHERE gi.group_id = $1
+      AND pu.id = $2
+      AND gi.status = 'pending'
+      AND gi.expires_at > NOW()
+);
 
 -- name: UpdateSettlementStatus :one
 UPDATE settlements

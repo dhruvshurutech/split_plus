@@ -9,38 +9,248 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as InviteTokenRouteImport } from './routes/invite.$token'
+import { Route as AppThemesRouteImport } from './routes/app/themes'
+import { Route as AppProfileRouteImport } from './routes/app/profile'
+import { Route as AppGroupsIndexRouteImport } from './routes/app/groups/index'
+import { Route as AppFriendsIndexRouteImport } from './routes/app/friends/index'
+import { Route as AppFriendsFriendIdRouteImport } from './routes/app/friends/$friendId'
+import { Route as AppGroupsGroupIdIndexRouteImport } from './routes/app/groups/$groupId/index'
+import { Route as AppGroupsGroupIdMembersRouteImport } from './routes/app/groups/$groupId/members'
+import { Route as AppGroupsGroupIdSettlementsNewRouteImport } from './routes/app/groups/$groupId/settlements/new'
+import { Route as AppGroupsGroupIdExpensesNewRouteImport } from './routes/app/groups/$groupId/expenses/new'
+import { Route as AppGroupsGroupIdExpensesExpenseIdRouteImport } from './routes/app/groups/$groupId/expenses/$expenseId'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const InviteTokenRoute = InviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppThemesRoute = AppThemesRouteImport.update({
+  id: '/themes',
+  path: '/themes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGroupsIndexRoute = AppGroupsIndexRouteImport.update({
+  id: '/groups/',
+  path: '/groups/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFriendsIndexRoute = AppFriendsIndexRouteImport.update({
+  id: '/friends/',
+  path: '/friends/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFriendsFriendIdRoute = AppFriendsFriendIdRouteImport.update({
+  id: '/friends/$friendId',
+  path: '/friends/$friendId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGroupsGroupIdIndexRoute = AppGroupsGroupIdIndexRouteImport.update({
+  id: '/groups/$groupId/',
+  path: '/groups/$groupId/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGroupsGroupIdMembersRoute = AppGroupsGroupIdMembersRouteImport.update({
+  id: '/groups/$groupId/members',
+  path: '/groups/$groupId/members',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGroupsGroupIdSettlementsNewRoute =
+  AppGroupsGroupIdSettlementsNewRouteImport.update({
+    id: '/groups/$groupId/settlements/new',
+    path: '/groups/$groupId/settlements/new',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppGroupsGroupIdExpensesNewRoute =
+  AppGroupsGroupIdExpensesNewRouteImport.update({
+    id: '/groups/$groupId/expenses/new',
+    path: '/groups/$groupId/expenses/new',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppGroupsGroupIdExpensesExpenseIdRoute =
+  AppGroupsGroupIdExpensesExpenseIdRouteImport.update({
+    id: '/groups/$groupId/expenses/$expenseId',
+    path: '/groups/$groupId/expenses/$expenseId',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/app/profile': typeof AppProfileRoute
+  '/app/themes': typeof AppThemesRoute
+  '/invite/$token': typeof InviteTokenRoute
+  '/app/': typeof AppIndexRoute
+  '/app/friends/$friendId': typeof AppFriendsFriendIdRoute
+  '/app/friends/': typeof AppFriendsIndexRoute
+  '/app/groups/': typeof AppGroupsIndexRoute
+  '/app/groups/$groupId/members': typeof AppGroupsGroupIdMembersRoute
+  '/app/groups/$groupId/': typeof AppGroupsGroupIdIndexRoute
+  '/app/groups/$groupId/expenses/$expenseId': typeof AppGroupsGroupIdExpensesExpenseIdRoute
+  '/app/groups/$groupId/expenses/new': typeof AppGroupsGroupIdExpensesNewRoute
+  '/app/groups/$groupId/settlements/new': typeof AppGroupsGroupIdSettlementsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/app/profile': typeof AppProfileRoute
+  '/app/themes': typeof AppThemesRoute
+  '/invite/$token': typeof InviteTokenRoute
+  '/app': typeof AppIndexRoute
+  '/app/friends/$friendId': typeof AppFriendsFriendIdRoute
+  '/app/friends': typeof AppFriendsIndexRoute
+  '/app/groups': typeof AppGroupsIndexRoute
+  '/app/groups/$groupId/members': typeof AppGroupsGroupIdMembersRoute
+  '/app/groups/$groupId': typeof AppGroupsGroupIdIndexRoute
+  '/app/groups/$groupId/expenses/$expenseId': typeof AppGroupsGroupIdExpensesExpenseIdRoute
+  '/app/groups/$groupId/expenses/new': typeof AppGroupsGroupIdExpensesNewRoute
+  '/app/groups/$groupId/settlements/new': typeof AppGroupsGroupIdSettlementsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/app/profile': typeof AppProfileRoute
+  '/app/themes': typeof AppThemesRoute
+  '/invite/$token': typeof InviteTokenRoute
+  '/app/': typeof AppIndexRoute
+  '/app/friends/$friendId': typeof AppFriendsFriendIdRoute
+  '/app/friends/': typeof AppFriendsIndexRoute
+  '/app/groups/': typeof AppGroupsIndexRoute
+  '/app/groups/$groupId/members': typeof AppGroupsGroupIdMembersRoute
+  '/app/groups/$groupId/': typeof AppGroupsGroupIdIndexRoute
+  '/app/groups/$groupId/expenses/$expenseId': typeof AppGroupsGroupIdExpensesExpenseIdRoute
+  '/app/groups/$groupId/expenses/new': typeof AppGroupsGroupIdExpensesNewRoute
+  '/app/groups/$groupId/settlements/new': typeof AppGroupsGroupIdSettlementsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/login'
+    | '/signup'
+    | '/app/profile'
+    | '/app/themes'
+    | '/invite/$token'
+    | '/app/'
+    | '/app/friends/$friendId'
+    | '/app/friends/'
+    | '/app/groups/'
+    | '/app/groups/$groupId/members'
+    | '/app/groups/$groupId/'
+    | '/app/groups/$groupId/expenses/$expenseId'
+    | '/app/groups/$groupId/expenses/new'
+    | '/app/groups/$groupId/settlements/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/app/profile'
+    | '/app/themes'
+    | '/invite/$token'
+    | '/app'
+    | '/app/friends/$friendId'
+    | '/app/friends'
+    | '/app/groups'
+    | '/app/groups/$groupId/members'
+    | '/app/groups/$groupId'
+    | '/app/groups/$groupId/expenses/$expenseId'
+    | '/app/groups/$groupId/expenses/new'
+    | '/app/groups/$groupId/settlements/new'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/login'
+    | '/signup'
+    | '/app/profile'
+    | '/app/themes'
+    | '/invite/$token'
+    | '/app/'
+    | '/app/friends/$friendId'
+    | '/app/friends/'
+    | '/app/groups/'
+    | '/app/groups/$groupId/members'
+    | '/app/groups/$groupId/'
+    | '/app/groups/$groupId/expenses/$expenseId'
+    | '/app/groups/$groupId/expenses/new'
+    | '/app/groups/$groupId/settlements/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
+  InviteTokenRoute: typeof InviteTokenRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +258,130 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/invite/$token': {
+      id: '/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/invite/$token'
+      preLoaderRoute: typeof InviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/themes': {
+      id: '/app/themes'
+      path: '/themes'
+      fullPath: '/app/themes'
+      preLoaderRoute: typeof AppThemesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/groups/': {
+      id: '/app/groups/'
+      path: '/groups'
+      fullPath: '/app/groups/'
+      preLoaderRoute: typeof AppGroupsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/friends/': {
+      id: '/app/friends/'
+      path: '/friends'
+      fullPath: '/app/friends/'
+      preLoaderRoute: typeof AppFriendsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/friends/$friendId': {
+      id: '/app/friends/$friendId'
+      path: '/friends/$friendId'
+      fullPath: '/app/friends/$friendId'
+      preLoaderRoute: typeof AppFriendsFriendIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/groups/$groupId/': {
+      id: '/app/groups/$groupId/'
+      path: '/groups/$groupId'
+      fullPath: '/app/groups/$groupId/'
+      preLoaderRoute: typeof AppGroupsGroupIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/groups/$groupId/members': {
+      id: '/app/groups/$groupId/members'
+      path: '/groups/$groupId/members'
+      fullPath: '/app/groups/$groupId/members'
+      preLoaderRoute: typeof AppGroupsGroupIdMembersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/groups/$groupId/settlements/new': {
+      id: '/app/groups/$groupId/settlements/new'
+      path: '/groups/$groupId/settlements/new'
+      fullPath: '/app/groups/$groupId/settlements/new'
+      preLoaderRoute: typeof AppGroupsGroupIdSettlementsNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/groups/$groupId/expenses/new': {
+      id: '/app/groups/$groupId/expenses/new'
+      path: '/groups/$groupId/expenses/new'
+      fullPath: '/app/groups/$groupId/expenses/new'
+      preLoaderRoute: typeof AppGroupsGroupIdExpensesNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/groups/$groupId/expenses/$expenseId': {
+      id: '/app/groups/$groupId/expenses/$expenseId'
+      path: '/groups/$groupId/expenses/$expenseId'
+      fullPath: '/app/groups/$groupId/expenses/$expenseId'
+      preLoaderRoute: typeof AppGroupsGroupIdExpensesExpenseIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppProfileRoute: typeof AppProfileRoute
+  AppThemesRoute: typeof AppThemesRoute
+  AppIndexRoute: typeof AppIndexRoute
+  AppFriendsFriendIdRoute: typeof AppFriendsFriendIdRoute
+  AppFriendsIndexRoute: typeof AppFriendsIndexRoute
+  AppGroupsIndexRoute: typeof AppGroupsIndexRoute
+  AppGroupsGroupIdMembersRoute: typeof AppGroupsGroupIdMembersRoute
+  AppGroupsGroupIdIndexRoute: typeof AppGroupsGroupIdIndexRoute
+  AppGroupsGroupIdExpensesExpenseIdRoute: typeof AppGroupsGroupIdExpensesExpenseIdRoute
+  AppGroupsGroupIdExpensesNewRoute: typeof AppGroupsGroupIdExpensesNewRoute
+  AppGroupsGroupIdSettlementsNewRoute: typeof AppGroupsGroupIdSettlementsNewRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppProfileRoute: AppProfileRoute,
+  AppThemesRoute: AppThemesRoute,
+  AppIndexRoute: AppIndexRoute,
+  AppFriendsFriendIdRoute: AppFriendsFriendIdRoute,
+  AppFriendsIndexRoute: AppFriendsIndexRoute,
+  AppGroupsIndexRoute: AppGroupsIndexRoute,
+  AppGroupsGroupIdMembersRoute: AppGroupsGroupIdMembersRoute,
+  AppGroupsGroupIdIndexRoute: AppGroupsGroupIdIndexRoute,
+  AppGroupsGroupIdExpensesExpenseIdRoute:
+    AppGroupsGroupIdExpensesExpenseIdRoute,
+  AppGroupsGroupIdExpensesNewRoute: AppGroupsGroupIdExpensesNewRoute,
+  AppGroupsGroupIdSettlementsNewRoute: AppGroupsGroupIdSettlementsNewRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
+  InviteTokenRoute: InviteTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

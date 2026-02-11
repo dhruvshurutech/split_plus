@@ -1,0 +1,36 @@
+meta {
+  name: Send Friend Request
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/friends/requests
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "friend_id": "{{friendId}}"
+  }
+}
+
+docs {
+  # Send Friend Request
+  - Method: POST
+  - Path: `/friends/requests`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: none
+  - Query params: none
+  - Body contract: { friend_id(required,uuid) }
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

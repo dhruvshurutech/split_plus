@@ -1,0 +1,41 @@
+meta {
+  name: Update Settlement
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/groups/{{groupId}}/settlements/{{settlementId}}/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "amount": "600.00",
+    "currency_code": "INR",
+    "status": "completed",
+    "payment_method": "upi",
+    "transaction_reference": "TXN-123",
+    "notes": "Paid"
+  }
+}
+
+docs {
+  # Update Settlement
+  - Method: PUT
+  - Path: `/groups/{{groupId}}/settlements/{{settlementId}}/`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID, settlement_id: UUID
+  - Query params: none
+  - Body contract: UpdateSettlementRequest: amount(required), status(required), optional currency/payment metadata.
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

@@ -1,0 +1,38 @@
+meta {
+  name: Create Group Category
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/groups/{{groupId}}/categories
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Food",
+    "icon": "utensils",
+    "color": "#EF4444"
+  }
+}
+
+docs {
+  # Create Group Category
+  - Method: POST
+  - Path: `/groups/{{groupId}}/categories`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: group_id: UUID
+  - Query params: none
+  - Body contract: CreateCategoryRequest: name(required), icon(optional), color(optional).
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

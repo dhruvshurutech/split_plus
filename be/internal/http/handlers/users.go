@@ -10,8 +10,8 @@ import (
 )
 
 type CreateUserRequest struct {
-	Name    string `json:"name" validate:"required"`
-	Email   string `json:"email" validate:"required,email"`
+	Name     string `json:"name" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=8"`
 }
 
@@ -26,20 +26,34 @@ func CreateUserHandler(userService service.UserService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req, ok := middleware.GetBody[CreateUserRequest](r)
 		if !ok {
-			response.SendError(w, http.StatusInternalServerError, "invalid request context")
+			response.SendErrorWithCode(w, http.StatusInternalServerError, "system.request.context_invalid", "Invalid request context.")
 			return
 		}
 
 		user, err := userService.CreateUser(r.Context(), req.Name, req.Email, req.Password)
 		if err != nil {
 			var statusCode int
+			var code string
+			var message string
 			switch err {
 			case service.ErrUserAlreadyExists:
 				statusCode = http.StatusConflict
+				code = "conflict.user.email_already_exists"
+				message = "An account with this email already exists."
+			case service.ErrUserEmailRequired:
+				statusCode = http.StatusUnprocessableEntity
+				code = "validation.user.email.required"
+				message = "Email is required."
+			case service.ErrUserNotFound:
+				statusCode = http.StatusNotFound
+				code = "resource.user.not_found"
+				message = "User not found."
 			default:
 				statusCode = http.StatusBadRequest
+				code = "system.user.create_failed"
+				message = "Unable to create account right now."
 			}
-			response.SendError(w, statusCode, err.Error())
+			response.SendErrorWithCode(w, statusCode, code, message)
 			return
 		}
 
@@ -58,13 +72,17 @@ func GetMeHandler(userService service.UserService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			response.SendError(w, http.StatusUnauthorized, "unauthorized")
+			response.SendErrorWithCode(w, http.StatusUnauthorized, "auth.authorization.unauthorized", "Unauthorized.")
 			return
 		}
 
 		user, err := userService.GetUser(r.Context(), userID)
 		if err != nil {
-			response.SendError(w, http.StatusInternalServerError, err.Error())
+			if err == service.ErrUserNotFound {
+				response.SendErrorWithCode(w, http.StatusNotFound, "resource.user.not_found", "User not found.")
+				return
+			}
+			response.SendErrorWithCode(w, http.StatusInternalServerError, "system.user.fetch_failed", "Unable to load user profile.")
 			return
 		}
 

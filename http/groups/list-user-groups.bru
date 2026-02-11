@@ -1,0 +1,30 @@
+meta {
+  name: List User Groups
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/groups/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # List User Groups
+  - Method: GET
+  - Path: `/groups/`
+  - Auth: Bearer token required via `Authorization: Bearer {{accessToken}}`
+  - Path params: none
+  - Query params: none
+  - Body contract: none
+  - Response envelope: `{ status: boolean, data?: any, error?: { message: string | string[] } }`
+}

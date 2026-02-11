@@ -218,6 +218,18 @@ type Settlement struct {
 	UpdatedBy            pgtype.UUID        `json:"updated_by"`
 	DeletedAt            pgtype.Timestamptz `json:"deleted_at"`
 	Type                 string             `json:"type"`
+	PayerPendingUserID   pgtype.UUID        `json:"payer_pending_user_id"`
+	PayeePendingUserID   pgtype.UUID        `json:"payee_pending_user_id"`
+}
+
+type ThemePreset struct {
+	ID        pgtype.UUID        `json:"id"`
+	Slug      string             `json:"slug"`
+	Label     string             `json:"label"`
+	Family    string             `json:"family"`
+	IsActive  bool               `json:"is_active"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
 type TokenBlacklist struct {
@@ -241,4 +253,27 @@ type User struct {
 	CreatedAt       pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
 	DeletedAt       pgtype.Timestamptz `json:"deleted_at"`
+}
+
+type UserTheme struct {
+	ID             pgtype.UUID        `json:"id"`
+	UserID         pgtype.UUID        `json:"user_id"`
+	Name           string             `json:"name"`
+	BasePresetSlug string             `json:"base_preset_slug"`
+	FontFamilyKey  string             `json:"font_family_key"`
+	LightTokens    []byte             `json:"light_tokens"`
+	DarkTokens     []byte             `json:"dark_tokens"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt      pgtype.Timestamptz `json:"deleted_at"`
+}
+
+type UserThemePreference struct {
+	UserID            pgtype.UUID        `json:"user_id"`
+	ActiveType        string             `json:"active_type"`
+	ActivePresetSlug  pgtype.Text        `json:"active_preset_slug"`
+	ActiveUserThemeID pgtype.UUID        `json:"active_user_theme_id"`
+	Mode              string             `json:"mode"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
 }

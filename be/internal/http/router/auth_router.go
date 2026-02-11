@@ -20,13 +20,13 @@ func WithAuthRoutes(
 
 		r.Route("/auth", func(r chi.Router) {
 			// Public routes
-			r.Post("/login", middleware.ValidateBody[handlers.LoginRequest](v)(handlers.LoginHandler(authService)).ServeHTTP)
-			r.Post("/refresh", middleware.ValidateBody[handlers.RefreshTokenRequest](v)(handlers.RefreshTokenHandler(authService)).ServeHTTP)
+			r.Post("/login", middleware.ValidateBodyWithScope[handlers.LoginRequest](v, "auth")(handlers.LoginHandler(authService)).ServeHTTP)
+			r.Post("/refresh", middleware.ValidateBodyWithScope[handlers.RefreshTokenRequest](v, "auth")(handlers.RefreshTokenHandler(authService)).ServeHTTP)
 
 			// Protected routes
 			r.Group(func(r chi.Router) {
 				r.Use(middleware.RequireAuth(jwtService, sessionRepo))
-				r.Post("/logout", middleware.ValidateBody[handlers.LogoutRequest](v)(handlers.LogoutHandler(authService, jwtService)).ServeHTTP)
+				r.Post("/logout", middleware.ValidateBodyWithScope[handlers.LogoutRequest](v, "auth")(handlers.LogoutHandler(authService, jwtService)).ServeHTTP)
 				r.Post("/logout-all", handlers.LogoutAllHandler(authService))
 			})
 		})
